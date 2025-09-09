@@ -14,7 +14,7 @@
        FD USER-ACCOUNT-FILE.
        01 USER-ACCOUNT-REC.
            05 USER-NAME     PIC X(100).
-           05 USER-PASSWORD PIC X(12).
+           05 USER-PASSWORD PIC X(100).
 
        FD INPUT-FILE.
        01 INPUT-RECORD PIC X(100).
@@ -23,7 +23,7 @@
        01 DUMMY-USERS.
            05 DUMMY-ENTRY OCCURS 5 TIMES.
               10 D-USER-NAME     PIC X(100).
-              10 D-USER-PASSWORD PIC X(12).
+              10 D-USER-PASSWORD PIC X(100).
 
        01 I PIC 9 VALUE 1.
 
@@ -31,31 +31,33 @@
        MAIN-PARA.
            PERFORM INIT-DATA.
            PERFORM CREATE-USER-ACCOUNT-FILE.
-           PERFORM CREATE-INPUT-FILE.
+           *> PERFORM CREATE-INPUT-FILE.
            STOP RUN.
 
        INIT-DATA.
            MOVE "testuser1"  TO D-USER-NAME(1).
            MOVE "Password@1" TO D-USER-PASSWORD(1).
 
-           MOVE "seconduser" TO D-USER-NAME(2).
-           MOVE "P@ssword2!" TO D-USER-PASSWORD(2).
+           *> MOVE "seconduser" TO D-USER-NAME(2).
+           *> MOVE "P@ssword2!" TO D-USER-PASSWORD(2).
 
-           MOVE "thirduser"  TO D-USER-NAME(3).
-           MOVE "Hello@123"  TO D-USER-PASSWORD(3).
+           *> MOVE "thirduser"  TO D-USER-NAME(3).
+           *> MOVE "Hello@123"  TO D-USER-PASSWORD(3).
 
-           MOVE "fourthuser" TO D-USER-NAME(4).
-           MOVE "World@456"  TO D-USER-PASSWORD(4).
+           *> MOVE "fourthuser" TO D-USER-NAME(4).
+           *> MOVE "World@456"  TO D-USER-PASSWORD(4).
 
-           MOVE "fifthuser"  TO D-USER-NAME(5).
-           MOVE "Final@789"  TO D-USER-PASSWORD(5).
+           *> MOVE "fifthuser"  TO D-USER-NAME(5).
+           *> MOVE "Final@789"  TO D-USER-PASSWORD(5).
 
        CREATE-USER-ACCOUNT-FILE.
            OPEN OUTPUT USER-ACCOUNT-FILE
            PERFORM VARYING I FROM 1 BY 1 UNTIL I > 5
-               MOVE D-USER-NAME(I) TO USER-NAME
-               MOVE D-USER-PASSWORD(I) TO USER-PASSWORD
-               WRITE USER-ACCOUNT-REC
+               IF D-USER-NAME(I) NOT = SPACES
+                   MOVE D-USER-NAME(I) TO USER-NAME
+                   MOVE D-USER-PASSWORD(I) TO USER-PASSWORD
+                   WRITE USER-ACCOUNT-REC
+               END-IF
            END-PERFORM
            CLOSE USER-ACCOUNT-FILE.
 
