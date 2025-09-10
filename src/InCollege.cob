@@ -82,6 +82,16 @@ WORKING-STORAGE SECTION.
 01 WS-FIND-SOMEONE-MSG PIC X(28) VALUE 'Find someone you know'.
 01 WS-LEARN-SKILL-MSG PIC X(28) VALUE 'Learn a new skill'.
 01 WS-SEARCH-JOB-MSG PIC X(28) VALUE 'Search for a job'.
+01 WS-UC-JOB-MSG PIC X(60) VALUE 'Job search/internship is under construction.'.
+01 WS-UC-FIND-MSG PIC X(60) VALUE 'Find someone you know is under construction.'.
+01 WS-LEARN-SKILL-HEADER PIC X(22) VALUE 'Learn a New Skill:'.
+01 WS-SKILL-1 PIC X(10) VALUE 'Skill 1'.
+01 WS-SKILL-2 PIC X(10) VALUE 'Skill 2'.
+01 WS-SKILL-3 PIC X(10) VALUE 'Skill 3'.
+01 WS-SKILL-4 PIC X(10) VALUE 'Skill 4'.
+01 WS-SKILL-5 PIC X(10) VALUE 'Skill 5'.
+01 WS-GO-BACK PIC X(10) VALUE 'Go Back'.
+01 WS-SKILL-UC-MSG PIC X(60) VALUE 'This skill is under construction.'.
 01 WS-INVALID-LOGIN-MSG PIC X(50) VALUE 'Incorrect username/password, please try again'.
 01 WS-MAX-ACCOUNTS-MSG PIC X(100) VALUE 'All permitted accounts have been created, please come back later'.
 01 WS-PASSWORD-TOO-SHORT PIC X(60) VALUE 'Password must be at least 8 characters long.'.
@@ -343,18 +353,71 @@ PROCEDURE DIVISION.
        END-IF.
 
 5000-POST-LOGIN-MENU.
-*>----------------------------------------------------------------
-*> THE NEXT DEVELOPER CAN IMPLEMENT THE POST-LOGIN MENU LOGIC
-*> HERE BASED ON THE REQUIREMENTS DOCUMENT. THIS SECTION SHOULD
-*> DISPLAY OPTIONS FOR:
-*> - Find someone you know
-*> - Learn a new skill
-*> - Search for a job
-*> AND HANDLE THE USER'S CHOICE ACCORDINGLY.
-*>----------------------------------------------------------------
-    MOVE "--- POST-LOGIN MENU (UNDER CONSTRUCTION) ---"
-        TO DISPLAY-MSG.
-    PERFORM 8000-DISPLAY-ROUTINE.
+       PERFORM UNTIL WS-USER-WANT-TO-EXIT
+           MOVE WS-SEARCH-JOB-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-FIND-SOMEONE-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-LEARN-SKILL-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           READ INPUT-FILE INTO WS-INPUT-CHOICE
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                       EXIT PERFORM
+           END-READ
+
+           EVALUATE WS-INPUT-CHOICE
+               WHEN "1"
+                   MOVE WS-UC-JOB-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               WHEN "2"
+                   MOVE WS-UC-FIND-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               WHEN "3"
+                   PERFORM 5100-LEARN-SKILL-SUBMENU
+               WHEN OTHER
+                   MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+           END-EVALUATE
+       END-PERFORM.
+
+5100-LEARN-SKILL-SUBMENU.
+       PERFORM WITH TEST AFTER UNTIL WS-USER-WANT-TO-EXIT
+           MOVE WS-LEARN-SKILL-HEADER TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-SKILL-1 TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-SKILL-2 TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-SKILL-3 TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-SKILL-4 TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-SKILL-5 TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-GO-BACK TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           READ INPUT-FILE INTO WS-INPUT-CHOICE
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                       EXIT PARAGRAPH
+           END-READ
+
+           EVALUATE WS-INPUT-CHOICE
+               WHEN "1" THRU "5"
+                   MOVE WS-SKILL-UC-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               WHEN "6"
+                   EXIT PARAGRAPH
+               WHEN OTHER
+                   MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+           END-EVALUATE
+       END-PERFORM.
 8000-DISPLAY-ROUTINE.
        DISPLAY DISPLAY-MSG.
        MOVE DISPLAY-MSG TO OUTPUT-RECORD.
