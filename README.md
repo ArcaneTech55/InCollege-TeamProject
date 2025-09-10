@@ -34,3 +34,98 @@ At this stage, all development should be done inside a **Docker container** for 
     ```
 
     VS Code will rebuild and reopen the project inside the configured Docker container.
+
+---
+
+## Build (Compile) the COBOL programs
+
+We use GnuCOBOL inside the dev container.
+
+1. Create a `bin` directory for compiled executables:
+   ```bash
+   mkdir -p bin
+   ```
+
+2. Compile the main program (`src/InCollege.cob`):
+   ```bash
+   cobc -x -free -std=cobol2014 -Wall -o InCollege InCollege.cob
+   ```
+
+---
+
+## Prepare input and data files
+
+- The program reads user input from a text file named `InCollege-Input.txt` in the project root.
+- Program output is displayed on-screen and also written to `InCollege-Output.txt` in the project root.
+- User accounts are persisted in `USER-ACCOUNT.DAT` (created/updated in the project root).
+
+You have two options to have valid accounts available for login:
+
+1) Seed accounts using the sample account generator:
+   ```bash
+   ./bin/create_sample_account_file
+   ```
+   This will create or update `USER-ACCOUNT.DAT` with sample accounts.
+
+2) Or create an account through the main app by providing appropriate inputs in `InCollege-Input.txt` (choose "Create New Account" at the main menu, then provide username and password that meet the requirements below).
+
+### Password requirements
+- 8–12 characters in length
+- At least one capital letter (A–Z)
+- At least one digit (0–9)
+- At least one special character from: `! @ # $ % ^ & * ( )`
+
+### Example `InCollege-Input.txt`
+Below is an example that:
+- Logs in to an existing user `stduser` with password `ValidPass1!`
+- Exercises post-login options (Search job, Find someone), opens Learn a new skill, selects a skill, then returns.
+
+```text
+1
+stduser
+ValidPass1!
+1
+2
+3
+1
+6
+```
+
+If you need to create the user first, your input should start with creating an account (option `2`) before logging in, for example:
+
+```text
+2
+stduser
+ValidPass1!
+1
+stduser
+ValidPass1!
+```
+
+Save your desired sequence to `InCollege-Input.txt` before running the program.
+
+---
+
+## Run the program
+
+Run the compiled executable from the project root:
+```bash
+./bin/InCollege
+```
+
+The program will:
+- Read all inputs from `InCollege-Input.txt`
+- Display all prompts/messages on the console
+- Write the exact same prompts/messages to `InCollege-Output.txt`
+
+If `InCollege-Input.txt` is exhausted (EOF), the program exits gracefully.
+
+---
+
+## Where to find outputs and data
+- Input file: `InCollege-Input.txt`
+- Console output: printed during execution
+- Output mirror file: `InCollege-Output.txt`
+- Persistent accounts file: `USER-ACCOUNT.DAT`
+
+All of the above are located in the project root.
