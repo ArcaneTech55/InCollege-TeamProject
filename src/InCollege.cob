@@ -11,11 +11,13 @@ FILE-CONTROL.
        SELECT USER-ACCOUNT-FILE ASSIGN TO "USER-ACCOUNT.DAT"
            ORGANIZATION IS SEQUENTIAL
            FILE STATUS IS WS-USER-FILE-STATUS.
-*> NEW
        SELECT USER-PROFILE-FILE ASSIGN TO "USER-PROFILE.DAT"
            ORGANIZATION IS SEQUENTIAL
            FILE STATUS IS WS-PROFILE-FILE-STATUS.
-*> -----------------
+
+       SELECT TEMP-PROFILE-FILE ASSIGN TO "TEMP-PROFILE.DAT"
+           ORGANIZATION IS SEQUENTIAL
+           FILE STATUS IS WS-TEMP-PROFILE-FILE-STATUS.
 
 DATA DIVISION.
 FILE SECTION.
@@ -30,7 +32,6 @@ FD USER-ACCOUNT-FILE.
        05 USER-NAME     PIC X(100).
        05 USER-PASSWORD PIC X(100).
 
-*> NEW
 FD USER-PROFILE-FILE.
 01 USER-PROFILE-REC.
        05 UP-USER-NAME   PIC X(100).
@@ -38,9 +39,24 @@ FD USER-PROFILE-FILE.
        05 UP-LAST-NAME   PIC X(30).
        05 UP-UNIVERSITY  PIC X(40).
        05 UP-MAJOR       PIC X(40).
-       05 UP-GRAD-MONTH  PIC 99.
-       05 UP-GRAD-YEAR   PIC 9999.
-*> -----------------
+       05 UP-GRAD-YEAR   PIC 9(4).
+       05 UP-ABOUT-ME    PIC X(200).
+       05 UP-NUM-EXP     PIC 9.
+       05 UP-EXPERIENCE-TABLE.
+           10 UP-EXPERIENCE-ENTRY OCCURS 3 TIMES.
+               15 UP-EXP-TITLE     PIC X(100).
+               15 UP-EXP-COMPANY   PIC X(100).
+               15 UP-EXP-DATE      PIC X(50).
+               15 UP-EXP-DESC      PIC X(100).
+       05 UP-NUM-EDU     PIC 9.
+       05 UP-EDUCATION-TABLE.
+           10 UP-EDUCATION-ENTRY OCCURS 3 TIMES.
+               15 UP-EDU-DEGREE    PIC X(100).
+               15 UP-EDU-UNI       PIC X(100).
+               15 UP-EDU-YEARS     PIC X(50).
+
+FD TEMP-PROFILE-FILE.
+01 TEMP-PROFILE-REC       PIC X(3000).
 
 WORKING-STORAGE SECTION.
 01 WS-FLAGS.
@@ -66,16 +82,16 @@ WORKING-STORAGE SECTION.
        05 WS-USER-FILE-STATUS    PIC XX VALUE "00".
        05 WS-CUR-CHAR            PIC X.
 
-*> NEW
        05 WS-PROFILE-FILE-STATUS PIC XX VALUE "00".
-       05 WS-FOUND-PROFILE       PIC X VALUE 'N'.
+       05 WS-TEMP-PROFILE-FILE-STATUS PIC XX VALUE "00".
+       05 WS-FOUND-PROFILE            PIC X VALUE 'N'.
               88 WS-PROFILE-FOUND      VALUE 'Y'.
               88 WS-PROFILE-NOT-FOUND  VALUE 'N'.
-*> -----------------
 
 01 WS-COUNTERS.
        05 WS-USER-ACCOUNT-COUNT PIC 99 VALUE 0.
        05 I                     PIC 99.
+       05 J                     PIC 99.
 
 01 WS-USER-ACCOUNT-TABLE.
        05 WS-USER OCCURS 5 TIMES INDEXED BY IDX.
@@ -87,17 +103,31 @@ WORKING-STORAGE SECTION.
        05 WS-INPUT-USERNAME PIC X(100).
        05 WS-INPUT-PASSWORD PIC X(100).
 
-*> NEW
-01 WS-PROFILE-INPUTS.
-       05 WS-FIRST-NAME  PIC X(30).
-       05 WS-LAST-NAME   PIC X(30).
-       05 WS-UNIVERSITY  PIC X(40).
-       05 WS-MAJOR       PIC X(40).
-       05 WS-GRAD-MONTH  PIC 99.
-       05 WS-GRAD-YEAR   PIC 9999.
+01 WS-USER-PROFILE-REC.
+    05 WS-PROFILE-USERNAME   PIC X(100).
+    05 WS-FIRST-NAME         PIC X(30).
+    05 WS-LAST-NAME          PIC X(30).
+    05 WS-UNIVERSITY         PIC X(40).
+    05 WS-MAJOR              PIC X(40).
+    05 WS-GRAD-YEAR          PIC 9(4).
+    05 WS-ABOUT-ME           PIC X(200).
+    05 WS-NUM-EXP            PIC 9.
+    05 WS-EXPERIENCE-TABLE.
+       10 WS-EXPERIENCE-ENTRY OCCURS 3 TIMES.
+          15 WS-EXP-TITLE       PIC X(100).
+          15 WS-EXP-COMPANY     PIC X(100).
+          15 WS-EXP-DATES       PIC X(50).
+          15 WS-EXP-DESCRIPTION PIC X(100).
+    05 WS-NUM-EDU            PIC 9.
+    05 WS-EDUCATION-TABLE.
+       10 WS-EDUCATION-ENTRY OCCURS 3 TIMES.
+          15 WS-EDU-DEGREE      PIC X(100).
+          15 WS-EDU-UNIVERSITY  PIC X(100).
+          15 WS-EDU-YEARS       PIC X(50).
 
+*> Add a generic input field for loops
+01 WS-GENERIC-INPUT          PIC X(100).
 01 WS-CURRENT-USER PIC X(100) VALUE SPACES.
-*> -----------------
 
 01 WS-VALIDATION-FIELDS.
        05 WS-PASSWORD-LENGTH PIC 999.
@@ -106,7 +136,7 @@ WORKING-STORAGE SECTION.
        05 WS-HAS-SPECIAL     PIC X.
        05 WS-SPECIAL-CHARS   PIC X(10) VALUE "!@#$%^&*()".
 
-01 DISPLAY-MSG              PIC X(100) VALUE SPACES.
+01 DISPLAY-MSG              PIC X(300) VALUE SPACES.
 01 WS-WELCOME-MSG           PIC X(25)  VALUE 'Welcome to InCollege!'.
 01 WS-PROMPT-LOGIN          PIC X(28)  VALUE 'Log In'.
 01 WS-PROMPT-REGISTER       PIC X(28)  VALUE 'Create New Account'.
@@ -114,9 +144,9 @@ WORKING-STORAGE SECTION.
 01 WS-PROMPT-USERNAME       PIC X(28)  VALUE 'Please enter your username:'.
 01 WS-PROMPT-PASSWORD       PIC X(28)  VALUE 'Please enter your password:'.
 01 WS-SUCCESSFUL-LOGIN-MSG  PIC X(50)  VALUE 'You have successfully logged in.'.
-01 WS-FIND-SOMEONE-MSG      PIC X(28)  VALUE 'Find someone you know'.
-01 WS-LEARN-SKILL-MSG       PIC X(28)  VALUE 'Learn a new skill'.
-01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE 'Search for a job'.
+01 WS-FIND-SOMEONE-MSG      PIC X(28)  VALUE '1. Find someone you know'.
+01 WS-LEARN-SKILL-MSG       PIC X(28)  VALUE '2. Learn a new skill'.
+01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE '3. Search for a job'.
 01 WS-UC-JOB-MSG            PIC X(60)  VALUE 'Job search/internship is under construction.'.
 01 WS-UC-FIND-MSG           PIC X(60)  VALUE 'Find someone you know is under construction.'.
 01 WS-LEARN-SKILL-HEADER    PIC X(22)  VALUE 'Learn a New Skill:'.
@@ -137,21 +167,24 @@ WORKING-STORAGE SECTION.
 01 WS-INVALID-CHOICE        PIC X(60)  VALUE 'Invalid choice. Please try again.'.
 01 WS-DUPLICATE-USERNAME-MSG PIC X(100) VALUE 'This username already exists. Please try another.'.
 
-*> NEW
+*> PROFILE
 01 WS-BLANK-INPUT-MSG       PIC X(60) VALUE 'Input cannot be blank. Please enter a value.'.
-01 WS-PROFILE-MENU-VIEW     PIC X(30) VALUE 'View My Profile'.
-01 WS-PROFILE-MENU-EDIT     PIC X(30) VALUE 'Complete My Profile'.
-01 WS-PROFILE-NOTFOUND-MSG  PIC X(60) VALUE 'No profile found. Use "Complete My Profile" first.'.
+01 WS-PROFILE-MENU-VIEW     PIC X(30) VALUE '5. View My Profile'.
+01 WS-PROFILE-MENU-EDIT     PIC X(30) VALUE '4. Create/Edit My Profile'.
+01 WS-PROFILE-NOTFOUND-MSG  PIC X(60) VALUE 'No profile found. Use "Create/Edit My Profile" first.'.
 01 WS-PROFILE-SAVED-MSG     PIC X(60) VALUE 'Profile saved successfully.'.
 01 WS-NAME-INVALID-MSG      PIC X(60) VALUE 'Names must be letters only (A-Z).'.
-01 WS-GRAD-MONTH-INVALID    PIC X(60) VALUE 'Graduation month must be 1-12.'.
 01 WS-GRAD-YEAR-INVALID     PIC X(60) VALUE 'Graduation year must be 1900-2100.'.
+01 WS-CREATE-EDIT-PROMPT    PIC X(100) VALUE '--- Create/Edit Profile ---'.
 01 WS-ENTER-FIRST           PIC X(40) VALUE 'Enter First Name:'.
 01 WS-ENTER-LAST            PIC X(40) VALUE 'Enter Last Name:'.
 01 WS-ENTER-UNIV            PIC X(40) VALUE 'Enter University:'.
 01 WS-ENTER-MAJOR           PIC X(40) VALUE 'Enter Major:'.
-01 WS-ENTER-GM              PIC X(40) VALUE 'Enter Grad Month (1-12):'.
 01 WS-ENTER-GY              PIC X(40) VALUE 'Enter Grad Year (YYYY):'.
+01 WS-ENTER-ABOUT-ME        PIC X(200) VALUE 'Enter About Me (optional, max 200 chars, enter blank line to skip): '.
+01 WS-ENTER-EXP             PIC X(200) VALUE 'Add Experience (optional, max 3 entries. Enter DONE to finish): '.
+01 WS-ENTER-EDU             PIC X(200) VALUE 'Add Education (optional, max 3 entries. Enter DONE to finish): '.
+01 WS-SUCCESSFUL-PROFILE-SAVE  PIC X(100)  VALUE 'Profile saved successfully!'.
 01 WS-TEMP-FIELD            PIC X(100).
 *> -----------------
 
@@ -203,16 +236,6 @@ PROCEDURE DIVISION.
            END-READ
        END-PERFORM.
 
-1110-CREATE-USER-ACCOUNT-FILE.
-       CLOSE USER-ACCOUNT-FILE
-       OPEN OUTPUT USER-ACCOUNT-FILE
-       IF WS-USER-FILE-STATUS NOT = "00"
-           DISPLAY "Failed to create USER-ACCOUNT-FILE."
-           STOP RUN
-       END-IF
-       CLOSE USER-ACCOUNT-FILE
-       OPEN I-O USER-ACCOUNT-FILE.
-
 2000-SHOW-MENU.
        MOVE WS-WELCOME-MSG TO DISPLAY-MSG
        PERFORM 8000-DISPLAY-ROUTINE
@@ -249,14 +272,13 @@ PROCEDURE DIVISION.
                AT END SET WS-USER-WANT-TO-EXIT TO TRUE
                     EXIT PERFORM
            END-READ
-*> NEW  (blank username check)
+
            MOVE WS-INPUT-USERNAME TO WS-TEMP-FIELD
            PERFORM 1200-ENSURE-NOT-BLANK
            IF DISPLAY-MSG NOT = SPACES
               PERFORM 8000-DISPLAY-ROUTINE
               EXIT PERFORM
            END-IF
-*> -----------------
 
            MOVE WS-PROMPT-PASSWORD TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
@@ -264,14 +286,13 @@ PROCEDURE DIVISION.
                AT END SET WS-USER-WANT-TO-EXIT TO TRUE
                     EXIT PERFORM
            END-READ
-*> NEW  (blank password check)
+
            MOVE WS-INPUT-PASSWORD TO WS-TEMP-FIELD
            PERFORM 1200-ENSURE-NOT-BLANK
            IF DISPLAY-MSG NOT = SPACES
               PERFORM 8000-DISPLAY-ROUTINE
               EXIT PERFORM
            END-IF
-*> -----------------
 
            PERFORM VARYING IDX FROM 1 BY 1
                    UNTIL IDX > WS-USER-ACCOUNT-COUNT
@@ -293,9 +314,9 @@ PROCEDURE DIVISION.
                       DELIMITED BY SIZE
                       INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
-*> NEW  (remember current user)
+
                MOVE WS-INPUT-USERNAME TO WS-CURRENT-USER
-*> -----------------
+
                PERFORM 5000-POST-LOGIN-MENU
                SET WS-USER-WANT-TO-EXIT TO TRUE
            ELSE
@@ -320,14 +341,14 @@ PROCEDURE DIVISION.
            AT END SET WS-USER-WANT-TO-EXIT TO TRUE
                 EXIT PARAGRAPH
        END-READ
-*> NEW (blank username)
+
+       *> Ensure No Blank Username
        MOVE WS-INPUT-USERNAME TO WS-TEMP-FIELD
        PERFORM 1200-ENSURE-NOT-BLANK
        IF DISPLAY-MSG NOT = SPACES
           PERFORM 8000-DISPLAY-ROUTINE
           EXIT PARAGRAPH
        END-IF
-*> -----------------
 
        *> Check for duplicate username
        PERFORM VARYING IDX FROM 1 BY 1
@@ -346,14 +367,14 @@ PROCEDURE DIVISION.
            AT END SET WS-USER-WANT-TO-EXIT TO TRUE
                 EXIT PARAGRAPH
        END-READ
-*> NEW (blank password)
+
+       *> Ensure No Blank Password
        MOVE WS-INPUT-PASSWORD TO WS-TEMP-FIELD
        PERFORM 1200-ENSURE-NOT-BLANK
        IF DISPLAY-MSG NOT = SPACES
           PERFORM 8000-DISPLAY-ROUTINE
           EXIT PARAGRAPH
        END-IF
-*> -----------------
 
        PERFORM 4100-VALIDATE-PASSWORD
 
@@ -458,18 +479,16 @@ PROCEDURE DIVISION.
 
 5000-POST-LOGIN-MENU.
        PERFORM UNTIL WS-USER-WANT-TO-EXIT
-           MOVE WS-SEARCH-JOB-MSG TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
            MOVE WS-FIND-SOMEONE-MSG TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
            MOVE WS-LEARN-SKILL-MSG TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
-*> NEW (add profile options)
-           MOVE WS-PROFILE-MENU-VIEW TO DISPLAY-MSG
+           MOVE WS-SEARCH-JOB-MSG TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
            MOVE WS-PROFILE-MENU-EDIT TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
-*> -----------------
+           MOVE WS-PROFILE-MENU-VIEW TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
            MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
 
@@ -487,12 +506,10 @@ PROCEDURE DIVISION.
                    PERFORM 8000-DISPLAY-ROUTINE
                WHEN "3"
                    PERFORM 5100-LEARN-SKILL-SUBMENU
-*> NEW (new choices)
                WHEN "4"
-                   PERFORM 6000-VIEW-MY-PROFILE
+                   PERFORM 6100-CREATE-EDIT-PROFILE
                WHEN "5"
-                   PERFORM 6100-COMPLETE-MY-PROFILE
-*> -----------------
+                   PERFORM 6000-VIEW-MY-PROFILE
                WHEN OTHER
                    MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
@@ -546,161 +563,317 @@ PROCEDURE DIVISION.
 
 *> NEW
 6000-VIEW-MY-PROFILE.
-       SET WS-PROFILE-NOT-FOUND TO TRUE
-       *> Rewind file by re-opening at start
-       CLOSE USER-PROFILE-FILE
-       OPEN INPUT USER-PROFILE-FILE
+    SET WS-PROFILE-NOT-FOUND TO TRUE.
+    *> Rewind file by re-opening at start
+    CLOSE USER-PROFILE-FILE.
+    OPEN INPUT USER-PROFILE-FILE.
 
-       SET WS-NOT-EOF-FLAG TO TRUE
-       PERFORM UNTIL WS-EOF-FLAG
-           READ USER-PROFILE-FILE
-               AT END
-                   SET WS-EOF-FLAG TO TRUE
-               NOT AT END
-                   IF FUNCTION TRIM(UP-USER-NAME) =
-                      FUNCTION TRIM(WS-CURRENT-USER)
-                       SET WS-PROFILE-FOUND TO TRUE
-                       EXIT PERFORM
-                   END-IF
-           END-READ
-       END-PERFORM
+    SET WS-NOT-EOF-FLAG TO TRUE.
+    PERFORM UNTIL WS-EOF-FLAG
+        READ USER-PROFILE-FILE
+            AT END
+                SET WS-EOF-FLAG TO TRUE
+            NOT AT END
+                IF FUNCTION TRIM(UP-USER-NAME) =
+                   FUNCTION TRIM(WS-CURRENT-USER)
+                    SET WS-PROFILE-FOUND TO TRUE
+                    EXIT PERFORM
+                END-IF
+    END-READ
+    END-PERFORM.
 
-       CLOSE USER-PROFILE-FILE
-       OPEN I-O USER-PROFILE-FILE
+    CLOSE USER-PROFILE-FILE.
+    OPEN I-O USER-PROFILE-FILE.
 
-       IF WS-PROFILE-FOUND
-           STRING "Profile for: "
-                  FUNCTION TRIM(UP-USER-NAME)
-                  DELIMITED BY SIZE
-                  INTO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+    IF WS-PROFILE-FOUND
+        *> --- Display the main profile information ---
+        MOVE "--- Your Profile ---" TO DISPLAY-MSG.
+        PERFORM 8000-DISPLAY-ROUTINE.
 
-           STRING "First Name: "
-                  FUNCTION TRIM(UP-FIRST-NAME)
-                  DELIMITED BY SIZE
-                  INTO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+        STRING "Name: " FUNCTION TRIM(UP-FIRST-NAME) " "
+               FUNCTION TRIM(UP-LAST-NAME)
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG.
+        PERFORM 8000-DISPLAY-ROUTINE.
 
-           STRING "Last  Name: "
-                  FUNCTION TRIM(UP-LAST-NAME)
-                  DELIMITED BY SIZE
-                  INTO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+        STRING "University: " FUNCTION TRIM(UP-UNIVERSITY)
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG.
+        PERFORM 8000-DISPLAY-ROUTINE.
 
-           STRING "University: "
-                  FUNCTION TRIM(UP-UNIVERSITY)
-                  DELIMITED BY SIZE
-                  INTO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+        STRING "Major: " FUNCTION TRIM(UP-MAJOR)
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG.
+        PERFORM 8000-DISPLAY-ROUTINE.
 
-           STRING "Major: "
-                  FUNCTION TRIM(UP-MAJOR)
-                  DELIMITED BY SIZE
-                  INTO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+        STRING "Graduation Year: " UP-GRAD-YEAR
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG.
+        PERFORM 8000-DISPLAY-ROUTINE.
 
-           MOVE SPACES TO DISPLAY-MSG
-           STRING "Graduation: "
-                  UP-GRAD-MONTH "/"
-                  UP-GRAD-YEAR
-                  DELIMITED BY SIZE
-                  INTO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
-       ELSE
-           MOVE WS-PROFILE-NOTFOUND-MSG TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
-       END-IF.
-*> -----------------
+        STRING "About Me: " FUNCTION TRIM(UP-ABOUT-ME)
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG.
+        PERFORM 8000-DISPLAY-ROUTINE.
 
-*> NEW
-6100-COMPLETE-MY-PROFILE.
-       MOVE WS-ENTER-FIRST TO DISPLAY-MSG
+        *> --- Display the Experience section if it exists ---
+        IF UP-NUM-EXP > 0
+            MOVE "Experience:" TO DISPLAY-MSG
+            PERFORM 8000-DISPLAY-ROUTINE
+            PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EXP
+                STRING "  Title: " FUNCTION TRIM(UP-EXP-TITLE(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  Company: " FUNCTION TRIM(UP-EXP-COMPANY(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  Dates: " FUNCTION TRIM(UP-EXP-DATE(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  Description: "
+                       FUNCTION TRIM(UP-EXP-DESC(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+            END-PERFORM
+        END-IF
+
+        *> --- Display the Education section if it exists ---
+        IF UP-NUM-EDU > 0
+            MOVE "Education:" TO DISPLAY-MSG
+            PERFORM 8000-DISPLAY-ROUTINE
+            PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EDU
+                STRING "  Degree: " FUNCTION TRIM(UP-EDU-DEGREE(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  University: " FUNCTION TRIM(UP-EDU-UNI(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  Years: " FUNCTION TRIM(UP-EDU-YEARS(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+            END-PERFORM
+    ELSE
+        MOVE WS-PROFILE-NOTFOUND-MSG TO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+    END-IF.
+
+6100-CREATE-EDIT-PROFILE.
+       MOVE WS-CREATE-EDIT-PROMPT TO DISPLAY-MSG
        PERFORM 8000-DISPLAY-ROUTINE
-       READ INPUT-FILE INTO WS-FIRST-NAME
-           AT END EXIT PARAGRAPH
-       END-READ
-       MOVE WS-FIRST-NAME TO WS-TEMP-FIELD
-       PERFORM 1200-ENSURE-NOT-BLANK
-       IF DISPLAY-MSG NOT = SPACES
-           PERFORM 8000-DISPLAY-ROUTINE
+
+       PERFORM 6105-GET-REQUIRED-FIELDS
+       IF WS-USER-WANT-TO-EXIT
            EXIT PARAGRAPH
        END-IF
-
-       MOVE WS-ENTER-LAST TO DISPLAY-MSG
-       PERFORM 8000-DISPLAY-ROUTINE
-       READ INPUT-FILE INTO WS-LAST-NAME
-           AT END EXIT PARAGRAPH
-       END-READ
-       MOVE WS-LAST-NAME TO WS-TEMP-FIELD
-       PERFORM 1200-ENSURE-NOT-BLANK
-       IF DISPLAY-MSG NOT = SPACES
-           PERFORM 8000-DISPLAY-ROUTINE
-           EXIT PARAGRAPH
-       END-IF
-
-       MOVE WS-ENTER-UNIV TO DISPLAY-MSG
-       PERFORM 8000-DISPLAY-ROUTINE
-       READ INPUT-FILE INTO WS-UNIVERSITY
-           AT END EXIT PARAGRAPH
-       END-READ
-       MOVE WS-UNIVERSITY TO WS-TEMP-FIELD
-       PERFORM 1200-ENSURE-NOT-BLANK
-       IF DISPLAY-MSG NOT = SPACES
-           PERFORM 8000-DISPLAY-ROUTINE
-           EXIT PARAGRAPH
-       END-IF
-
-       MOVE WS-ENTER-MAJOR TO DISPLAY-MSG
-       PERFORM 8000-DISPLAY-ROUTINE
-       READ INPUT-FILE INTO WS-MAJOR
-           AT END EXIT PARAGRAPH
-       END-READ
-       MOVE WS-MAJOR TO WS-TEMP-FIELD
-       PERFORM 1200-ENSURE-NOT-BLANK
-       IF DISPLAY-MSG NOT = SPACES
-           PERFORM 8000-DISPLAY-ROUTINE
-           EXIT PARAGRAPH
-       END-IF
-
-       MOVE WS-ENTER-GM TO DISPLAY-MSG
-       PERFORM 8000-DISPLAY-ROUTINE
-       READ INPUT-FILE INTO WS-GRAD-MONTH
-           AT END EXIT PARAGRAPH
-       END-READ
-
-       MOVE WS-ENTER-GY TO DISPLAY-MSG
-       PERFORM 8000-DISPLAY-ROUTINE
-       READ INPUT-FILE INTO WS-GRAD-YEAR
-           AT END EXIT PARAGRAPH
-       END-READ
 
        PERFORM 6200-VALIDATE-PROFILE-FIELDS
-       IF DISPLAY-MSG NOT = SPACES
-           PERFORM 8000-DISPLAY-ROUTINE
+       
+       PERFORM 6106-GET-ABOUT-ME
+       IF WS-USER-WANT-TO-EXIT
            EXIT PARAGRAPH
        END-IF
 
-       MOVE WS-CURRENT-USER TO UP-USER-NAME
-       MOVE WS-FIRST-NAME    TO UP-FIRST-NAME
-       MOVE WS-LAST-NAME     TO UP-LAST-NAME
-       MOVE WS-UNIVERSITY    TO UP-UNIVERSITY
-       MOVE WS-MAJOR         TO UP-MAJOR
-       MOVE WS-GRAD-MONTH    TO UP-GRAD-MONTH
-       MOVE WS-GRAD-YEAR     TO UP-GRAD-YEAR
+       PERFORM 6110-GET-OPTIONAL-EXP
+       IF WS-USER-WANT-TO-EXIT
+           EXIT PARAGRAPH
+       END-IF
 
-       CLOSE USER-PROFILE-FILE
-       OPEN EXTEND USER-PROFILE-FILE
-       WRITE USER-PROFILE-REC
-       CLOSE USER-PROFILE-FILE
-       OPEN I-O USER-PROFILE-FILE
+       PERFORM 6111-GET-OPTIONAL-EDU
+       IF WS-USER-WANT-TO-EXIT
+           EXIT PARAGRAPH
+       END-IF
 
-       MOVE WS-PROFILE-SAVED-MSG TO DISPLAY-MSG
-       PERFORM 8000-DISPLAY-ROUTINE.
-*> -----------------
+       PERFORM 6140-TRANSFER-DATA-TO-RECORD.
 
-*> NEW
+       PERFORM 6150-SAVE-OR-UPDATE-PROFILE.
+
+6105-GET-REQUIRED-FIELDS.
+    MOVE WS-ENTER-FIRST TO DISPLAY-MSG.
+    PERFORM 8000-DISPLAY-ROUTINE.
+    READ INPUT-FILE INTO WS-FIRST-NAME
+        AT END SET WS-USER-WANT-TO-EXIT TO TRUE.
+
+    MOVE WS-ENTER-LAST TO DISPLAY-MSG.
+    PERFORM 8000-DISPLAY-ROUTINE.
+    READ INPUT-FILE INTO WS-LAST-NAME
+        AT END SET WS-USER-WANT-TO-EXIT TO TRUE.
+
+    MOVE WS-ENTER-UNIV TO DISPLAY-MSG.
+    PERFORM 8000-DISPLAY-ROUTINE.
+    READ INPUT-FILE INTO WS-UNIVERSITY
+        AT END SET WS-USER-WANT-TO-EXIT TO TRUE.
+
+    MOVE WS-ENTER-MAJOR TO DISPLAY-MSG.
+    PERFORM 8000-DISPLAY-ROUTINE.
+    READ INPUT-FILE INTO WS-MAJOR
+        AT END SET WS-USER-WANT-TO-EXIT TO TRUE.
+
+    MOVE WS-ENTER-GY TO DISPLAY-MSG.
+    PERFORM 8000-DISPLAY-ROUTINE.
+    READ INPUT-FILE INTO WS-GRAD-YEAR
+        AT END SET WS-USER-WANT-TO-EXIT TO TRUE.
+
+6106-GET-ABOUT-ME.
+       MOVE WS-ENTER-ABOUT-ME TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       READ INPUT-FILE INTO WS-ABOUT-ME
+           AT END SET WS-USER-WANT-TO-EXIT TO TRUE.
+
+6110-GET-OPTIONAL-EXP.
+    MOVE 0 TO WS-NUM-EXP.
+    PERFORM VARYING J FROM 1 BY 1 UNTIL J > 3
+        MOVE WS-ENTER-EXP TO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+        READ INPUT-FILE INTO WS-GENERIC-INPUT
+            AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+        END-READ
+
+        IF FUNCTION TRIM(WS-GENERIC-INPUT) = "DONE"
+            EXIT PERFORM
+        END-IF
+
+        ADD 1 TO WS-NUM-EXP
+        MOVE WS-GENERIC-INPUT TO WS-EXP-TITLE(J)
+        STRING 'Experience #' J ' - Title: '
+            DELIMITED BY SIZE INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+
+           STRING "Experience #" J " - Company/Organization:"
+                DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           READ INPUT-FILE INTO WS-GENERIC-INPUT
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+           END-READ
+           MOVE WS-GENERIC-INPUT TO WS-EXP-COMPANY(J)
+
+           STRING "Experience #" J " - Dates (e.g., Summer 2024):"
+                DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           READ INPUT-FILE INTO WS-GENERIC-INPUT
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+           END-READ
+           MOVE WS-GENERIC-INPUT TO WS-EXP-DATES(J)
+
+           STRING "Experience #" J " - Description (optional):"
+                DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           READ INPUT-FILE INTO WS-GENERIC-INPUT
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+           END-READ
+           MOVE WS-GENERIC-INPUT TO WS-EXP-DESCRIPTION(J)
+
+    END-PERFORM.
+
+6111-GET-OPTIONAL-EDU.
+       MOVE 0 TO WS-NUM-EDU
+       PERFORM VARYING J FROM 1 BY 1 UNTIL J > 3
+           MOVE WS-ENTER-EDU TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           *> Start reading title
+           READ INPUT-FILE INTO WS-GENERIC-INPUT
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+           END-READ
+
+           IF FUNCTION TRIM(WS-GENERIC-INPUT) = 'DONE'
+               MOVE WS-GENERIC-INPUT TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               EXIT PERFORM
+           END-IF
+
+           ADD 1 TO WS-NUM-EDU
+
+           MOVE WS-GENERIC-INPUT TO WS-EDU-DEGREE(J)
+           STRING 'Education #' J ' - Degree: '
+                DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           STRING 'Education #' J ' - University/College:'
+                DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           READ INPUT-FILE INTO WS-GENERIC-INPUT
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+           END-READ
+           MOVE WS-GENERIC-INPUT TO WS-EDU-UNIVERSITY(J)
+
+           STRING 'Education #' J ' - Years Attended (e.g., 2023-2025):'
+                DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           READ INPUT-FILE INTO WS-GENERIC-INPUT
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+           END-READ
+           MOVE WS-GENERIC-INPUT TO WS-EDU-YEARS(J)
+       END-PERFORM.
+
+6140-TRANSFER-DATA-TO-RECORD.
+    MOVE WS-FIRST-NAME      TO WS-FIRST-NAME OF WS-USER-PROFILE-REC.
+    MOVE WS-LAST-NAME       TO WS-LAST-NAME OF WS-USER-PROFILE-REC.
+    MOVE WS-UNIVERSITY      TO WS-UNIVERSITY OF WS-USER-PROFILE-REC.
+    MOVE WS-MAJOR           TO WS-MAJOR OF WS-USER-PROFILE-REC.
+    MOVE WS-GRAD-YEAR       TO WS-GRAD-YEAR OF WS-USER-PROFILE-REC.
+    MOVE WS-ABOUT-ME        TO WS-ABOUT-ME OF WS-USER-PROFILE-REC.
+
+6150-SAVE-OR-UPDATE-PROFILE.
+    MOVE WS-CURRENT-USER TO WS-PROFILE-USERNAME OF WS-USER-PROFILE-REC.
+    SET WS-PROFILE-NOT-FOUND TO TRUE.
+
+    OPEN INPUT  USER-PROFILE-FILE.
+    OPEN OUTPUT TEMP-PROFILE-FILE.
+
+    *> --- Step 1: Read the original file and write to the temp file ---
+    SET WS-NOT-EOF-FLAG TO TRUE.
+    PERFORM UNTIL WS-EOF-FLAG
+        READ USER-PROFILE-FILE
+            AT END
+                SET WS-EOF-FLAG TO TRUE
+            NOT AT END
+                IF FUNCTION TRIM(UP-USER-NAME) = FUNCTION TRIM(WS-CURRENT-USER)
+                    *> This is the user we are updating. Write the NEW
+                    *> record from Working-Storage to the temp file.
+                    WRITE TEMP-PROFILE-REC FROM WS-USER-PROFILE-REC
+                    SET WS-PROFILE-FOUND TO TRUE
+                ELSE
+                    *> This is a different user. Copy their OLD
+                    *> record directly to the temp file.
+                    WRITE TEMP-PROFILE-REC FROM USER-PROFILE-REC
+                END-IF
+    END-PERFORM.
+
+    *> --- Step 2: If the user was not found, it's a new profile ---
+    IF WS-PROFILE-NOT-FOUND
+        *> Append the new record from Working-Storage to the temp file.
+        WRITE TEMP-PROFILE-REC FROM WS-USER-PROFILE-REC
+    END-IF.
+
+    CLOSE USER-PROFILE-FILE, TEMP-PROFILE-FILE.
+
+    *> --- Step 3: Copy the corrected temp file back to the original ---
+    OPEN INPUT  TEMP-PROFILE-FILE.
+    OPEN OUTPUT USER-PROFILE-FILE.
+    MOVE 'N' TO WS-END-OF-FILE.
+    PERFORM UNTIL WS-EOF-FLAG
+        READ TEMP-PROFILE-FILE INTO USER-PROFILE-REC
+            AT END
+                SET WS-EOF-FLAG TO TRUE
+            NOT AT END
+                WRITE USER-PROFILE-REC
+       END-READ
+    END-PERFORM.
+
+    CLOSE TEMP-PROFILE-FILE, USER-PROFILE-FILE.
+
+    *> Re-open for future use in the program
+    OPEN I-O USER-PROFILE-FILE.
+    MOVE WS-SUCCESSFUL-PROFILE-SAVE TO DISPLAY-MSG.
+    PERFORM 8000-DISPLAY-ROUTINE.
+
 6200-VALIDATE-PROFILE-FIELDS.
-       *> First name alpha-only
+       *> First name alphabet-only
        MOVE WS-FIRST-NAME TO WS-TEMP-FIELD
        PERFORM 6210-ALPHA-ONLY
        IF DISPLAY-MSG NOT = SPACES
@@ -708,17 +881,11 @@ PROCEDURE DIVISION.
            EXIT PARAGRAPH
        END-IF
 
-       *> Last name alpha-only
+       *> Last name alphabet-only
        MOVE WS-LAST-NAME TO WS-TEMP-FIELD
        PERFORM 6210-ALPHA-ONLY
        IF DISPLAY-MSG NOT = SPACES
            MOVE WS-NAME-INVALID-MSG TO DISPLAY-MSG
-           EXIT PARAGRAPH
-       END-IF
-
-       *> Grad month 1..12
-       IF WS-GRAD-MONTH < 1 OR WS-GRAD-MONTH > 12
-           MOVE WS-GRAD-MONTH-INVALID TO DISPLAY-MSG
            EXIT PARAGRAPH
        END-IF
 
@@ -731,7 +898,6 @@ PROCEDURE DIVISION.
        MOVE SPACES TO DISPLAY-MSG.
 *> -----------------
 
-*> NEW
 6210-ALPHA-ONLY.
        MOVE SPACES TO DISPLAY-MSG
        COMPUTE I = 1
@@ -761,7 +927,5 @@ PROCEDURE DIVISION.
        CLOSE INPUT-FILE
        CLOSE OUTPUT-FILE
        CLOSE USER-ACCOUNT-FILE
-*> NEW
        CLOSE USER-PROFILE-FILE
-*> -----------------
        EXIT.
