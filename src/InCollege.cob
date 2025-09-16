@@ -5,12 +5,17 @@ ENVIRONMENT DIVISION.
 INPUT-OUTPUT SECTION.
 FILE-CONTROL.
        SELECT INPUT-FILE ASSIGN TO "InCollege-Input.txt"
-           organization is line sequential.
+           ORGANIZATION IS LINE SEQUENTIAL.
        SELECT OUTPUT-FILE ASSIGN TO "InCollege-Output.txt"
-           organization is line sequential.
+           ORGANIZATION IS LINE SEQUENTIAL.
        SELECT USER-ACCOUNT-FILE ASSIGN TO "USER-ACCOUNT.DAT"
-           organization is sequential
+           ORGANIZATION IS SEQUENTIAL
            FILE STATUS IS WS-USER-FILE-STATUS.
+*> NEW
+       SELECT USER-PROFILE-FILE ASSIGN TO "USER-PROFILE.DAT"
+           ORGANIZATION IS SEQUENTIAL
+           FILE STATUS IS WS-PROFILE-FILE-STATUS.
+*> -----------------
 
 DATA DIVISION.
 FILE SECTION.
@@ -22,85 +27,133 @@ FD OUTPUT-FILE.
 
 FD USER-ACCOUNT-FILE.
 01 USER-ACCOUNT-REC.
-       05 USER-NAME PIC X(100).
+       05 USER-NAME     PIC X(100).
        05 USER-PASSWORD PIC X(100).
+
+*> NEW
+FD USER-PROFILE-FILE.
+01 USER-PROFILE-REC.
+       05 UP-USER-NAME   PIC X(100).
+       05 UP-FIRST-NAME  PIC X(30).
+       05 UP-LAST-NAME   PIC X(30).
+       05 UP-UNIVERSITY  PIC X(40).
+       05 UP-MAJOR       PIC X(40).
+       05 UP-GRAD-MONTH  PIC 99.
+       05 UP-GRAD-YEAR   PIC 9999.
+*> -----------------
 
 WORKING-STORAGE SECTION.
 01 WS-FLAGS.
        05 WS-END-OF-FILE PIC X VALUE 'N'.
-              88 WS-EOF-FLAG VALUE 'Y'.
-              88 WS-NOT-EOF-FLAG VALUE 'N'.
+              88 WS-EOF-FLAG      VALUE 'Y'.
+              88 WS-NOT-EOF-FLAG  VALUE 'N'.
 
        05 WS-LOGIN-FLAG PIC X.
-           88 WS-LOGIN-SUCCESSFUL VALUE 'Y'.
-           88 WS-LOGIN-FAILED VALUE 'N'.
+              88 WS-LOGIN-SUCCESSFUL VALUE 'Y'.
+              88 WS-LOGIN-FAILED     VALUE 'N'.
 
        05 WS-VALIDATION-FLAG PIC X.
-           88 WS-PASSWORD-IS-VALID VALUE 'Y'.
-           88 WS-PASSWORD-IS-INVALID VALUE 'N'.
+              88 WS-PASSWORD-IS-VALID   VALUE 'Y'.
+              88 WS-PASSWORD-IS-INVALID VALUE 'N'.
 
        05 WS-ACCOUNT-CREATED-FLAG PIC X.
-           88 WS-ACCOUNT-CREATED VALUE 'Y'.
-           88 WS-ACCOUNT-NOT-CREATED VALUE 'N'.
+              88 WS-ACCOUNT-CREATED     VALUE 'Y'.
+              88 WS-ACCOUNT-NOT-CREATED VALUE 'N'.
 
        05 WS-EXIT-STATUS PIC X VALUE 'N'.
               88 WS-USER-WANT-TO-EXIT VALUE 'Y'.
 
-       05 WS-USER-FILE-STATUS PIC XX VALUE "00".
-       05 WS-CUR-CHAR PIC X.
+       05 WS-USER-FILE-STATUS    PIC XX VALUE "00".
+       05 WS-CUR-CHAR            PIC X.
 
+*> NEW
+       05 WS-PROFILE-FILE-STATUS PIC XX VALUE "00".
+       05 WS-FOUND-PROFILE       PIC X VALUE 'N'.
+              88 WS-PROFILE-FOUND      VALUE 'Y'.
+              88 WS-PROFILE-NOT-FOUND  VALUE 'N'.
+*> -----------------
 
 01 WS-COUNTERS.
        05 WS-USER-ACCOUNT-COUNT PIC 99 VALUE 0.
-       05 I PIC 99.
+       05 I                     PIC 99.
 
 01 WS-USER-ACCOUNT-TABLE.
        05 WS-USER OCCURS 5 TIMES INDEXED BY IDX.
-           10 WS-USER-NAME PIC X(100).
+           10 WS-USER-NAME     PIC X(100).
            10 WS-USER-PASSWORD PIC X(100).
 
 01 WS-INPUT-VARIABLES.
-       05 WS-INPUT-CHOICE PIC X(1).
+       05 WS-INPUT-CHOICE   PIC X(1).
        05 WS-INPUT-USERNAME PIC X(100).
        05 WS-INPUT-PASSWORD PIC X(100).
 
-01 WS-VALIDATION-FIELDS.
-    05 WS-PASSWORD-LENGTH  PIC 999.
-    05 WS-HAS-CAPITAL      PIC X.
-    05 WS-HAS-DIGIT        PIC X.
-    05 WS-HAS-SPECIAL      PIC X.
-    05 WS-SPECIAL-CHARS    PIC X(10) VALUE "!@#$%^&*()".
+*> NEW
+01 WS-PROFILE-INPUTS.
+       05 WS-FIRST-NAME  PIC X(30).
+       05 WS-LAST-NAME   PIC X(30).
+       05 WS-UNIVERSITY  PIC X(40).
+       05 WS-MAJOR       PIC X(40).
+       05 WS-GRAD-MONTH  PIC 99.
+       05 WS-GRAD-YEAR   PIC 9999.
 
-01 DISPLAY-MSG PIC X(100) VALUE SPACES.
-01 WS-WELCOME-MSG PIC X(25) VALUE 'Welcome to InCollege!'.
-01 WS-PROMPT-LOGIN PIC X(28) VALUE 'Log In'.
-01 WS-PROMPT-REGISTER PIC X(28) VALUE 'Create New Account'.
-01 WS-PROMPT-CHOICE PIC X(20) VALUE 'Enter your choice:'.
-01 WS-PROMPT-USERNAME PIC X(28) VALUE 'Please enter your username:'.
-01 WS-PROMPT-PASSWORD PIC X(28) VALUE 'Please enter your password:'.
-01 WS-SUCCESSFUL-LOGIN-MSG PIC X(50) VALUE 'You have successfully logged in.'.
-01 WS-FIND-SOMEONE-MSG PIC X(28) VALUE 'Find someone you know'.
-01 WS-LEARN-SKILL-MSG PIC X(28) VALUE 'Learn a new skill'.
-01 WS-SEARCH-JOB-MSG PIC X(28) VALUE 'Search for a job'.
-01 WS-UC-JOB-MSG PIC X(60) VALUE 'Job search/internship is under construction.'.
-01 WS-UC-FIND-MSG PIC X(60) VALUE 'Find someone you know is under construction.'.
-01 WS-LEARN-SKILL-HEADER PIC X(22) VALUE 'Learn a New Skill:'.
-01 WS-SKILL-1 PIC X(10) VALUE 'Skill 1'.
-01 WS-SKILL-2 PIC X(10) VALUE 'Skill 2'.
-01 WS-SKILL-3 PIC X(10) VALUE 'Skill 3'.
-01 WS-SKILL-4 PIC X(10) VALUE 'Skill 4'.
-01 WS-SKILL-5 PIC X(10) VALUE 'Skill 5'.
-01 WS-GO-BACK PIC X(10) VALUE 'Go Back'.
-01 WS-SKILL-UC-MSG PIC X(60) VALUE 'This skill is under construction.'.
-01 WS-INVALID-LOGIN-MSG PIC X(50) VALUE 'Incorrect username/password, please try again'.
-01 WS-MAX-ACCOUNTS-MSG PIC X(100) VALUE 'All permitted accounts have been created, please come back later'.
-01 WS-PASSWORD-TOO-SHORT PIC X(60) VALUE 'Password must be at least 8 characters long.'.
-01 WS-PASSWORD-TOO-LONG PIC X(60) VALUE 'Password must be at most 12 characters long.'.
-01 WS-PASSWORD-NO-CAPITAL PIC X(60) VALUE 'Password must contain at least one capital letter.'.
-01 WS-PASSWORD-NO-DIGIT PIC X(60) VALUE 'Password must contain at least one digit.'.
-01 WS-PASSWORD-NO-SPECIAL PIC X(60) VALUE 'Password must contain at least one special character.'.
-01 WS-INVALID-CHOICE PIC X(60) VALUE 'Invalid choice. Please try again.'.
+01 WS-CURRENT-USER PIC X(100) VALUE SPACES.
+*> -----------------
+
+01 WS-VALIDATION-FIELDS.
+       05 WS-PASSWORD-LENGTH PIC 999.
+       05 WS-HAS-CAPITAL     PIC X.
+       05 WS-HAS-DIGIT       PIC X.
+       05 WS-HAS-SPECIAL     PIC X.
+       05 WS-SPECIAL-CHARS   PIC X(10) VALUE "!@#$%^&*()".
+
+01 DISPLAY-MSG              PIC X(100) VALUE SPACES.
+01 WS-WELCOME-MSG           PIC X(25)  VALUE 'Welcome to InCollege!'.
+01 WS-PROMPT-LOGIN          PIC X(28)  VALUE 'Log In'.
+01 WS-PROMPT-REGISTER       PIC X(28)  VALUE 'Create New Account'.
+01 WS-PROMPT-CHOICE         PIC X(20)  VALUE 'Enter your choice:'.
+01 WS-PROMPT-USERNAME       PIC X(28)  VALUE 'Please enter your username:'.
+01 WS-PROMPT-PASSWORD       PIC X(28)  VALUE 'Please enter your password:'.
+01 WS-SUCCESSFUL-LOGIN-MSG  PIC X(50)  VALUE 'You have successfully logged in.'.
+01 WS-FIND-SOMEONE-MSG      PIC X(28)  VALUE 'Find someone you know'.
+01 WS-LEARN-SKILL-MSG       PIC X(28)  VALUE 'Learn a new skill'.
+01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE 'Search for a job'.
+01 WS-UC-JOB-MSG            PIC X(60)  VALUE 'Job search/internship is under construction.'.
+01 WS-UC-FIND-MSG           PIC X(60)  VALUE 'Find someone you know is under construction.'.
+01 WS-LEARN-SKILL-HEADER    PIC X(22)  VALUE 'Learn a New Skill:'.
+01 WS-SKILL-1               PIC X(10)  VALUE 'Skill 1'.
+01 WS-SKILL-2               PIC X(10)  VALUE 'Skill 2'.
+01 WS-SKILL-3               PIC X(10)  VALUE 'Skill 3'.
+01 WS-SKILL-4               PIC X(10)  VALUE 'Skill 4'.
+01 WS-SKILL-5               PIC X(10)  VALUE 'Skill 5'.
+01 WS-GO-BACK               PIC X(10)  VALUE 'Go Back'.
+01 WS-SKILL-UC-MSG          PIC X(60)  VALUE 'This skill is under construction.'.
+01 WS-INVALID-LOGIN-MSG     PIC X(50)  VALUE 'Incorrect username/password, please try again'.
+01 WS-MAX-ACCOUNTS-MSG      PIC X(100) VALUE 'All permitted accounts have been created, please come back later'.
+01 WS-PASSWORD-TOO-SHORT    PIC X(60)  VALUE 'Password must be at least 8 characters long.'.
+01 WS-PASSWORD-TOO-LONG     PIC X(60)  VALUE 'Password must be at most 12 characters long.'.
+01 WS-PASSWORD-NO-CAPITAL   PIC X(60)  VALUE 'Password must contain at least one capital letter.'.
+01 WS-PASSWORD-NO-DIGIT     PIC X(60)  VALUE 'Password must contain at least one digit.'.
+01 WS-PASSWORD-NO-SPECIAL   PIC X(60)  VALUE 'Password must contain at least one special character.'.
+01 WS-INVALID-CHOICE        PIC X(60)  VALUE 'Invalid choice. Please try again.'.
 01 WS-DUPLICATE-USERNAME-MSG PIC X(100) VALUE 'This username already exists. Please try another.'.
+
+*> NEW
+01 WS-BLANK-INPUT-MSG       PIC X(60) VALUE 'Input cannot be blank. Please enter a value.'.
+01 WS-PROFILE-MENU-VIEW     PIC X(30) VALUE 'View My Profile'.
+01 WS-PROFILE-MENU-EDIT     PIC X(30) VALUE 'Complete My Profile'.
+01 WS-PROFILE-NOTFOUND-MSG  PIC X(60) VALUE 'No profile found. Use "Complete My Profile" first.'.
+01 WS-PROFILE-SAVED-MSG     PIC X(60) VALUE 'Profile saved successfully.'.
+01 WS-NAME-INVALID-MSG      PIC X(60) VALUE 'Names must be letters only (A-Z).'.
+01 WS-GRAD-MONTH-INVALID    PIC X(60) VALUE 'Graduation month must be 1-12.'.
+01 WS-GRAD-YEAR-INVALID     PIC X(60) VALUE 'Graduation year must be 1900-2100.'.
+01 WS-ENTER-FIRST           PIC X(40) VALUE 'Enter First Name:'.
+01 WS-ENTER-LAST            PIC X(40) VALUE 'Enter Last Name:'.
+01 WS-ENTER-UNIV            PIC X(40) VALUE 'Enter University:'.
+01 WS-ENTER-MAJOR           PIC X(40) VALUE 'Enter Major:'.
+01 WS-ENTER-GM              PIC X(40) VALUE 'Enter Grad Month (1-12):'.
+01 WS-ENTER-GY              PIC X(40) VALUE 'Enter Grad Year (YYYY):'.
+01 WS-TEMP-FIELD            PIC X(100).
+*> -----------------
 
 PROCEDURE DIVISION.
 
@@ -111,12 +164,10 @@ PROCEDURE DIVISION.
        STOP RUN.
 
 1000-INITIALIZE-PROGRAM.
-       OPEN INPUT INPUT-FILE.
+       OPEN INPUT  INPUT-FILE.
        OPEN OUTPUT OUTPUT-FILE.
 
        OPEN INPUT USER-ACCOUNT-FILE.
-
-       DISPLAY WS-USER-FILE-STATUS
        IF WS-USER-FILE-STATUS = "00"
            PERFORM 1100-LOAD-USER-ACCOUNT-TABLE
        ELSE
@@ -125,6 +176,18 @@ PROCEDURE DIVISION.
            CLOSE USER-ACCOUNT-FILE
            OPEN I-O USER-ACCOUNT-FILE
        END-IF.
+*> NEW  (ensure profile file exists and is open I-O)
+       OPEN INPUT USER-PROFILE-FILE
+       IF WS-PROFILE-FILE-STATUS NOT = "00"
+           CLOSE USER-PROFILE-FILE
+           OPEN OUTPUT USER-PROFILE-FILE
+           CLOSE USER-PROFILE-FILE
+           OPEN I-O USER-PROFILE-FILE
+       ELSE
+           CLOSE USER-PROFILE-FILE
+           OPEN I-O USER-PROFILE-FILE
+       END-IF.
+*> -----------------
 
 1100-LOAD-USER-ACCOUNT-TABLE.
        MOVE 0 TO WS-USER-ACCOUNT-COUNT
@@ -133,10 +196,11 @@ PROCEDURE DIVISION.
            READ USER-ACCOUNT-FILE
                AT END
                    SET WS-EOF-FLAG TO TRUE
-                NOT AT END
+               NOT AT END
                    ADD 1 TO WS-USER-ACCOUNT-COUNT
-                   MOVE USER-ACCOUNT-REC TO WS-USER(WS-USER-ACCOUNT-COUNT)
-            END-READ
+                   MOVE USER-ACCOUNT-REC
+                     TO WS-USER(WS-USER-ACCOUNT-COUNT)
+           END-READ
        END-PERFORM.
 
 1110-CREATE-USER-ACCOUNT-FILE.
@@ -150,16 +214,17 @@ PROCEDURE DIVISION.
        OPEN I-O USER-ACCOUNT-FILE.
 
 2000-SHOW-MENU.
-       MOVE WS-WELCOME-MSG TO DISPLAY-MSG.
-       PERFORM 8000-DISPLAY-ROUTINE.
-       MOVE WS-PROMPT-LOGIN TO DISPLAY-MSG.
-       PERFORM 8000-DISPLAY-ROUTINE.
-       MOVE WS-PROMPT-REGISTER TO DISPLAY-MSG.
-       PERFORM 8000-DISPLAY-ROUTINE.
-       MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG.
-       PERFORM 8000-DISPLAY-ROUTINE.
+       MOVE WS-WELCOME-MSG TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       MOVE WS-PROMPT-LOGIN TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       MOVE WS-PROMPT-REGISTER TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
        READ INPUT-FILE INTO WS-INPUT-CHOICE
-           AT END SET WS-USER-WANT-TO-EXIT TO TRUE.
+           AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+       END-READ
 
        IF NOT WS-USER-WANT-TO-EXIT
            EVALUATE WS-INPUT-CHOICE
@@ -173,69 +238,100 @@ PROCEDURE DIVISION.
                    MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
            END-EVALUATE
-        END-IF.
-
+       END-IF.
 
 3000-LOGIN-ROUTINE.
-       SET WS-LOGIN-FAILED TO TRUE.
+       SET WS-LOGIN-FAILED TO TRUE
        PERFORM UNTIL WS-LOGIN-SUCCESSFUL
            MOVE WS-PROMPT-USERNAME TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
            READ INPUT-FILE INTO WS-INPUT-USERNAME
-               AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                    EXIT PERFORM
            END-READ
+*> NEW  (blank username check)
+           MOVE WS-INPUT-USERNAME TO WS-TEMP-FIELD
+           PERFORM 1200-ENSURE-NOT-BLANK
+           IF DISPLAY-MSG NOT = SPACES
+              PERFORM 8000-DISPLAY-ROUTINE
+              EXIT PERFORM
+           END-IF
+*> -----------------
 
            MOVE WS-PROMPT-PASSWORD TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
            READ INPUT-FILE INTO WS-INPUT-PASSWORD
-               AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                    EXIT PERFORM
            END-READ
+*> NEW  (blank password check)
+           MOVE WS-INPUT-PASSWORD TO WS-TEMP-FIELD
+           PERFORM 1200-ENSURE-NOT-BLANK
+           IF DISPLAY-MSG NOT = SPACES
+              PERFORM 8000-DISPLAY-ROUTINE
+              EXIT PERFORM
+           END-IF
+*> -----------------
 
-           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > WS-USER-ACCOUNT-COUNT
+           PERFORM VARYING IDX FROM 1 BY 1
+                   UNTIL IDX > WS-USER-ACCOUNT-COUNT
                IF FUNCTION TRIM(WS-USER-NAME(IDX)) =
-                   FUNCTION TRIM(WS-INPUT-USERNAME) AND
-                   FUNCTION TRIM(WS-USER-PASSWORD(IDX)) =
-                   FUNCTION TRIM(WS-INPUT-PASSWORD)
-                       SET WS-LOGIN-SUCCESSFUL TO TRUE
-                       EXIT PERFORM
+                  FUNCTION TRIM(WS-INPUT-USERNAME)
+               AND FUNCTION TRIM(WS-USER-PASSWORD(IDX)) =
+                  FUNCTION TRIM(WS-INPUT-PASSWORD)
+                   SET WS-LOGIN-SUCCESSFUL TO TRUE
+                   EXIT PERFORM
                END-IF
            END-PERFORM
+
            IF WS-LOGIN-SUCCESSFUL
                MOVE WS-SUCCESSFUL-LOGIN-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
                STRING "Welcome, "
-                   FUNCTION TRIM(WS-INPUT-USERNAME)
-                   DELIMITED BY SIZE
-                   INTO DISPLAY-MSG
+                      FUNCTION TRIM(WS-INPUT-USERNAME)
+                      DELIMITED BY SIZE
+                      INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
-
+*> NEW  (remember current user)
+               MOVE WS-INPUT-USERNAME TO WS-CURRENT-USER
+*> -----------------
                PERFORM 5000-POST-LOGIN-MENU
                SET WS-USER-WANT-TO-EXIT TO TRUE
            ELSE
                MOVE WS-INVALID-LOGIN-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
-               EXIT PERFORM *> Go back to main menu after one failed attempt
+               EXIT PERFORM
            END-IF
        END-PERFORM.
 
 4000-CREATE-ACCOUNT-ROUTINE.
        IF WS-USER-ACCOUNT-COUNT >= 5
-        MOVE WS-MAX-ACCOUNTS-MSG TO DISPLAY-MSG
-        PERFORM 8000-DISPLAY-ROUTINE
-        EXIT PARAGRAPH
-       END-IF.
+           MOVE WS-MAX-ACCOUNTS-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           EXIT PARAGRAPH
+       END-IF
 
-       SET WS-ACCOUNT-NOT-CREATED TO TRUE.
+       SET WS-ACCOUNT-NOT-CREATED TO TRUE
 
        MOVE WS-PROMPT-USERNAME TO DISPLAY-MSG
        PERFORM 8000-DISPLAY-ROUTINE
        READ INPUT-FILE INTO WS-INPUT-USERNAME
-        AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PARAGRAPH
+           AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                EXIT PARAGRAPH
        END-READ
+*> NEW (blank username)
+       MOVE WS-INPUT-USERNAME TO WS-TEMP-FIELD
+       PERFORM 1200-ENSURE-NOT-BLANK
+       IF DISPLAY-MSG NOT = SPACES
+          PERFORM 8000-DISPLAY-ROUTINE
+          EXIT PARAGRAPH
+       END-IF
+*> -----------------
 
        *> Check for duplicate username
-       PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > WS-USER-ACCOUNT-COUNT
+       PERFORM VARYING IDX FROM 1 BY 1
+               UNTIL IDX > WS-USER-ACCOUNT-COUNT
            IF FUNCTION TRIM(WS-USER-NAME(IDX)) =
               FUNCTION TRIM(WS-INPUT-USERNAME)
                MOVE WS-DUPLICATE-USERNAME-MSG TO DISPLAY-MSG
@@ -243,75 +339,83 @@ PROCEDURE DIVISION.
                EXIT PARAGRAPH
            END-IF
        END-PERFORM
-       *> DISPLAY WS-INPUT-USERNAME
-       *> MOVE WS-INPUT-USERNAME TO OUTPUT-RECORD
-       *> WRITE OUTPUT-RECORD.
 
        MOVE WS-PROMPT-PASSWORD TO DISPLAY-MSG
        PERFORM 8000-DISPLAY-ROUTINE
        READ INPUT-FILE INTO WS-INPUT-PASSWORD
-        AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PARAGRAPH
+           AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                EXIT PARAGRAPH
        END-READ
-       *> DISPLAY WS-INPUT-PASSWORD
-       *> MOVE WS-INPUT-PASSWORD TO OUTPUT-RECORD
-       *> WRITE OUTPUT-RECORD.
+*> NEW (blank password)
+       MOVE WS-INPUT-PASSWORD TO WS-TEMP-FIELD
+       PERFORM 1200-ENSURE-NOT-BLANK
+       IF DISPLAY-MSG NOT = SPACES
+          PERFORM 8000-DISPLAY-ROUTINE
+          EXIT PARAGRAPH
+       END-IF
+*> -----------------
 
-       PERFORM 4100-VALIDATE-PASSWORD.
+       PERFORM 4100-VALIDATE-PASSWORD
 
        IF WS-PASSWORD-IS-VALID
-        ADD 1 TO WS-USER-ACCOUNT-COUNT
-        MOVE WS-INPUT-USERNAME TO WS-USER-NAME(WS-USER-ACCOUNT-COUNT)
-        MOVE WS-INPUT-PASSWORD TO WS-USER-PASSWORD(WS-USER-ACCOUNT-COUNT)
+           ADD 1 TO WS-USER-ACCOUNT-COUNT
+           MOVE WS-INPUT-USERNAME TO
+                WS-USER-NAME(WS-USER-ACCOUNT-COUNT)
+           MOVE WS-INPUT-PASSWORD TO
+                WS-USER-PASSWORD(WS-USER-ACCOUNT-COUNT)
 
-       *> temporarily close I-O mode to append new accounts
-        CLOSE USER-ACCOUNT-FILE
-        OPEN EXTEND USER-ACCOUNT-FILE
+           *> temporarily close I-O mode to append new accounts
+           CLOSE USER-ACCOUNT-FILE
+           OPEN EXTEND USER-ACCOUNT-FILE
 
-        IF WS-USER-FILE-STATUS = "00" OR WS-USER-FILE-STATUS = "05"
-           MOVE WS-USER(WS-USER-ACCOUNT-COUNT) TO USER-ACCOUNT-REC
-           WRITE USER-ACCOUNT-REC
-        ELSE
-           DISPLAY "SOMETHING WRONG WITH WRITING RECORDS " WS-USER-FILE-STATUS
-           STOP RUN
-        END-IF
+           IF WS-USER-FILE-STATUS = "00"
+            OR WS-USER-FILE-STATUS = "05"
+               MOVE WS-USER(WS-USER-ACCOUNT-COUNT)
+                 TO USER-ACCOUNT-REC
+               WRITE USER-ACCOUNT-REC
+           ELSE
+               DISPLAY "SOMETHING WRONG WITH WRITING RECORDS "
+                       WS-USER-FILE-STATUS
+               STOP RUN
+           END-IF
 
-       *> open back i-o mode for normal reading
-        CLOSE USER-ACCOUNT-FILE
-        OPEN I-O USER-ACCOUNT-FILE
+           *> open back i-o mode for normal reading
+           CLOSE USER-ACCOUNT-FILE
+           OPEN I-O USER-ACCOUNT-FILE
 
-        MOVE "Account created successfully!" TO DISPLAY-MSG
-        PERFORM 8000-DISPLAY-ROUTINE
-        SET WS-ACCOUNT-CREATED TO TRUE
+           MOVE "Account created successfully!"
+             TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           SET WS-ACCOUNT-CREATED TO TRUE
        ELSE
-        MOVE "Account creation failed, please try again."
-            TO DISPLAY-MSG
-        PERFORM 8000-DISPLAY-ROUTINE
+           MOVE "Account creation failed, please try again."
+             TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
        END-IF.
-
 
 4100-VALIDATE-PASSWORD.
        SET WS-PASSWORD-IS-VALID TO TRUE
-       COMPUTE WS-PASSWORD-LENGTH = FUNCTION LENGTH(FUNCTION TRIM(WS-INPUT-PASSWORD))
+       COMPUTE WS-PASSWORD-LENGTH =
+               FUNCTION LENGTH(FUNCTION TRIM(WS-INPUT-PASSWORD))
 
-       *> check if password length is fewer than 8
        IF WS-PASSWORD-LENGTH < 8
-        MOVE WS-PASSWORD-TOO-SHORT TO DISPLAY-MSG
-        PERFORM 8000-DISPLAY-ROUTINE
-        SET WS-PASSWORD-IS-INVALID TO TRUE
-        EXIT PARAGRAPH
-       END-IF.
+           MOVE WS-PASSWORD-TOO-SHORT TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           SET WS-PASSWORD-IS-INVALID TO TRUE
+           EXIT PARAGRAPH
+       END-IF
 
-       *> check if password length is greater than 12
        IF WS-PASSWORD-LENGTH > 12
-        MOVE WS-PASSWORD-TOO-LONG TO DISPLAY-MSG
-        PERFORM 8000-DISPLAY-ROUTINE
-        SET WS-PASSWORD-IS-INVALID TO TRUE
-        EXIT PARAGRAPH
-       END-IF.
+           MOVE WS-PASSWORD-TOO-LONG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           SET WS-PASSWORD-IS-INVALID TO TRUE
+           EXIT PARAGRAPH
+       END-IF
 
-       MOVE 'N' TO WS-HAS-CAPITAL WS-HAS-DIGIT WS-HAS-SPECIAL.
+       MOVE 'N' TO WS-HAS-CAPITAL WS-HAS-DIGIT WS-HAS-SPECIAL
 
-       PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > WS-PASSWORD-LENGTH
+       PERFORM VARYING IDX FROM 1 BY 1
+               UNTIL IDX > WS-PASSWORD-LENGTH
            MOVE WS-INPUT-PASSWORD(IDX:1) TO WS-CUR-CHAR
 
            IF WS-CUR-CHAR >= 'A' AND WS-CUR-CHAR <= 'Z'
@@ -337,19 +441,19 @@ PROCEDURE DIVISION.
        END-PERFORM
 
        IF WS-HAS-CAPITAL = 'N'
-        MOVE WS-PASSWORD-NO-CAPITAL TO DISPLAY-MSG
-        PERFORM 8000-DISPLAY-ROUTINE
-        SET WS-PASSWORD-IS-INVALID TO TRUE
-       END-IF.
+           MOVE WS-PASSWORD-NO-CAPITAL TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           SET WS-PASSWORD-IS-INVALID TO TRUE
+       END-IF
        IF WS-HAS-DIGIT = 'N'
-        MOVE WS-PASSWORD-NO-DIGIT TO DISPLAY-MSG
-        PERFORM 8000-DISPLAY-ROUTINE
-        SET WS-PASSWORD-IS-INVALID TO TRUE
-       END-IF.
+           MOVE WS-PASSWORD-NO-DIGIT TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           SET WS-PASSWORD-IS-INVALID TO TRUE
+       END-IF
        IF WS-HAS-SPECIAL = 'N'
-        MOVE WS-PASSWORD-NO-SPECIAL TO DISPLAY-MSG
-        PERFORM 8000-DISPLAY-ROUTINE
-        SET WS-PASSWORD-IS-INVALID TO TRUE
+           MOVE WS-PASSWORD-NO-SPECIAL TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           SET WS-PASSWORD-IS-INVALID TO TRUE
        END-IF.
 
 5000-POST-LOGIN-MENU.
@@ -360,12 +464,18 @@ PROCEDURE DIVISION.
            PERFORM 8000-DISPLAY-ROUTINE
            MOVE WS-LEARN-SKILL-MSG TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
+*> NEW (add profile options)
+           MOVE WS-PROFILE-MENU-VIEW TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-PROFILE-MENU-EDIT TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+*> -----------------
            MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
 
            READ INPUT-FILE INTO WS-INPUT-CHOICE
                AT END SET WS-USER-WANT-TO-EXIT TO TRUE
-                       EXIT PERFORM
+                    EXIT PERFORM
            END-READ
 
            EVALUATE WS-INPUT-CHOICE
@@ -377,6 +487,12 @@ PROCEDURE DIVISION.
                    PERFORM 8000-DISPLAY-ROUTINE
                WHEN "3"
                    PERFORM 5100-LEARN-SKILL-SUBMENU
+*> NEW (new choices)
+               WHEN "4"
+                   PERFORM 6000-VIEW-MY-PROFILE
+               WHEN "5"
+                   PERFORM 6100-COMPLETE-MY-PROFILE
+*> -----------------
                WHEN OTHER
                    MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
@@ -404,7 +520,7 @@ PROCEDURE DIVISION.
 
            READ INPUT-FILE INTO WS-INPUT-CHOICE
                AT END SET WS-USER-WANT-TO-EXIT TO TRUE
-                       EXIT PARAGRAPH
+                    EXIT PARAGRAPH
            END-READ
 
            EVALUATE WS-INPUT-CHOICE
@@ -418,14 +534,234 @@ PROCEDURE DIVISION.
                    PERFORM 8000-DISPLAY-ROUTINE
            END-EVALUATE
        END-PERFORM.
+
+*> NEW
+1200-ENSURE-NOT-BLANK.
+       IF FUNCTION LENGTH(FUNCTION TRIM(WS-TEMP-FIELD)) = 0
+           MOVE WS-BLANK-INPUT-MSG TO DISPLAY-MSG
+       ELSE
+           MOVE SPACES TO DISPLAY-MSG
+       END-IF.
+*> -----------------
+
+*> NEW
+6000-VIEW-MY-PROFILE.
+       SET WS-PROFILE-NOT-FOUND TO TRUE
+       *> Rewind file by re-opening at start
+       CLOSE USER-PROFILE-FILE
+       OPEN INPUT USER-PROFILE-FILE
+
+       SET WS-NOT-EOF-FLAG TO TRUE
+       PERFORM UNTIL WS-EOF-FLAG
+           READ USER-PROFILE-FILE
+               AT END
+                   SET WS-EOF-FLAG TO TRUE
+               NOT AT END
+                   IF FUNCTION TRIM(UP-USER-NAME) =
+                      FUNCTION TRIM(WS-CURRENT-USER)
+                       SET WS-PROFILE-FOUND TO TRUE
+                       EXIT PERFORM
+                   END-IF
+           END-READ
+       END-PERFORM
+
+       CLOSE USER-PROFILE-FILE
+       OPEN I-O USER-PROFILE-FILE
+
+       IF WS-PROFILE-FOUND
+           STRING "Profile for: "
+                  FUNCTION TRIM(UP-USER-NAME)
+                  DELIMITED BY SIZE
+                  INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           STRING "First Name: "
+                  FUNCTION TRIM(UP-FIRST-NAME)
+                  DELIMITED BY SIZE
+                  INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           STRING "Last  Name: "
+                  FUNCTION TRIM(UP-LAST-NAME)
+                  DELIMITED BY SIZE
+                  INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           STRING "University: "
+                  FUNCTION TRIM(UP-UNIVERSITY)
+                  DELIMITED BY SIZE
+                  INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           STRING "Major: "
+                  FUNCTION TRIM(UP-MAJOR)
+                  DELIMITED BY SIZE
+                  INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           MOVE SPACES TO DISPLAY-MSG
+           STRING "Graduation: "
+                  UP-GRAD-MONTH "/"
+                  UP-GRAD-YEAR
+                  DELIMITED BY SIZE
+                  INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+       ELSE
+           MOVE WS-PROFILE-NOTFOUND-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+       END-IF.
+*> -----------------
+
+*> NEW
+6100-COMPLETE-MY-PROFILE.
+       MOVE WS-ENTER-FIRST TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       READ INPUT-FILE INTO WS-FIRST-NAME
+           AT END EXIT PARAGRAPH
+       END-READ
+       MOVE WS-FIRST-NAME TO WS-TEMP-FIELD
+       PERFORM 1200-ENSURE-NOT-BLANK
+       IF DISPLAY-MSG NOT = SPACES
+           PERFORM 8000-DISPLAY-ROUTINE
+           EXIT PARAGRAPH
+       END-IF
+
+       MOVE WS-ENTER-LAST TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       READ INPUT-FILE INTO WS-LAST-NAME
+           AT END EXIT PARAGRAPH
+       END-READ
+       MOVE WS-LAST-NAME TO WS-TEMP-FIELD
+       PERFORM 1200-ENSURE-NOT-BLANK
+       IF DISPLAY-MSG NOT = SPACES
+           PERFORM 8000-DISPLAY-ROUTINE
+           EXIT PARAGRAPH
+       END-IF
+
+       MOVE WS-ENTER-UNIV TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       READ INPUT-FILE INTO WS-UNIVERSITY
+           AT END EXIT PARAGRAPH
+       END-READ
+       MOVE WS-UNIVERSITY TO WS-TEMP-FIELD
+       PERFORM 1200-ENSURE-NOT-BLANK
+       IF DISPLAY-MSG NOT = SPACES
+           PERFORM 8000-DISPLAY-ROUTINE
+           EXIT PARAGRAPH
+       END-IF
+
+       MOVE WS-ENTER-MAJOR TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       READ INPUT-FILE INTO WS-MAJOR
+           AT END EXIT PARAGRAPH
+       END-READ
+       MOVE WS-MAJOR TO WS-TEMP-FIELD
+       PERFORM 1200-ENSURE-NOT-BLANK
+       IF DISPLAY-MSG NOT = SPACES
+           PERFORM 8000-DISPLAY-ROUTINE
+           EXIT PARAGRAPH
+       END-IF
+
+       MOVE WS-ENTER-GM TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       READ INPUT-FILE INTO WS-GRAD-MONTH
+           AT END EXIT PARAGRAPH
+       END-READ
+
+       MOVE WS-ENTER-GY TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE
+       READ INPUT-FILE INTO WS-GRAD-YEAR
+           AT END EXIT PARAGRAPH
+       END-READ
+
+       PERFORM 6200-VALIDATE-PROFILE-FIELDS
+       IF DISPLAY-MSG NOT = SPACES
+           PERFORM 8000-DISPLAY-ROUTINE
+           EXIT PARAGRAPH
+       END-IF
+
+       MOVE WS-CURRENT-USER TO UP-USER-NAME
+       MOVE WS-FIRST-NAME    TO UP-FIRST-NAME
+       MOVE WS-LAST-NAME     TO UP-LAST-NAME
+       MOVE WS-UNIVERSITY    TO UP-UNIVERSITY
+       MOVE WS-MAJOR         TO UP-MAJOR
+       MOVE WS-GRAD-MONTH    TO UP-GRAD-MONTH
+       MOVE WS-GRAD-YEAR     TO UP-GRAD-YEAR
+
+       CLOSE USER-PROFILE-FILE
+       OPEN EXTEND USER-PROFILE-FILE
+       WRITE USER-PROFILE-REC
+       CLOSE USER-PROFILE-FILE
+       OPEN I-O USER-PROFILE-FILE
+
+       MOVE WS-PROFILE-SAVED-MSG TO DISPLAY-MSG
+       PERFORM 8000-DISPLAY-ROUTINE.
+*> -----------------
+
+*> NEW
+6200-VALIDATE-PROFILE-FIELDS.
+       *> First name alpha-only
+       MOVE WS-FIRST-NAME TO WS-TEMP-FIELD
+       PERFORM 6210-ALPHA-ONLY
+       IF DISPLAY-MSG NOT = SPACES
+           MOVE WS-NAME-INVALID-MSG TO DISPLAY-MSG
+           EXIT PARAGRAPH
+       END-IF
+
+       *> Last name alpha-only
+       MOVE WS-LAST-NAME TO WS-TEMP-FIELD
+       PERFORM 6210-ALPHA-ONLY
+       IF DISPLAY-MSG NOT = SPACES
+           MOVE WS-NAME-INVALID-MSG TO DISPLAY-MSG
+           EXIT PARAGRAPH
+       END-IF
+
+       *> Grad month 1..12
+       IF WS-GRAD-MONTH < 1 OR WS-GRAD-MONTH > 12
+           MOVE WS-GRAD-MONTH-INVALID TO DISPLAY-MSG
+           EXIT PARAGRAPH
+       END-IF
+
+       *> Grad year 1900..2100
+       IF WS-GRAD-YEAR < 1900 OR WS-GRAD-YEAR > 2100
+           MOVE WS-GRAD-YEAR-INVALID TO DISPLAY-MSG
+           EXIT PARAGRAPH
+       END-IF
+
+       MOVE SPACES TO DISPLAY-MSG.
+*> -----------------
+
+*> NEW
+6210-ALPHA-ONLY.
+       MOVE SPACES TO DISPLAY-MSG
+       COMPUTE I = 1
+       PERFORM UNTIL I > FUNCTION LENGTH(FUNCTION TRIM(WS-TEMP-FIELD))
+           MOVE WS-TEMP-FIELD(I:1) TO WS-CUR-CHAR
+           IF (WS-CUR-CHAR < 'A' OR WS-CUR-CHAR > 'Z')
+              AND (WS-CUR-CHAR < 'a' OR WS-CUR-CHAR > 'z')
+              MOVE 'X' TO DISPLAY-MSG(1:1)
+              EXIT PERFORM
+           END-IF
+           ADD 1 TO I
+       END-PERFORM
+       IF DISPLAY-MSG(1:1) = 'X'
+           MOVE 'INVALID' TO DISPLAY-MSG
+       ELSE
+           MOVE SPACES TO DISPLAY-MSG
+       END-IF.
+*> -----------------
+
 8000-DISPLAY-ROUTINE.
-       DISPLAY DISPLAY-MSG.
-       MOVE DISPLAY-MSG TO OUTPUT-RECORD.
-       WRITE OUTPUT-RECORD.
+       DISPLAY DISPLAY-MSG
+       MOVE DISPLAY-MSG TO OUTPUT-RECORD
+       WRITE OUTPUT-RECORD
        MOVE SPACES TO DISPLAY-MSG.
 
 9000-TERMINATE-PROGRAM.
-    CLOSE INPUT-FILE
-    CLOSE OUTPUT-FILE
-    CLOSE USER-ACCOUNT-FILE
-    EXIT.
+       CLOSE INPUT-FILE
+       CLOSE OUTPUT-FILE
+       CLOSE USER-ACCOUNT-FILE
+*> NEW
+       CLOSE USER-PROFILE-FILE
+*> -----------------
+       EXIT.
