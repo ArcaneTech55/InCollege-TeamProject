@@ -189,6 +189,7 @@ WORKING-STORAGE SECTION.
 01 WS-ENTER-EDU             PIC X(200) VALUE 'Add Education (optional, max 3 entries. Enter DONE to finish): '.
 01 WS-SUCCESSFUL-PROFILE-SAVE  PIC X(100)  VALUE 'Profile saved successfully!'.
 01 WS-TEMP-FIELD            PIC X(100).
+01 WS-VALIDATED-YEAR       PIC 9(4).
 *> -----------------
 
 PROCEDURE DIVISION.
@@ -562,9 +563,7 @@ PROCEDURE DIVISION.
        ELSE
            MOVE SPACES TO DISPLAY-MSG
        END-IF.
-*> -----------------
 
-*> NEW
 6000-VIEW-MY-PROFILE.
     INITIALIZE USER-PROFILE-REC.
     SET WS-PROFILE-NOT-FOUND TO TRUE.
@@ -583,7 +582,7 @@ PROCEDURE DIVISION.
                     SET WS-PROFILE-FOUND TO TRUE
                     EXIT PERFORM
                 END-IF
-    END-READ
+        END-READ
     END-PERFORM.
 
     CLOSE USER-PROFILE-FILE.
@@ -591,34 +590,34 @@ PROCEDURE DIVISION.
 
     IF WS-PROFILE-FOUND
         *> --- Display the main profile information ---
-        MOVE "--- Your Profile ---" TO DISPLAY-MSG.
-        PERFORM 8000-DISPLAY-ROUTINE.
+        MOVE "--- Your Profile ---" TO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
 
         STRING "Name: " FUNCTION TRIM(UP-FIRST-NAME) " "
                FUNCTION TRIM(UP-LAST-NAME)
             DELIMITED BY SIZE
-            INTO DISPLAY-MSG.
-        PERFORM 8000-DISPLAY-ROUTINE.
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
 
         STRING "University: " FUNCTION TRIM(UP-UNIVERSITY)
             DELIMITED BY SIZE
-            INTO DISPLAY-MSG.
-        PERFORM 8000-DISPLAY-ROUTINE.
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
 
         STRING "Major: " FUNCTION TRIM(UP-MAJOR)
             DELIMITED BY SIZE
-            INTO DISPLAY-MSG.
-        PERFORM 8000-DISPLAY-ROUTINE.
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
 
         STRING "Graduation Year: " UP-GRAD-YEAR
             DELIMITED BY SIZE
-            INTO DISPLAY-MSG.
-        PERFORM 8000-DISPLAY-ROUTINE.
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
 
         STRING "About Me: " FUNCTION TRIM(UP-ABOUT-ME)
             DELIMITED BY SIZE
-            INTO DISPLAY-MSG.
-        PERFORM 8000-DISPLAY-ROUTINE.
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
 
         *> --- Display the Experience section if it exists ---
         IF UP-NUM-EXP > 0
@@ -661,6 +660,7 @@ PROCEDURE DIVISION.
                     DELIMITED BY SIZE INTO DISPLAY-MSG
                 PERFORM 8000-DISPLAY-ROUTINE
             END-PERFORM
+        END-IF
     ELSE
         MOVE WS-PROFILE-NOTFOUND-MSG TO DISPLAY-MSG
         PERFORM 8000-DISPLAY-ROUTINE
@@ -717,13 +717,10 @@ PROCEDURE DIVISION.
     IF WS-USER-WANT-TO-EXIT EXIT PARAGRAPH END-IF
     MOVE WS-TEMP-FIELD TO WS-MAJOR
 
-    MOVE WS-ENTER-GY TO DISPLAY-MSG
-    PERFORM 8000-DISPLAY-ROUTINE
-    READ INPUT-FILE INTO WS-GRAD-YEAR
-        AT END SET WS-USER-WANT-TO-EXIT TO TRUE.
+    PERFORM 6260-GET-VALID-YEAR.
 
 6106-GET-ABOUT-ME.
-    SET WS-INVALID-FIELD TO TRUE. *> Loop control
+    SET WS-INVALID-FIELD TO TRUE.
     PERFORM UNTIL WS-VALID-FIELD
         MOVE WS-ENTER-ABOUT-ME TO DISPLAY-MSG
         PERFORM 8000-DISPLAY-ROUTINE
@@ -876,8 +873,6 @@ PROCEDURE DIVISION.
                 SET WS-EOF-FLAG TO TRUE
             NOT AT END
                 IF FUNCTION TRIM(UP-USER-NAME) = FUNCTION TRIM(WS-CURRENT-USER)
-                    *> This is the user we are updating. Write the NEW
-                    *> record from Working-Storage to the temp file.
                     WRITE TEMP-PROFILE-REC FROM WS-USER-PROFILE-REC
                     SET WS-PROFILE-FOUND TO TRUE
                 ELSE
@@ -933,10 +928,10 @@ PROCEDURE DIVISION.
        END-IF
 
        *> Grad year 1900..2100
-       IF WS-GRAD-YEAR < 1900 OR WS-GRAD-YEAR > 2100
-           MOVE WS-GRAD-YEAR-INVALID TO DISPLAY-MSG
-           EXIT PARAGRAPH
-       END-IF
+      *> IF WS-GRAD-YEAR < 1900 OR WS-GRAD-YEAR > 2100
+      *>     MOVE WS-GRAD-YEAR-INVALID TO DISPLAY-MSG
+      *>     EXIT PARAGRAPH
+      *> END-IF
 
        MOVE SPACES TO DISPLAY-MSG.
 
@@ -974,7 +969,43 @@ PROCEDURE DIVISION.
        ELSE
            MOVE SPACES TO DISPLAY-MSG
        END-IF.
-*> -----------------
+
+ 6260-GET-VALID-YEAR.
+    SET WS-INVALID-FIELD TO TRUE
+    PERFORM UNTIL WS-VALID-FIELD
+        MOVE WS-ENTER-GY TO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+
+        READ INPUT-FILE INTO WS-TEMP-FIELD
+            AT END
+                SET WS-USER-WANT-TO-EXIT TO TRUE
+                EXIT PERFORM
+        END-READ
+
+        IF NOT WS-USER-WANT-TO-EXIT
+            *> First, check if the input is numeric at all
+            IF FUNCTION TRIM(WS-TEMP-FIELD) IS NUMERIC
+
+                *> If it's numeric, convert it to a number
+                MOVE FUNCTION NUMVAL(FUNCTION TRIM(WS-TEMP-FIELD))
+                  TO WS-VALIDATED-YEAR
+
+                *> Now, check if the number is in range
+                IF WS-VALIDATED-YEAR >= 1900 AND WS-VALIDATED-YEAR <= 2100
+                    MOVE WS-VALIDATED-YEAR TO WS-GRAD-YEAR
+                    SET WS-VALID-FIELD TO TRUE *> Success!
+                ELSE
+                    *> It's a number, but out of range
+                    MOVE WS-GRAD-YEAR-INVALID TO DISPLAY-MSG
+                    PERFORM 8000-DISPLAY-ROUTINE
+                END-IF
+            ELSE
+                *> It's not a number (e.g., "abcd")
+                MOVE "Year must be a 4-digit number." TO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+            END-IF
+        END-IF
+    END-PERFORM.
 
 8000-DISPLAY-ROUTINE.
        DISPLAY DISPLAY-MSG
