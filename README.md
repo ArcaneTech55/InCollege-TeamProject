@@ -106,6 +106,21 @@ Save your desired sequence to `InCollege-Input.txt` before running the program.
 
 ---
 
+## Profile Creation - Upon successful login create a user profile for InCollege
+- Create a profile with this information:
+- First Name and Last Name
+- University/College Attended
+- Major
+- Graduation Year - Valid four digit number
+- About me - short description about where users can provide extra details about themself
+- Experience (Up to three entries) - Any project or past work experience
+- Education (Up to three entries) - Users can provide any additional education background
+---
+
+## Profile Viewing - Upon creating a user profile users can view their own profile
+- Once completeing a user a profile it can be viewed by navigating the post login menu to "View My Profile"
+
+--- 
 ## Run the program
 
 Run the compiled executable from the project root:
