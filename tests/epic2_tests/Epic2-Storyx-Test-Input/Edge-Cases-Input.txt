@@ -1,0 +1,47 @@
+2
+edgeuser
+Password!1
+1
+edgeuser
+Password!1
+4
+A
+B
+X University with Longish Name
+Y
+2000
+12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 123456789012345678901234567890123456789012345678901234567890
+X
+Y
+Spring 2020
+
+VeryLongTitleUpToEdgeCaseBoundary
+Company-With-Hyphen
+2021-2022
+Contributed.
+Intern
+Dept 42
+Fall 2024
+N/A
+DONE
+DONE
+5
+4
+Zoe-Anne-Marie
+ONeill
+Really Really Really Long University Name For Edge Testing
+Software-Engineering-and-Systems
+2099
+
+DONE
+BSc Computer Science
+USF
+2019-2023
+MS Information Systems
+USF
+2023-2025
+Professional Certificate
+Coursera
+2025
+DONE
+5

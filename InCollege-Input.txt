@@ -1,12 +1,32 @@
 2
-stduser
-ValidPass1!
+testuser
+Password!1
 1
-stduser
-ValidPass1!
-1
-2
-3
-1
-6
-3
+testuser
+Password!1
+4
+John
+Doe
+University of South Florida
+Computer Science
+2025
+An aspiring software developer.
+DONE
+DONE
+4
+Jonathan
+Doe
+University of Tampa
+Cybersecurity
+2026
+Updated profile: Now a Cybersecurity major.
+Cybersecurity Intern
+Secure Systems LLC
+Fall 2024
+Monitored network traffic for anomalies.
+DONE
+Bachelor of Science
+University of Tampa
+2022-2026
+DONE
+5

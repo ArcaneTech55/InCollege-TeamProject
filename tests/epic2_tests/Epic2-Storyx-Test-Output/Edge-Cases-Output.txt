@@ -1,0 +1,128 @@
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Account created successfully!
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, edgeuser
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:
+--- Create/Edit Profile ---
+Enter First Name:
+Enter Last Name:
+Enter University:
+Enter Major:
+Enter Grad Year (YYYY):
+Enter About Me (optional, max 200 chars, enter blank line to skip):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Experience #01 - Title:
+Experience #01 - Company/Organization:
+Experience #01 - Dates (e.g., Summer 2024):
+Experience #01 - Description (optional):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Experience #02 - Title:
+Experience #02 - Company/Organization:
+Experience #02 - Dates (e.g., Summer 2024):
+Experience #02 - Description (optional):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Experience #03 - Title:
+Experience #03 - Company/Organization:
+Experience #03 - Dates (e.g., Summer 2024):
+Experience #03 - Description (optional):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+DONE
+Profile saved successfully!
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:
+--- Your Profile ---
+Name: A B
+University: X University with Longish Name
+Major: Y
+Graduation Year: 2000
+About Me: 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+Experience:
+  Title: X
+  Company: Y
+  Dates: Spring 2020
+  Description:
+  Title: VeryLongTitleUpToEdgeCaseBoundary
+  Company: Company-With-Hyphen
+  Dates: 2021-2022
+  Description: Contributed.
+  Title: Intern
+  Company: Dept 42
+  Dates: Fall 2024
+  Description: N/A
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:
+--- Create/Edit Profile ---
+Enter First Name:
+Enter Last Name:
+Enter University:
+Enter Major:
+Enter Grad Year (YYYY):
+Enter About Me (optional, max 200 chars, enter blank line to skip):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+Education #01 - Degree:
+Education #01 - University/College:
+Education #01 - Years Attended (e.g., 2023-2025):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+Education #02 - Degree:
+Education #02 - University/College:
+Education #02 - Years Attended (e.g., 2023-2025):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+Education #03 - Degree:
+Education #03 - University/College:
+Education #03 - Years Attended (e.g., 2023-2025):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+Profile saved successfully!
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:
+--- Your Profile ---
+Name: Zoe-Anne-Marie ONeill
+University: Really Really Really Long University Nam
+Major: Software-Engineering-and-Systems
+Graduation Year: 2099
+About Me:
+Education:
+  Degree: BSc Computer Science
+  University: USF
+  Years: 2019-2023
+  Degree: MS Information Systems
+  University: USF
+  Years: 2023-2025
+  Degree: Professional Certificate
+  University: Coursera
+  Years: 2025
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:

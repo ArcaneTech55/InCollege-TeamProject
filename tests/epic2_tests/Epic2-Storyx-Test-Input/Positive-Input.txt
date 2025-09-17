@@ -1,0 +1,30 @@
+2
+posuser
+Password!1
+1
+posuser
+Password!1
+4
+Alice
+Nguyen
+University of South Florida
+Information Systems
+2027
+Detail-oriented student focusing on systems analysis and UI/UX.
+Software Intern
+Tampa Tech Labs
+Summer 2025
+Built internal tooling for QA automation.
+Research Assistant
+USF CSE
+Spring 2026
+Published a poster on HCI methods.
+DONE
+Bachelor of Science
+University of South Florida
+2023-2027
+Associate of Arts
+Hillsborough Community College
+2021-2023
+DONE
+5

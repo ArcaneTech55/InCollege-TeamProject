@@ -1,0 +1,24 @@
+2
+neguser
+pass
+2
+neguser
+Password!1
+1
+neguser
+WrongPass1!
+1
+neguser
+Password!1
+5
+4
+John
+Doe
+University of South Florida
+Computer Science
+20f5
+I am an active person
+DONE
+DONE
+5
+5
