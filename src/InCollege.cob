@@ -733,7 +733,8 @@ PROCEDURE DIVISION.
         END-READ
 
         IF FUNCTION LENGTH(FUNCTION TRIM(WS-ABOUT-ME)) > 200
-            DISPLAY "Input exceeds 200 characters. Please try again."
+            MOVE "Input exceeds 200 characters. Please try again." TO DISPLAY-MSG
+            PERFORM 8000-DISPLAY-ROUTINE
             SET WS-INVALID-FIELD TO TRUE
         ELSE
             SET WS-VALID-FIELD TO TRUE *> Exit loop
@@ -793,7 +794,8 @@ PROCEDURE DIVISION.
         END-READ
 
         IF FUNCTION TRIM(WS-GENERIC-INPUT) NOT = "DONE"
-            DISPLAY "Maximum of 3 experience entries reached."
+            MOVE "Maximum of 3 experience entries reached." TO DISPLAY-MSG
+            PERFORM 8000-DISPLAY-ROUTINE
         END-IF
     END-PERFORM.
 
@@ -847,7 +849,8 @@ PROCEDURE DIVISION.
         END-READ
 
         IF FUNCTION TRIM(WS-GENERIC-INPUT) NOT = "DONE"
-            DISPLAY "Maximum of 3 education entries reached."
+            MOVE "Maximum of 3 education entries reached." TO DISPLAY-MSG
+            PERFORM 8000-DISPLAY-ROUTINE
         END-IF
     END-PERFORM.
 6140-TRANSFER-DATA-TO-RECORD.
@@ -985,4 +988,3 @@ PROCEDURE DIVISION.
        CLOSE USER-ACCOUNT-FILE
        CLOSE USER-PROFILE-FILE
        EXIT.
-       
