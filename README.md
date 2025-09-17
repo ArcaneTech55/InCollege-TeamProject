@@ -53,7 +53,7 @@ We use GnuCOBOL inside the dev container.
 
 3. Compile the sample account generator (src/create_sample_account_file.cob):
    ```bash
-   cobc -x -free -std=cobol2014 -Wall -o bin/InCollege src/InCollege.cob
+   cobc -x -free -std=cobol2014 -Wall -o bin/create_sample_account_file src/create_sample_account_file.cob
    ```
 ---
 
