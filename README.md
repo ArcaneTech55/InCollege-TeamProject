@@ -41,14 +41,14 @@ At this stage, all development should be done inside a **Docker container** for 
 
 We use GnuCOBOL inside the dev container.
 
-1. Create a `bin` directory for compiled executables:
+1. Create a `bin` directory, if it is not created, for compiled executables:
    ```bash
    mkdir -p bin
    ```
 
 2. Compile the main program (`src/InCollege.cob`):
    ```bash
-   cobc -x -free -std=cobol2014 -Wall -o InCollege InCollege.cob
+   cobc -x -free -std=cobol2014 -Wall -o bin/InCollege src/InCollege.cob
    ```
 
 ---
@@ -120,7 +120,7 @@ Save your desired sequence to `InCollege-Input.txt` before running the program.
 ## Profile Viewing - Upon creating a user profile users can view their own profile
 - Once completeing a user a profile it can be viewed by navigating the post login menu to "View My Profile"
 
---- 
+---
 ## Run the program
 
 Run the compiled executable from the project root:
