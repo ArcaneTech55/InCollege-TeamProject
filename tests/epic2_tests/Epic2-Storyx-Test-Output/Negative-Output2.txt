@@ -1,0 +1,88 @@
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Input cannot be blank. Please enter a value.
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Invalid choice. Please try again.
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Invalid choice. Please try again.
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Invalid choice. Please try again.
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Account created successfully!
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Incorrect username/password, please try again
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, neguser
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:
+No profile found. Use "Create/Edit My Profile" first.
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:
+--- Create/Edit Profile ---
+Enter First Name:
+Input cannot be blank. Please enter a value.
+Enter First Name:
+Enter Last Name:
+Input cannot be blank. Please enter a value.
+Enter First Name:
+Enter University:
+Input cannot be blank. Please enter a value.
+Enter First Name:
+Enter Major:
+Input cannot be blank. Please enter a value.
+Enter First Name:
+Enter Grad Year (YYYY):
+Graduation year must be 1900-2100.
+Enter Grad Year (YYYY):
+Year must be a 4-digit number.
+Enter Grad Year (YYYY):
+Graduation year must be 1900-2100.
+Enter Grad Year (YYYY):
+Year must be a 4-digit number.
+Enter Grad Year (YYYY):
+Graduation year must be 1900-2100.
+Enter Grad Year (YYYY):
+Year must be a 4-digit number.
+Enter Grad Year (YYYY):
+Year must be a 4-digit number.
+Enter Grad Year (YYYY):
+Graduation year must be 1900-2100.
+Enter Grad Year (YYYY):
+Graduation year must be 1900-2100.
+Enter Grad Year (YYYY):

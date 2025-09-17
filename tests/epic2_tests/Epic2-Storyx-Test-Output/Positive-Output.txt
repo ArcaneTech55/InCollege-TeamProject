@@ -1,0 +1,84 @@
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Account created successfully!
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, posuser
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:
+--- Create/Edit Profile ---
+Enter First Name:
+Enter Last Name:
+Enter University:
+Enter Major:
+Enter Grad Year (YYYY):
+Enter About Me (optional, max 200 chars, enter blank line to skip):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Experience #01 - Title:
+Experience #01 - Company/Organization:
+Experience #01 - Dates (e.g., Summer 2024):
+Experience #01 - Description (optional):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Experience #02 - Title:
+Experience #02 - Company/Organization:
+Experience #02 - Dates (e.g., Summer 2024):
+Experience #02 - Description (optional):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+Education #01 - Degree:
+Education #01 - University/College:
+Education #01 - Years Attended (e.g., 2023-2025):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+Education #02 - Degree:
+Education #02 - University/College:
+Education #02 - Years Attended (e.g., 2023-2025):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+DONE
+Profile saved successfully!
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:
+--- Your Profile ---
+Name: Alice Nguyen
+University: University of South Florida
+Major: Information Systems
+Graduation Year: 2027
+About Me: Detail-oriented student focusing on systems analysis and UI/UX.
+Experience:
+  Title: Software Intern
+  Company: Tampa Tech Labs
+  Dates: Summer 2025
+  Description: Built internal tooling for QA automation.
+  Title: Research Assistant
+  Company: USF CSE
+  Dates: Spring 2026
+  Description: Published a poster on HCI methods.
+Education:
+  Degree: Bachelor of Science
+  University: University of South Florida
+  Years: 2023-2027
+  Degree: Associate of Arts
+  University: Hillsborough Community College
+  Years: 2021-2023
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+Enter your choice:
