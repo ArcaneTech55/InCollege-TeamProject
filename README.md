@@ -51,6 +51,10 @@ We use GnuCOBOL inside the dev container.
    cobc -x -free -std=cobol2014 -Wall -o bin/InCollege src/InCollege.cob
    ```
 
+3. Compile the sample account generator (src/create_sample_account_file.cob):
+   ```bash
+   cobc -x -free -std=cobol2014 -Wall -o bin/InCollege src/InCollege.cob
+   ```
 ---
 
 ## Prepare input and data files
@@ -136,14 +140,6 @@ The program will:
 If `InCollege-Input.txt` is exhausted (EOF), the program exits gracefully.
 
 ---
-
-## Where to find outputs and data
-- Input file: `InCollege-Input.txt`
-- Console output: printed during execution
-- Output mirror file: `InCollege-Output.txt`
-- Persistent accounts file: `USER-ACCOUNT.DAT`
-
-All of the above are located in the project root.
 
 ## Where to find outputs and data
 - Input file: `InCollege-Input.txt`
