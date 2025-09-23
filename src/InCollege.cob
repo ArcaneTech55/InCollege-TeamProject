@@ -106,6 +106,8 @@ WORKING-STORAGE SECTION.
        05 WS-INPUT-USERNAME PIC X(100).
        05 WS-INPUT-PASSWORD PIC X(100).
 
+
+
 01 WS-USER-PROFILE-REC.
     05 WS-PROFILE-USERNAME   PIC X(100).
     05 WS-FIRST-NAME         PIC X(30).
@@ -127,6 +129,12 @@ WORKING-STORAGE SECTION.
           15 WS-EDU-DEGREE      PIC X(100).
           15 WS-EDU-UNIVERSITY  PIC X(100).
           15 WS-EDU-YEARS       PIC X(50).
+
+ 01 WS-SEARCH-CRITERIA.
+    05 WS-SEARCH-FIRST-NAME         PIC X(100) VALUE SPACES.
+    05 WS-SEARCH-LAST-NAME          PIC X(100) VALUE SPACES.
+
+
 
 *> Add a generic input field for loops
 01 WS-GENERIC-INPUT          PIC X(100).
@@ -188,6 +196,8 @@ WORKING-STORAGE SECTION.
 01 WS-ENTER-EXP             PIC X(200) VALUE 'Add Experience (optional, max 3 entries. Enter DONE to finish): '.
 01 WS-ENTER-EDU             PIC X(200) VALUE 'Add Education (optional, max 3 entries. Enter DONE to finish): '.
 01 WS-SUCCESSFUL-PROFILE-SAVE  PIC X(100)  VALUE 'Profile saved successfully!'.
+
+01 WS-SEARCH-USER-MSG          PIC X(100) VALUE'Enter the full name of the person you are looking for'.
 01 WS-TEMP-FIELD            PIC X(100).
 01 WS-VALIDATED-YEAR       PIC 9(4).
 *> -----------------
@@ -503,13 +513,12 @@ PROCEDURE DIVISION.
 
            EVALUATE WS-INPUT-CHOICE
                WHEN "1"
+                   PERFORM 6300-VIEW-PROFILE-BY-SEARCH
+               WHEN "2"
+                   PERFORM 5100-LEARN-SKILL-SUBMENU
+               WHEN "3"
                    MOVE WS-UC-JOB-MSG TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
-               WHEN "2"
-                   MOVE WS-UC-FIND-MSG TO DISPLAY-MSG
-                   PERFORM 8000-DISPLAY-ROUTINE
-               WHEN "3"
-                   PERFORM 5100-LEARN-SKILL-SUBMENU
                WHEN "4"
                    PERFORM 6100-CREATE-EDIT-PROFILE
                WHEN "5"
@@ -1006,6 +1015,137 @@ PROCEDURE DIVISION.
             END-IF
         END-IF
     END-PERFORM.
+
+
+
+6300-VIEW-PROFILE-BY-SEARCH.
+       MOVE "Enter Full name of user to search for their account." TO DISPLAY-MSG.
+       PERFORM 8000-DISPLAY-ROUTINE
+       MOVE "Enter First name to search:" TO DISPLAY-MSG.
+       PERFORM 8000-DISPLAY-ROUTINE.
+       MOVE "Enter last name to search:" TO DISPLAY-MSG.
+       PERFORM 8000-DISPLAY-ROUTINE.
+
+       SET WS-NOT-EOF-FLAG TO TRUE.
+       SET WS-PROFILE-NOT-FOUND TO TRUE.
+
+       CLOSE USER-PROFILE-FILE.
+       OPEN INPUT USER-PROFILE-FILE.
+
+      READ INPUT-FILE INTO WS-SEARCH-FIRST-NAME
+           AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+           NOT AT END MOVE FUNCTION TRIM(WS-SEARCH-FIRST-NAME) TO WS-SEARCH-FIRST-NAME
+      END-READ
+
+      IF NOT WS-USER-WANT-TO-EXIT
+           READ INPUT-FILE INTO WS-SEARCH-LAST-NAME
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+               NOT AT END MOVE FUNCTION TRIM(WS-SEARCH-LAST-NAME) TO WS-SEARCH-LAST-NAME
+           END-READ
+      END-IF
+
+
+       PERFORM UNTIL WS-EOF-FLAG OR WS-PROFILE-FOUND
+           READ USER-PROFILE-FILE
+               AT END
+                   SET WS-EOF-FLAG TO TRUE
+               NOT AT END
+                   IF FUNCTION TRIM(UP-FIRST-NAME) = FUNCTION TRIM(WS-SEARCH-FIRST-NAME) AND FUNCTION TRIM(UP-LAST-NAME) = FUNCTION TRIM(WS-SEARCH-LAST-NAME)
+                       SET WS-PROFILE-FOUND TO TRUE
+                       EXIT PERFORM
+                   END-IF
+           END-READ
+       END-PERFORM
+
+    CLOSE USER-PROFILE-FILE.
+    OPEN I-O USER-PROFILE-FILE.
+
+    IF WS-PROFILE-FOUND
+        *> --- Display the main profile information ---
+        MOVE "--- User Profile ---" TO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+
+        STRING "Name: " FUNCTION TRIM(UP-FIRST-NAME) " "
+               FUNCTION TRIM(UP-LAST-NAME)
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+
+        STRING "University: " FUNCTION TRIM(UP-UNIVERSITY)
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+
+        STRING "Major: " FUNCTION TRIM(UP-MAJOR)
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+
+        STRING "Graduation Year: " UP-GRAD-YEAR
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+
+        STRING "About Me: " FUNCTION TRIM(UP-ABOUT-ME)
+            DELIMITED BY SIZE
+            INTO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+
+        *> --- Display the Experience section if it exists ---
+        IF UP-NUM-EXP > 0
+            MOVE "Experience:" TO DISPLAY-MSG
+            PERFORM 8000-DISPLAY-ROUTINE
+            PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EXP
+                STRING "  Title: " FUNCTION TRIM(UP-EXP-TITLE(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  Company: " FUNCTION TRIM(UP-EXP-COMPANY(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  Dates: " FUNCTION TRIM(UP-EXP-DATE(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  Description: "
+                       FUNCTION TRIM(UP-EXP-DESC(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+            END-PERFORM
+        END-IF
+
+        *> --- Display the Education section if it exists ---
+        IF UP-NUM-EDU > 0
+            MOVE "Education:" TO DISPLAY-MSG
+            PERFORM 8000-DISPLAY-ROUTINE
+            PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EDU
+                STRING "  Degree: " FUNCTION TRIM(UP-EDU-DEGREE(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  University: " FUNCTION TRIM(UP-EDU-UNI(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+
+                STRING "  Years: " FUNCTION TRIM(UP-EDU-YEARS(I))
+                    DELIMITED BY SIZE INTO DISPLAY-MSG
+                PERFORM 8000-DISPLAY-ROUTINE
+            END-PERFORM
+        END-IF
+    ELSE
+        MOVE WS-PROFILE-NOTFOUND-MSG TO DISPLAY-MSG
+        PERFORM 8000-DISPLAY-ROUTINE
+    END-IF.
+
+
+
+
+
+
+
+
+
 
 8000-DISPLAY-ROUTINE.
        DISPLAY DISPLAY-MSG
