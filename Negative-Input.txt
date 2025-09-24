@@ -1,0 +1,53 @@
+2
+neguser
+short
+2
+neguser
+Password!1
+2
+neguser
+Password!123
+1
+neguser
+WrongPass1!
+1
+neguser
+Password!1
+5
+4
+Mila
+Ivanova
+University of South Florida
+Computer Science
+20A5
+202
+3025
+2026
+This About Me paragraph is intentionally too long to trigger validation. It should exceed two hundred characters by adding extra filler about collaboration, testing, documentation practices, CI/CD pipelines, code reviews, and security to ensure the validator rejects it and re-prompts so we can send a blank to skip.
+
+Penetration Tester Intern
+Tampa Cyber Labs
+Summer 2025
+Assisted with internal assessments and reports.
+Undergraduate Researcher
+USF CSE
+2025-2026
+Co-authored a poster on static analysis.
+Help Desk Technician
+USF IT
+Fall 2024
+Resolved tickets and documented fixes.
+Security Analyst (should be rejected as the 4th)
+BlueShield Corp
+Spring 2026
+Attempting to exceed the experience limit.
+DONE
+Bachelor of Science
+USF
+2021-2025
+DONE
+1
+Nonexistent
+Person
+5
+6

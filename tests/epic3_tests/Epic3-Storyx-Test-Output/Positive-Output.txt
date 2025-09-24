@@ -1,0 +1,170 @@
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Account created successfully!
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Account created successfully!
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, posuser
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:
+--- Create/Edit Profile ---
+Enter First Name:
+Enter Last Name:
+Enter University:
+Enter Major:
+Enter Grad Year (YYYY):
+Enter About Me (optional, max 200 chars, enter blank line to skip):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Experience #01 - Title:
+Experience #01 - Company/Organization:
+Experience #01 - Dates (e.g., Summer 2024):
+Experience #01 - Description (optional):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+Education #01 - Degree:
+Education #01 - University/College:
+Education #01 - Years Attended (e.g., 2023-2025):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+DONE
+Profile saved successfully!
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:
+--- Your Profile ---
+Name: Alex Rivera
+University: University of South Florida
+Major: Computer Science
+Graduation Year: 2026
+About Me: Passionate about backend systems and HCI; seeking 2026 internships.
+Experience:
+  Title: Software Intern
+  Company: Tampa Tech Labs
+  Dates: Summer 2025
+  Description: Built internal QA tooling and improved test coverage.
+Education:
+  Degree: Bachelor of Science
+  University: University of South Florida
+  Years: 2022-2026
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, mathew3
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:
+Enter Full name of user to search for their account.
+Enter First name to search:
+Enter last name to search:
+--- User Profile ---
+Name: Alex Rivera
+University: University of South Florida
+Major: Computer Science
+Graduation Year: 2026
+About Me: Passionate about backend systems and HCI; seeking 2026 internships.
+Experience:
+  Title: Software Intern
+  Company: Tampa Tech Labs
+  Dates: Summer 2025
+  Description: Built internal QA tooling and improved test coverage.
+Education:
+  Degree: Bachelor of Science
+  University: University of South Florida
+  Years: 2022-2026
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:
+--- Create/Edit Profile ---
+Enter First Name:
+Enter Last Name:
+Enter University:
+Enter Major:
+Enter Grad Year (YYYY):
+Enter About Me (optional, max 200 chars, enter blank line to skip):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Experience #01 - Title:
+Experience #01 - Company/Organization:
+Experience #01 - Dates (e.g., Summer 2024):
+Experience #01 - Description (optional):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+Education #01 - Degree:
+Education #01 - University/College:
+Education #01 - Years Attended (e.g., 2023-2025):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+DONE
+Profile saved successfully!
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:
+Enter Full name of user to search for their account.
+Enter First name to search:
+Enter last name to search:
+--- User Profile ---
+Name: Mathew Adams
+University: University of Central Florida
+Major: Cyber Security
+Graduation Year: 2027
+About Me: Junior undergraduate student interested in AI
+Experience:
+  Title: Cyber Security Intern
+  Company: Orlando Security Labs
+  Dates: Summer 2025
+  Description: Worked on security systems
+Education:
+  Degree: Bachelor of Science
+  University: University of Central Florida
+  Years: 2023-2027
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:

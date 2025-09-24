@@ -158,7 +158,7 @@ WORKING-STORAGE SECTION.
 01 WS-FIND-SOMEONE-MSG      PIC X(28)  VALUE '1. Find someone you know'.
 01 WS-LEARN-SKILL-MSG       PIC X(28)  VALUE '2. Learn a new skill'.
 01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE '3. Search for a job'.
-01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '6. Log out.'.
+01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '6. Log Out'.
 01 WS-UC-JOB-MSG            PIC X(60)  VALUE 'Job search/internship is under construction.'.
 01 WS-UC-FIND-MSG           PIC X(60)  VALUE 'Find someone you know is under construction.'.
 01 WS-LEARN-SKILL-HEADER    PIC X(22)  VALUE 'Learn a New Skill:'.
