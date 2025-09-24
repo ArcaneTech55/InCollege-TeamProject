@@ -1,0 +1,51 @@
+2
+TestUser
+ValidPass1!
+2
+anotherstudent
+ValidPass2!
+1
+TestUser
+ValidPass1!
+4
+Test
+User
+State University
+Computer Science
+2025
+Passionate about software development.
+Intern
+Tech Solutions
+Summer 2024
+Assisted with front-end development.
+DONE
+Bachelor's
+State University
+2021-2025
+DONE
+6
+1
+anotherstudent
+ValidPass2!
+4
+Another
+Student
+City College
+Electrical Engineering
+2026
+Robotics enthusiast.
+DONE
+DONE
+6
+1
+TestUser
+ValidPass1!
+5
+1
+Another
+Student
+1
+NoSuch
+Person
+6
+3
