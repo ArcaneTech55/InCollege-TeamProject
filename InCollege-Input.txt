@@ -1,32 +1,51 @@
 2
-testuser
-Password!1
+TestUser
+ValidPass1!
+2
+anotherstudent
+ValidPass2!
 1
-testuser
-Password!1
+TestUser
+ValidPass1!
 4
-John
-Doe
-University of South Florida
+Test
+User
+State University
 Computer Science
 2025
-An aspiring software developer.
+Passionate about software development.
+Intern
+Tech Solutions
+Summer 2024
+Assisted with front-end development.
 DONE
+Bachelor's
+State University
+2021-2025
 DONE
+6
+1
+anotherstudent
+ValidPass2!
 4
-Jonathan
-Doe
-University of Tampa
-Cybersecurity
+Another
+Student
+City College
+Electrical Engineering
 2026
-Updated profile: Now a Cybersecurity major.
-Cybersecurity Intern
-Secure Systems LLC
-Fall 2024
-Monitored network traffic for anomalies.
+Robotics enthusiast.
 DONE
-Bachelor of Science
-University of Tampa
-2022-2026
 DONE
+6
+1
+TestUser
+ValidPass1!
 5
+1
+Another
+Student
+1
+NoSuch
+Person
+6
+3
