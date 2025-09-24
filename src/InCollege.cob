@@ -158,6 +158,7 @@ WORKING-STORAGE SECTION.
 01 WS-FIND-SOMEONE-MSG      PIC X(28)  VALUE '1. Find someone you know'.
 01 WS-LEARN-SKILL-MSG       PIC X(28)  VALUE '2. Learn a new skill'.
 01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE '3. Search for a job'.
+01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '6. Log out.'.
 01 WS-UC-JOB-MSG            PIC X(60)  VALUE 'Job search/internship is under construction.'.
 01 WS-UC-FIND-MSG           PIC X(60)  VALUE 'Find someone you know is under construction.'.
 01 WS-LEARN-SKILL-HEADER    PIC X(22)  VALUE 'Learn a New Skill:'.
@@ -503,8 +504,11 @@ PROCEDURE DIVISION.
            PERFORM 8000-DISPLAY-ROUTINE
            MOVE WS-PROFILE-MENU-VIEW TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-LOG-OUT-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
            MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
+
 
            READ INPUT-FILE INTO WS-INPUT-CHOICE
                AT END SET WS-USER-WANT-TO-EXIT TO TRUE
@@ -523,6 +527,8 @@ PROCEDURE DIVISION.
                    PERFORM 6100-CREATE-EDIT-PROFILE
                WHEN "5"
                    PERFORM 6000-VIEW-MY-PROFILE
+               WHEN "6"
+                   PERFORM 2000-SHOW-MENU
                WHEN OTHER
                    MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
