@@ -25,7 +25,8 @@ Welcome, TestUser
 3. Search for a job
 4. Create/Edit My Profile
 5. View My Profile
-6. Log Out
+7. View My Pending Connection Requests
+6. Log out.
 Enter your choice:
 --- Create/Edit Profile ---
 Enter First Name:
@@ -34,22 +35,26 @@ Enter University:
 Enter Major:
 Enter Grad Year (YYYY):
 Enter About Me (optional, max 200 chars, enter blank line to skip):
-Experience #01 - Title (or type DONE to finish):
-Experience #01 - Company/Organization (or DONE to finish):
-Experience #01 - Dates (e.g., Summer 2024) (or DONE to finish):
-Experience #01 - Description (or DONE to finish):
-Experience #02 - Title (or type DONE to finish):
-Education #01 - Degree (or type DONE to finish):
-Education #01 - University/College (or type DONE to finish):
-Education #01 - Years Attended (e.g., 2023-2025, or type DONE to finish):
-Education #02 - Degree (or type DONE to finish):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Experience #01 - Title:
+Experience #01 - Company/Organization:
+Experience #01 - Dates (e.g., Summer 2024):
+Experience #01 - Description (optional):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+Education #01 - Degree:
+Education #01 - University/College:
+Education #01 - Years Attended (e.g., 2023-2025):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+DONE
 Profile saved successfully!
 1. Find someone you know
 2. Learn a new skill
 3. Search for a job
 4. Create/Edit My Profile
 5. View My Profile
-6. Log Out
+7. View My Pending Connection Requests
+6. Log out.
 Enter your choice:
 Welcome to InCollege!
 Log In
@@ -64,7 +69,8 @@ Welcome, anotherstudent
 3. Search for a job
 4. Create/Edit My Profile
 5. View My Profile
-6. Log Out
+7. View My Pending Connection Requests
+6. Log out.
 Enter your choice:
 --- Create/Edit Profile ---
 Enter First Name:
@@ -73,15 +79,17 @@ Enter University:
 Enter Major:
 Enter Grad Year (YYYY):
 Enter About Me (optional, max 200 chars, enter blank line to skip):
-Experience #01 - Title (or type DONE to finish):
-Education #01 - Degree (or type DONE to finish):
+Add Experience (optional, max 3 entries. Enter DONE to finish):
+Add Education (optional, max 3 entries. Enter DONE to finish):
+DONE
 Profile saved successfully!
 1. Find someone you know
 2. Learn a new skill
 3. Search for a job
 4. Create/Edit My Profile
 5. View My Profile
-6. Log Out
+7. View My Pending Connection Requests
+6. Log out.
 Enter your choice:
 Welcome to InCollege!
 Log In
@@ -96,7 +104,8 @@ Welcome, TestUser
 3. Search for a job
 4. Create/Edit My Profile
 5. View My Profile
-6. Log Out
+7. View My Pending Connection Requests
+6. Log out.
 Enter your choice:
 --- Your Profile ---
 Name: Test User
@@ -118,7 +127,8 @@ Education:
 3. Search for a job
 4. Create/Edit My Profile
 5. View My Profile
-6. Log Out
+7. View My Pending Connection Requests
+6. Log out.
 Enter your choice:
 Enter Full name of user to search for their account.
 Enter First name to search:
@@ -129,25 +139,20 @@ University: City College
 Major: Electrical Engineering
 Graduation Year: 2026
 About Me: Robotics enthusiast.
+Do you want to send a connection request to this user? If yes enter Y if no enter N.
+Connection request denied. Back to menu
 1. Find someone you know
 2. Learn a new skill
 3. Search for a job
 4. Create/Edit My Profile
 5. View My Profile
-6. Log Out
+7. View My Pending Connection Requests
+6. Log out.
 Enter your choice:
-Enter Full name of user to search for their account.
-Enter First name to search:
-Enter last name to search:
-No profile found. Use "Create/Edit My Profile" first.
+Invalid choice. Please try again.
 1. Find someone you know
 2. Learn a new skill
 3. Search for a job
 4. Create/Edit My Profile
 5. View My Profile
-6. Log Out
-Enter your choice:
-Welcome to InCollege!
-Log In
-Create New Account
-Enter your choice:
+7. View My Pending 

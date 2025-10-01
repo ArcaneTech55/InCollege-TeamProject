@@ -141,6 +141,46 @@ If `InCollege-Input.txt` is exhausted (EOF), the program exits gracefully.
 
 ---
 
+## Week 4: Connection Requests
+
+### New Features
+- Send a connection request from the searched user's profile screen. After viewing a profile via "Find someone you know", you will be prompted:
+  - `Do you want to send a connection request to this user? If yes enter Y if no enter N.`
+  - The program validates that:
+    - You are not already connected
+    - There is no existing pending request in either direction
+    - The target user exists
+  - On success: `Connection request successfully sent to <username>`
+  - On decline: `Connection request denied. Back to menu`
+
+- View pending connection requests from the post-login menu:
+  - New menu item: `7. View My Pending Connection Requests`
+  - Displays header `--- Pending Connection Requests ---` followed by either a list of `From: <sender>` entries or `You have no pending connection requests at this time.` and a footer line `-----------------------------------`
+
+### Persistent Storage
+- Connections file: `connections.dat` (existing connections; read-only in Week 4)
+- Pending requests file: `pendingRequests.dat` (line sequential; each record stores sender and recipient)
+
+### I/O Notes
+- All input continues to be read from `InCollege-Input.txt`
+- All screen output is mirrored verbatim to `InCollege-Output.txt`
+
+### Example Input Snippet
+```text
+1
+TestUser
+ValidPass1!
+7
+1
+Another
+Student
+Y
+6
+```
+
+This logs in, views pending requests, searches for `Another Student`, sends a request, then logs out.
+
+
 ## Where to find outputs and data
 - Input file: `InCollege-Input.txt`
 - Console output: printed during execution
