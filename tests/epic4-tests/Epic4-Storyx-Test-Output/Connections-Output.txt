@@ -4,20 +4,6 @@ Create New Account
 Enter your choice:
 Please enter your username:
 Please enter your password:
-Account created successfully!
-Welcome to InCollege!
-Log In
-Create New Account
-Enter your choice:
-Please enter your username:
-Please enter your password:
-Account created successfully!
-Welcome to InCollege!
-Log In
-Create New Account
-Enter your choice:
-Please enter your username:
-Please enter your password:
 You have successfully logged in.
 Welcome, TestUser
 1. Find someone you know
@@ -28,26 +14,8 @@ Welcome, TestUser
 7. View My Pending Connection Requests
 6. Log out.
 Enter your choice:
---- Create/Edit Profile ---
-Enter First Name:
-Enter Last Name:
-Enter University:
-Enter Major:
-Enter Grad Year (YYYY):
-Enter About Me (optional, max 200 chars, enter blank line to skip):
-Add Experience (optional, max 3 entries. Enter DONE to finish):
-Experience #01 - Title:
-Experience #01 - Company/Organization:
-Experience #01 - Dates (e.g., Summer 2024):
-Experience #01 - Description (optional):
-Add Experience (optional, max 3 entries. Enter DONE to finish):
-Add Education (optional, max 3 entries. Enter DONE to finish):
-Education #01 - Degree:
-Education #01 - University/College:
-Education #01 - Years Attended (e.g., 2023-2025):
-Add Education (optional, max 3 entries. Enter DONE to finish):
-DONE
-Profile saved successfully!
+--- Pending Connection Requests ---
+No pending requests.
 1. Find someone you know
 2. Learn a new skill
 3. Search for a job
@@ -72,17 +40,8 @@ Welcome, anotherstudent
 7. View My Pending Connection Requests
 6. Log out.
 Enter your choice:
---- Create/Edit Profile ---
-Enter First Name:
-Enter Last Name:
-Enter University:
-Enter Major:
-Enter Grad Year (YYYY):
-Enter About Me (optional, max 200 chars, enter blank line to skip):
-Add Experience (optional, max 3 entries. Enter DONE to finish):
-Add Education (optional, max 3 entries. Enter DONE to finish):
-DONE
-Profile saved successfully!
+--- Pending Connection Requests ---
+No pending requests.
 1. Find someone you know
 2. Learn a new skill
 3. Search for a job
@@ -107,21 +66,33 @@ Welcome, TestUser
 7. View My Pending Connection Requests
 6. Log out.
 Enter your choice:
---- Your Profile ---
-Name: Test User
-University: State University
-Major: Computer Science
-Graduation Year: 2025
-About Me: Passionate about software development.
-Experience:
-  Title: Intern
-  Company: Tech Solutions
-  Dates: Summer 2024
-  Description: Assisted with front-end development.
-Education:
-  Degree: Bachelor's
-  University: State University
-  Years: 2021-2025
+Enter Full name of user to search for their account.
+Enter First name to search:
+Enter last name to search:
+--- User Profile ---
+Name: Another Student
+University: City College
+Major: Electrical Engineering
+Graduation Year: 2026
+About Me: Robotics enthusiast.
+Do you want to send a connection request to this user? If yes enter Y if no enter N.
+Connection request sent.
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, anotherstudent
 1. Find someone you know
 2. Learn a new skill
 3. Search for a job
@@ -134,13 +105,13 @@ Enter Full name of user to search for their account.
 Enter First name to search:
 Enter last name to search:
 --- User Profile ---
-Name: Another Student
-University: City College
-Major: Electrical Engineering
-Graduation Year: 2026
-About Me: Robotics enthusiast.
+Name: Test User
+University: State University
+Major: Computer Science
+Graduation Year: 2025
+About Me: Passionate about software development.
 Do you want to send a connection request to this user? If yes enter Y if no enter N.
-Connection request denied. Back to menu
+Connection request accepted.
 1. Find someone you know
 2. Learn a new skill
 3. Search for a job
@@ -149,10 +120,13 @@ Connection request denied. Back to menu
 7. View My Pending Connection Requests
 6. Log out.
 Enter your choice:
-Invalid choice. Please try again.
+--- Pending Connection Requests ---
+No pending requests.
 1. Find someone you know
 2. Learn a new skill
 3. Search for a job
 4. Create/Edit My Profile
 5. View My Profile
-7. View My Pending 
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
