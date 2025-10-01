@@ -1,0 +1,132 @@
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, TestUser
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
+--- Pending Connection Requests ---
+No pending requests.
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, anotherstudent
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
+--- Pending Connection Requests ---
+No pending requests.
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, TestUser
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
+Enter Full name of user to search for their account.
+Enter First name to search:
+Enter last name to search:
+--- User Profile ---
+Name: Another Student
+University: City College
+Major: Electrical Engineering
+Graduation Year: 2026
+About Me: Robotics enthusiast.
+Do you want to send a connection request to this user? If yes enter Y if no enter N.
+Connection request sent.
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, anotherstudent
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
+Enter Full name of user to search for their account.
+Enter First name to search:
+Enter last name to search:
+--- User Profile ---
+Name: Test User
+University: State University
+Major: Computer Science
+Graduation Year: 2025
+About Me: Passionate about software development.
+Do you want to send a connection request to this user? If yes enter Y if no enter N.
+Connection request accepted.
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
+--- Pending Connection Requests ---
+No pending requests.
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+7. View My Pending Connection Requests
+6. Log out.
+Enter your choice:
