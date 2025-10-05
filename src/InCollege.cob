@@ -21,6 +21,9 @@
            SELECT OPTIONAL CONNECTIONS-FILE ASSIGN TO "data/CONNECTIONS.DAT"
                ORGANIZATION IS SEQUENTIAL
                FILE STATUS IS WS-CONNECTIONS-FILE-STATUS.
+           SELECT OPTIONAL ESTABLISHED-CONNECTIONS-FILE ASSIGN TO "data/ESTABLISHED-CONNECTIONS.DAT"
+               ORGANIZATION IS SEQUENTIAL
+               FILE STATUS IS WS-EST-CONN-FILE-STATUS.
 
        DATA DIVISION.
        FILE SECTION.
@@ -67,6 +70,11 @@
            05 CONN-TO-USER       PIC X(100).
            05 CONN-STATUS        PIC X(10).
 
+       FD ESTABLISHED-CONNECTIONS-FILE.
+       01 ESTABLISHED-CONNECTION-REC.
+           05 EST-CONN-USER1     PIC X(100).
+           05 EST-CONN-USER2     PIC X(100).
+
        WORKING-STORAGE SECTION.
        01 WS-FLAGS.
            05 WS-END-OF-FILE PIC X VALUE 'N'.
@@ -91,6 +99,7 @@
            05 WS-PROFILE-FILE-STATUS PIC XX VALUE "00".
            05 WS-TEMP-PROFILE-FILE-STATUS PIC XX VALUE "00".
            05 WS-CONNECTIONS-FILE-STATUS PIC XX VALUE "00".
+           05 WS-EST-CONN-FILE-STATUS PIC XX VALUE "00".
            05 WS-FOUND-PROFILE            PIC X VALUE 'N'.
               88 WS-PROFILE-FOUND      VALUE 'Y'.
               88 WS-PROFILE-NOT-FOUND  VALUE 'N'.
@@ -183,9 +192,10 @@
        01 WS-FIND-SOMEONE-MSG      PIC X(28)  VALUE '2. Search for User'.
        01 WS-LEARN-SKILL-MSG       PIC X(28)  VALUE '3. Learn a New Skill'.
        01 WS-VIEW-CONN-REQ-MSG     PIC X(50)  VALUE '4. View My Pending Connection Requests'.
-       01 WS-PROFILE-MENU-EDIT     PIC X(30)  VALUE '5. Create/Edit My Profile'.
+       01 WS-VIEW-NETWORK-MSG      PIC X(30)  VALUE '5. View My Network'.
+       01 WS-PROFILE-MENU-EDIT     PIC X(30)  VALUE '6. Create/Edit My Profile'.
        01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE '3. Search for a job'.
-       01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '6. Log Out'.
+       01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '7. Log Out'.
        01 WS-UC-JOB-MSG            PIC X(60)  VALUE 'Job search/internship is under construction.'.
        01 WS-UC-FIND-MSG           PIC X(60)  VALUE 'Find someone you know is under construction.'.
        01 WS-LEARN-SKILL-HEADER    PIC X(22)  VALUE 'Learn a New Skill:'.
@@ -226,6 +236,7 @@
        01 WS-SEARCH-USER-MSG          PIC X(100) VALUE 'Enter the full name of the person you are looking for'.
        01 WS-TEMP-FIELD            PIC X(100).
        01 WS-TEMP-ABOUT-ME-BUFFER  PIC X(500).
+       01 WS-TEMP-CONNECTION-REC   PIC X(210).
        01 WS-VALIDATED-YEAR        PIC 9(4).
 
        *> CONNECTION REQUEST MESSAGES AND VARIABLES
@@ -237,6 +248,14 @@
        01 WS-PENDING-FROM-THEM-MSG    PIC X(80) VALUE 'This user has already sent you a connection request.'.
        01 WS-SEND-CONN-REQ-MSG        PIC X(30) VALUE '1. Send Connection Request'.
        01 WS-BACK-TO-MENU-MSG         PIC X(30) VALUE '2. Back to Main Menu'.
+       01 WS-ACCEPT-CONN-MSG          PIC X(20) VALUE '1. Accept'.
+       01 WS-REJECT-CONN-MSG          PIC X(20) VALUE '2. Reject'.
+       01 WS-CONN-ACCEPTED-MSG        PIC X(50) VALUE 'Connection request accepted!'.
+       01 WS-CONN-REJECTED-MSG        PIC X(50) VALUE 'Connection request rejected.'.
+       01 WS-NETWORK-HEADER           PIC X(20) VALUE '--- Your Network ---'.
+       01 WS-NETWORK-FOOTER           PIC X(20) VALUE '--------------------'.
+       01 WS-NO-NETWORK-MSG           PIC X(50) VALUE 'You have no connections at this time.'.
+       01 WS-CONNECTED-WITH-MSG       PIC X(20) VALUE 'Connected with: '.
        01 WS-FOUND-PROFILE-HEADER     PIC X(30) VALUE '--- Found User Profile ---'.
        01 WS-FOUND-PROFILE-FOOTER     PIC X(30) VALUE '-------------------------'.
        01 WS-TARGET-USER-NAME         PIC X(100).
@@ -303,7 +322,11 @@
 
            *> Ensure connections file is recreated fresh each run
            OPEN OUTPUT CONNECTIONS-FILE
-           CLOSE CONNECTIONS-FILE.
+           CLOSE CONNECTIONS-FILE
+           
+           *> Ensure established connections file is recreated fresh each run
+           OPEN OUTPUT ESTABLISHED-CONNECTIONS-FILE
+           CLOSE ESTABLISHED-CONNECTIONS-FILE.
 
        2000-SHOW-MENU.
            IF WS-SKIP-MENU-FALSE
@@ -535,6 +558,8 @@
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-VIEW-CONN-REQ-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-VIEW-NETWORK-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-PROFILE-MENU-EDIT TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-LOG-OUT-MSG TO DISPLAY-MSG
@@ -557,8 +582,10 @@
                    WHEN "4"
                        PERFORM 7000-VIEW-PENDING-CONNECTIONS
                    WHEN "5"
-                       PERFORM 6100-CREATE-EDIT-PROFILE
+                       PERFORM 7500-VIEW-NETWORK
                    WHEN "6"
+                       PERFORM 6100-CREATE-EDIT-PROFILE
+                   WHEN "7"
                        PERFORM 2000-SHOW-MENU
                    WHEN OTHER
                        MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
@@ -1125,27 +1152,60 @@
        6300-VIEW-PROFILE-BY-SEARCH.
            MOVE "Enter Full name of user to search for their account." TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
-           MOVE "Enter First name to search:" TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
-           MOVE "Enter last name to search:" TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+           
+           *> Get first name with validation
+           SET WS-INVALID-FIELD TO TRUE
+           PERFORM UNTIL WS-VALID-FIELD
+               MOVE "Enter First name to search:" TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               
+               READ INPUT-FILE INTO WS-SEARCH-FIRST-NAME
+                   AT END 
+                       SET WS-USER-WANT-TO-EXIT TO TRUE
+                       EXIT PERFORM
+               END-READ
+               
+               MOVE FUNCTION TRIM(WS-SEARCH-FIRST-NAME) TO WS-SEARCH-FIRST-NAME
+               
+               IF FUNCTION LENGTH(FUNCTION TRIM(WS-SEARCH-FIRST-NAME)) = 0
+                   MOVE "First name cannot be blank. Please try again." TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               ELSE
+                   SET WS-VALID-FIELD TO TRUE
+               END-IF
+           END-PERFORM
+           
+           SET WS-INVALID-FIELD TO TRUE
+           
+           *> Get last name with validation
+           IF NOT WS-USER-WANT-TO-EXIT
+               PERFORM UNTIL WS-VALID-FIELD
+                   MOVE "Enter last name to search:" TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+                   
+                   READ INPUT-FILE INTO WS-SEARCH-LAST-NAME
+                       AT END 
+                           SET WS-USER-WANT-TO-EXIT TO TRUE
+                           EXIT PERFORM
+                   END-READ
+                   
+                   MOVE FUNCTION TRIM(WS-SEARCH-LAST-NAME) TO WS-SEARCH-LAST-NAME
+                   
+                   IF FUNCTION LENGTH(FUNCTION TRIM(WS-SEARCH-LAST-NAME)) = 0
+                       MOVE "Last name cannot be blank. Please try again." TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+                   ELSE
+                       SET WS-VALID-FIELD TO TRUE
+                   END-IF
+               END-PERFORM
+           END-IF
 
            SET WS-NOT-EOF-FLAG TO TRUE
            SET WS-PROFILE-NOT-FOUND TO TRUE
 
-           CLOSE USER-PROFILE-FILE
-           OPEN INPUT USER-PROFILE-FILE
-
-           READ INPUT-FILE INTO WS-SEARCH-FIRST-NAME
-               AT END SET WS-USER-WANT-TO-EXIT TO TRUE
-               NOT AT END MOVE FUNCTION TRIM(WS-SEARCH-FIRST-NAME) TO WS-SEARCH-FIRST-NAME
-           END-READ
-
            IF NOT WS-USER-WANT-TO-EXIT
-               READ INPUT-FILE INTO WS-SEARCH-LAST-NAME
-                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE
-                   NOT AT END MOVE FUNCTION TRIM(WS-SEARCH-LAST-NAME) TO WS-SEARCH-LAST-NAME
-               END-READ
+               CLOSE USER-PROFILE-FILE
+               OPEN INPUT USER-PROFILE-FILE
            END-IF
 
            PERFORM UNTIL WS-EOF-FLAG OR WS-PROFILE-FOUND
@@ -1186,8 +1246,10 @@
                MOVE WS-FOUND-PROFILE-FOOTER TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               *> Show connection request options
-               PERFORM 7100-SHOW-CONNECTION-OPTIONS
+               *> Show connection request options only if not searching for self
+               IF FUNCTION TRIM(UP-USER-NAME OF USER-PROFILE-REC) NOT = FUNCTION TRIM(WS-CURRENT-USER)
+                   PERFORM 7100-SHOW-CONNECTION-OPTIONS
+               END-IF
            ELSE
                MOVE WS-PROFILE-NOTFOUND-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
@@ -1210,13 +1272,58 @@
                        IF FUNCTION TRIM(CONN-TO-USER) = FUNCTION TRIM(WS-CURRENT-USER)
                        AND FUNCTION TRIM(CONN-STATUS) = "PENDING"
                            SET WS-PROFILE-FOUND TO TRUE
-                           MOVE FUNCTION TRIM(CONN-FROM-USER) TO DISPLAY-MSG
+                           MOVE SPACES TO DISPLAY-MSG
+                           STRING "Request from: " FUNCTION TRIM(CONN-FROM-USER) DELIMITED BY SIZE INTO DISPLAY-MSG
                            PERFORM 8000-DISPLAY-ROUTINE
+                           
+                           SET WS-INVALID-FIELD TO TRUE
+                           
+                           PERFORM UNTIL WS-VALID-FIELD
+                               MOVE WS-ACCEPT-CONN-MSG TO DISPLAY-MSG
+                               PERFORM 8000-DISPLAY-ROUTINE
+                               MOVE WS-REJECT-CONN-MSG TO DISPLAY-MSG
+                               PERFORM 8000-DISPLAY-ROUTINE
+                               MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+                               PERFORM 8000-DISPLAY-ROUTINE
+
+                               READ INPUT-FILE INTO WS-INPUT-CHOICE
+                                   AT END 
+                                       SET WS-USER-WANT-TO-EXIT TO TRUE
+                                       EXIT PERFORM
+                               END-READ
+
+                               EVALUATE WS-INPUT-CHOICE
+                                   WHEN "1"
+                                       SET WS-VALID-FIELD TO TRUE
+                                   WHEN "2"
+                                       SET WS-VALID-FIELD TO TRUE
+                                   WHEN OTHER
+                                       MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
+                                       PERFORM 8000-DISPLAY-ROUTINE
+                               END-EVALUATE
+                           END-PERFORM
+
+                           *> Close file before modifying it
+                           CLOSE CONNECTIONS-FILE
+
+                           *> Process the valid choice
+                           IF WS-INPUT-CHOICE = "1"
+                               PERFORM 7400-ACCEPT-CONNECTION
+                           ELSE
+                               IF WS-INPUT-CHOICE = "2"
+                                   PERFORM 7450-REJECT-CONNECTION
+                               END-IF
+                           END-IF
+                           
+                           *> Exit loop after handling first pending request
+                           SET WS-EOF-FLAG TO TRUE
                        END-IF
                END-READ
            END-PERFORM
 
-           CLOSE CONNECTIONS-FILE
+           IF NOT WS-EOF-FLAG
+               CLOSE CONNECTIONS-FILE
+           END-IF
 
            IF WS-PROFILE-NOT-FOUND
                MOVE WS-NO-CONN-MSG TO DISPLAY-MSG
@@ -1227,26 +1334,33 @@
            PERFORM 8000-DISPLAY-ROUTINE.
 
        7100-SHOW-CONNECTION-OPTIONS.
-           MOVE WS-SEND-CONN-REQ-MSG TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
-           MOVE WS-BACK-TO-MENU-MSG TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
-           MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+           SET WS-INVALID-FIELD TO TRUE
+           
+           PERFORM UNTIL WS-VALID-FIELD
+               MOVE WS-SEND-CONN-REQ-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-BACK-TO-MENU-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
 
-           READ INPUT-FILE INTO WS-INPUT-CHOICE
-               AT END SET WS-USER-WANT-TO-EXIT TO TRUE
-           END-READ
+               READ INPUT-FILE INTO WS-INPUT-CHOICE
+                   AT END 
+                       SET WS-USER-WANT-TO-EXIT TO TRUE
+                       EXIT PERFORM
+               END-READ
 
-           EVALUATE WS-INPUT-CHOICE
-               WHEN "1"
-                   PERFORM 7200-SEND-CONNECTION-REQUEST
-               WHEN "2"
-                   CONTINUE
-               WHEN OTHER
-                   MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
-                   PERFORM 8000-DISPLAY-ROUTINE
-           END-EVALUATE.
+               EVALUATE WS-INPUT-CHOICE
+                   WHEN "1"
+                       PERFORM 7200-SEND-CONNECTION-REQUEST
+                       SET WS-VALID-FIELD TO TRUE
+                   WHEN "2"
+                       SET WS-VALID-FIELD TO TRUE
+                   WHEN OTHER
+                       MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+               END-EVALUATE
+           END-PERFORM.
 
        7200-SEND-CONNECTION-REQUEST.
            PERFORM 7300-CHECK-CONNECTION-STATUS
@@ -1323,6 +1437,104 @@
                END-READ
            END-PERFORM
 
+           CLOSE CONNECTIONS-FILE.
+
+       7400-ACCEPT-CONNECTION.
+           *> Add to established connections (both directions)
+           OPEN EXTEND ESTABLISHED-CONNECTIONS-FILE
+           MOVE FUNCTION TRIM(WS-CURRENT-USER) TO EST-CONN-USER1
+           MOVE FUNCTION TRIM(CONN-FROM-USER) TO EST-CONN-USER2
+           WRITE ESTABLISHED-CONNECTION-REC
+           MOVE FUNCTION TRIM(CONN-FROM-USER) TO EST-CONN-USER1
+           MOVE FUNCTION TRIM(WS-CURRENT-USER) TO EST-CONN-USER2
+           WRITE ESTABLISHED-CONNECTION-REC
+           CLOSE ESTABLISHED-CONNECTIONS-FILE
+           
+           *> Remove from pending connections
+           PERFORM 7600-REMOVE-PENDING-CONNECTION
+           
+           MOVE WS-CONN-ACCEPTED-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE.
+
+       7450-REJECT-CONNECTION.
+           *> Remove from pending connections
+           PERFORM 7600-REMOVE-PENDING-CONNECTION
+           
+           MOVE WS-CONN-REJECTED-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE.
+
+       7500-VIEW-NETWORK.
+           MOVE WS-NETWORK-HEADER TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           SET WS-NOT-EOF-FLAG TO TRUE
+           SET WS-PROFILE-NOT-FOUND TO TRUE
+
+           OPEN INPUT ESTABLISHED-CONNECTIONS-FILE
+
+           PERFORM UNTIL WS-EOF-FLAG
+               READ ESTABLISHED-CONNECTIONS-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       IF FUNCTION TRIM(EST-CONN-USER1) = FUNCTION TRIM(WS-CURRENT-USER)
+                           SET WS-PROFILE-FOUND TO TRUE
+                           MOVE SPACES TO DISPLAY-MSG
+                           STRING WS-CONNECTED-WITH-MSG FUNCTION TRIM(EST-CONN-USER2) DELIMITED BY SIZE INTO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                       END-IF
+               END-READ
+           END-PERFORM
+
+           CLOSE ESTABLISHED-CONNECTIONS-FILE
+
+           IF WS-PROFILE-NOT-FOUND
+               MOVE WS-NO-NETWORK-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           END-IF
+
+           MOVE WS-NETWORK-FOOTER TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE.
+
+       7600-REMOVE-PENDING-CONNECTION.
+           *> Remove the pending connection by rewriting file without it
+           *> CONNECTION-REC already contains the record to remove
+           OPEN INPUT CONNECTIONS-FILE
+           OPEN OUTPUT TEMP-PROFILE-FILE
+           
+           SET WS-NOT-EOF-FLAG TO TRUE
+           PERFORM UNTIL WS-EOF-FLAG
+               READ CONNECTIONS-FILE INTO WS-TEMP-CONNECTION-REC
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       *> Only write records that don't match the one to remove
+                       *> We compare against the CONNECTION-REC that was read earlier
+                       IF NOT (WS-TEMP-CONNECTION-REC(1:100) = CONN-FROM-USER
+                       AND WS-TEMP-CONNECTION-REC(101:100) = CONN-TO-USER)
+                           WRITE TEMP-PROFILE-REC FROM WS-TEMP-CONNECTION-REC
+                       END-IF
+               END-READ
+           END-PERFORM
+           
+           CLOSE CONNECTIONS-FILE
+           CLOSE TEMP-PROFILE-FILE
+           
+           *> Copy temp file back to connections file
+           OPEN INPUT TEMP-PROFILE-FILE
+           OPEN OUTPUT CONNECTIONS-FILE
+           
+           SET WS-NOT-EOF-FLAG TO TRUE
+           PERFORM UNTIL WS-EOF-FLAG
+               READ TEMP-PROFILE-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       WRITE CONNECTION-REC FROM TEMP-PROFILE-REC
+               END-READ
+           END-PERFORM
+           
+           CLOSE TEMP-PROFILE-FILE
            CLOSE CONNECTIONS-FILE.
 
        8000-DISPLAY-ROUTINE.

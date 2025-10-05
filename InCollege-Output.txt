@@ -5,13 +5,8 @@ Welcome to InCollege!
 3. Exit
 Enter your choice:
 Please enter your username:
-This username already exists. Please try another.
-Welcome to InCollege!
-1. Log In
-2. Create New Account
-3. Exit
-Enter your choice:
-Invalid choice. Please try again.
+Please enter your password:
+Account created successfully!
 Welcome to InCollege!
 1. Log In
 2. Create New Account
@@ -25,8 +20,9 @@ Welcome, TestUser
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 --- Create/Edit Profile ---
 Enter First Name:
@@ -42,8 +38,9 @@ Profile saved successfully!
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 --- Your Profile ---
 Name: Test User
@@ -55,8 +52,9 @@ About Me:
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 Welcome to InCollege!
 1. Log In
@@ -64,50 +62,24 @@ Welcome to InCollege!
 3. Exit
 Enter your choice:
 Please enter your username:
-This username already exists. Please try another.
-1. View My Profile
-2. Search for User
-3. Learn a New Skill
-4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+Please enter your password:
+Account created successfully!
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
 Enter your choice:
-Invalid choice. Please try again.
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, NewStudent
 1. View My Profile
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
-Enter your choice:
---- Your Profile ---
-Name: Test User
-University: USF
-Major: Computer Science
-Graduation Year: 2027
-About Me:
-1. View My Profile
-2. Search for User
-3. Learn a New Skill
-4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
-Enter your choice:
-Invalid choice. Please try again.
-1. View My Profile
-2. Search for User
-3. Learn a New Skill
-4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
-Enter your choice:
-Invalid choice. Please try again.
-1. View My Profile
-2. Search for User
-3. Learn a New Skill
-4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 --- Create/Edit Profile ---
 Enter First Name:
@@ -123,8 +95,9 @@ Profile saved successfully!
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 --- Your Profile ---
 Name: New Student
@@ -136,8 +109,30 @@ About Me:
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
+Enter your choice:
+Enter Full name of user to search for their account.
+Enter First name to search:
+Enter last name to search:
+--- Found User Profile ---
+Name: Test User
+University: USF
+Major: Computer Science
+Graduation Year: 2027
+-------------------------
+1. Send Connection Request
+2. Back to Main Menu
+Enter your choice:
+Connection request sent to Test User
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 Welcome to InCollege!
 1. Log In
@@ -152,18 +147,24 @@ Welcome, TestUser
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 --- Pending Connection Requests ---
-You have no pending connection requests at this time.
+Request from: NewStudent
+1. Accept
+2. Reject
+Enter your choice:
+Connection request rejected.
 -----------------------------------
 1. View My Profile
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 Enter Full name of user to search for their account.
 Enter First name to search:
@@ -182,8 +183,9 @@ Connection request sent to New Student
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 Welcome to InCollege!
 1. Log In
@@ -198,18 +200,24 @@ Welcome, NewStudent
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 --- Pending Connection Requests ---
-You have no pending connection requests at this time.
+Request from: TestUser
+1. Accept
+2. Reject
+Enter your choice:
+Connection request accepted!
 -----------------------------------
 1. View My Profile
 2. Search for User
 3. Learn a New Skill
 4. View My Pending Connection Requests
-5. Create/Edit My Profile
-6. Log Out
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
 Enter your choice:
 Welcome to InCollege!
 1. Log In
