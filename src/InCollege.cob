@@ -9,23 +9,26 @@
                ORGANIZATION IS LINE SEQUENTIAL.
            SELECT OUTPUT-FILE ASSIGN TO "InCollege-Output.txt"
                ORGANIZATION IS LINE SEQUENTIAL.
-           SELECT USER-ACCOUNT-FILE ASSIGN TO "USER-ACCOUNT.DAT"
+           SELECT USER-ACCOUNT-FILE ASSIGN TO "data/USER-ACCOUNT.DAT"
                ORGANIZATION IS SEQUENTIAL
                FILE STATUS IS WS-USER-FILE-STATUS.
-           SELECT USER-PROFILE-FILE ASSIGN TO "USER-PROFILE.DAT"
+           SELECT USER-PROFILE-FILE ASSIGN TO "data/USER-PROFILE.DAT"
                ORGANIZATION IS SEQUENTIAL
                FILE STATUS IS WS-PROFILE-FILE-STATUS.
-           SELECT TEMP-PROFILE-FILE ASSIGN TO "TEMP-PROFILE.DAT"
+           SELECT TEMP-PROFILE-FILE ASSIGN TO "data/TEMP-PROFILE.DAT"
                ORGANIZATION IS SEQUENTIAL
                FILE STATUS IS WS-TEMP-PROFILE-FILE-STATUS.
+           SELECT OPTIONAL CONNECTIONS-FILE ASSIGN TO "data/CONNECTIONS.DAT"
+               ORGANIZATION IS SEQUENTIAL
+               FILE STATUS IS WS-CONNECTIONS-FILE-STATUS.
 
        DATA DIVISION.
        FILE SECTION.
        FD INPUT-FILE.
-       01 INPUT-RECORD PIC X(100).
+       01 INPUT-RECORD PIC X(500).
 
        FD OUTPUT-FILE.
-       01 OUTPUT-RECORD PIC X(100).
+       01 OUTPUT-RECORD PIC X(300).
 
        FD USER-ACCOUNT-FILE.
        01 USER-ACCOUNT-REC.
@@ -58,6 +61,12 @@
        FD TEMP-PROFILE-FILE.
        01 TEMP-PROFILE-REC       PIC X(6000).
 
+       FD CONNECTIONS-FILE.
+       01 CONNECTION-REC.
+           05 CONN-FROM-USER     PIC X(100).
+           05 CONN-TO-USER       PIC X(100).
+           05 CONN-STATUS        PIC X(10).
+
        WORKING-STORAGE SECTION.
        01 WS-FLAGS.
            05 WS-END-OF-FILE PIC X VALUE 'N'.
@@ -74,10 +83,14 @@
               88 WS-ACCOUNT-NOT-CREATED VALUE 'N'.
            05 WS-EXIT-STATUS PIC X VALUE 'N'.
               88 WS-USER-WANT-TO-EXIT VALUE 'Y'.
+           05 WS-SKIP-MENU-DRAW PIC X VALUE 'N'.
+              88 WS-SKIP-MENU-TRUE  VALUE 'Y'.
+              88 WS-SKIP-MENU-FALSE VALUE 'N'.
            05 WS-USER-FILE-STATUS    PIC XX VALUE "00".
            05 WS-CUR-CHAR            PIC X.
            05 WS-PROFILE-FILE-STATUS PIC XX VALUE "00".
            05 WS-TEMP-PROFILE-FILE-STATUS PIC XX VALUE "00".
+           05 WS-CONNECTIONS-FILE-STATUS PIC XX VALUE "00".
            05 WS-FOUND-PROFILE            PIC X VALUE 'N'.
               88 WS-PROFILE-FOUND      VALUE 'Y'.
               88 WS-PROFILE-NOT-FOUND  VALUE 'N'.
@@ -100,8 +113,7 @@
            05 WS-INPUT-USERNAME PIC X(100).
            05 WS-INPUT-PASSWORD PIC X(100).
 
-       01 WS-USER-PROFILE-REC.
-           05 WS-PROFILE-USERNAME   PIC X(100).
+       01 WS-PROFILE-WORK.
            05 WS-FIRST-NAME         PIC X(30).
            05 WS-LAST-NAME          PIC X(30).
            05 WS-UNIVERSITY         PIC X(40).
@@ -122,6 +134,28 @@
                  15 WS-EDU-UNIVERSITY  PIC X(100).
                  15 WS-EDU-YEARS       PIC X(50).
 
+       01 WS-USER-PROFILE-REC.
+           05 UP-PROFILE-USERNAME   PIC X(100).
+           05 UP-FIRST-NAME         PIC X(30).
+           05 UP-LAST-NAME          PIC X(30).
+           05 UP-UNIVERSITY         PIC X(40).
+           05 UP-MAJOR              PIC X(40).
+           05 UP-GRAD-YEAR          PIC 9(4).
+           05 UP-ABOUT-ME           PIC X(200).
+           05 UP-NUM-EXP            PIC 9.
+           05 UP-EXPERIENCE-TABLE.
+              10 UP-EXPERIENCE-ENTRY OCCURS 3 TIMES.
+                 15 UP-EXP-TITLE       PIC X(100).
+                 15 UP-EXP-COMPANY     PIC X(100).
+                 15 UP-EXP-DATES       PIC X(50).
+                 15 UP-EXP-DESCRIPTION PIC X(100).
+           05 UP-NUM-EDU            PIC 9.
+           05 UP-EDUCATION-TABLE.
+              10 UP-EDUCATION-ENTRY OCCURS 3 TIMES.
+                 15 UP-EDU-DEGREE      PIC X(100).
+                 15 UP-EDU-UNIVERSITY  PIC X(100).
+                 15 UP-EDU-YEARS       PIC X(50).
+
        01 WS-SEARCH-CRITERIA.
            05 WS-SEARCH-FIRST-NAME         PIC X(100) VALUE SPACES.
            05 WS-SEARCH-LAST-NAME          PIC X(100) VALUE SPACES.
@@ -138,17 +172,19 @@
 
        01 DISPLAY-MSG              PIC X(300) VALUE SPACES.
        01 WS-WELCOME-MSG           PIC X(25)  VALUE 'Welcome to InCollege!'.
-       01 WS-PROMPT-LOGIN          PIC X(28)  VALUE 'Log In'.
-       01 WS-PROMPT-REGISTER       PIC X(28)  VALUE 'Create New Account'.
+       01 WS-PROMPT-LOGIN          PIC X(28)  VALUE '1. Log In'.
+       01 WS-PROMPT-REGISTER       PIC X(28)  VALUE '2. Create New Account'.
+       01 WS-PROMPT-EXIT           PIC X(28)  VALUE '3. Exit'.
        01 WS-PROMPT-CHOICE         PIC X(20)  VALUE 'Enter your choice:'.
        01 WS-PROMPT-USERNAME       PIC X(28)  VALUE 'Please enter your username:'.
        01 WS-PROMPT-PASSWORD       PIC X(28)  VALUE 'Please enter your password:'.
        01 WS-SUCCESSFUL-LOGIN-MSG  PIC X(50)  VALUE 'You have successfully logged in.'.
-       01 WS-FIND-SOMEONE-MSG      PIC X(28)  VALUE '1. Find someone you know'.
-       01 WS-LEARN-SKILL-MSG       PIC X(28)  VALUE '2. Learn a new skill'.
+       01 WS-PROFILE-MENU-VIEW     PIC X(30)  VALUE '1. View My Profile'.
+       01 WS-FIND-SOMEONE-MSG      PIC X(28)  VALUE '2. Search for User'.
+       01 WS-LEARN-SKILL-MSG       PIC X(28)  VALUE '3. Learn a New Skill'.
+       01 WS-VIEW-CONN-REQ-MSG     PIC X(50)  VALUE '4. View My Pending Connection Requests'.
+       01 WS-PROFILE-MENU-EDIT     PIC X(30)  VALUE '5. Create/Edit My Profile'.
        01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE '3. Search for a job'.
-       01 WS-PROFILE-MENU-EDIT     PIC X(30)  VALUE '4. Create/Edit My Profile'.
-       01 WS-PROFILE-MENU-VIEW     PIC X(30)  VALUE '5. View My Profile'.
        01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '6. Log Out'.
        01 WS-UC-JOB-MSG            PIC X(60)  VALUE 'Job search/internship is under construction.'.
        01 WS-UC-FIND-MSG           PIC X(60)  VALUE 'Find someone you know is under construction.'.
@@ -189,7 +225,24 @@
 
        01 WS-SEARCH-USER-MSG          PIC X(100) VALUE 'Enter the full name of the person you are looking for'.
        01 WS-TEMP-FIELD            PIC X(100).
+       01 WS-TEMP-ABOUT-ME-BUFFER  PIC X(500).
        01 WS-VALIDATED-YEAR        PIC 9(4).
+
+       *> CONNECTION REQUEST MESSAGES AND VARIABLES
+       01 WS-CONN-HEADER              PIC X(50) VALUE '--- Pending Connection Requests ---'.
+       01 WS-CONN-FOOTER              PIC X(50) VALUE '-----------------------------------'.
+       01 WS-NO-CONN-MSG              PIC X(60) VALUE 'You have no pending connection requests at this time.'.
+       01 WS-CONN-SENT-MSG            PIC X(60) VALUE 'Connection request sent to '.
+       01 WS-ALREADY-CONNECTED-MSG    PIC X(60) VALUE 'You are already connected with this user.'.
+       01 WS-PENDING-FROM-THEM-MSG    PIC X(80) VALUE 'This user has already sent you a connection request.'.
+       01 WS-SEND-CONN-REQ-MSG        PIC X(30) VALUE '1. Send Connection Request'.
+       01 WS-BACK-TO-MENU-MSG         PIC X(30) VALUE '2. Back to Main Menu'.
+       01 WS-FOUND-PROFILE-HEADER     PIC X(30) VALUE '--- Found User Profile ---'.
+       01 WS-FOUND-PROFILE-FOOTER     PIC X(30) VALUE '-------------------------'.
+       01 WS-TARGET-USER-NAME         PIC X(100).
+       01 WS-CONNECTION-EXISTS        PIC X VALUE 'N'.
+          88 WS-CONN-EXISTS           VALUE 'Y'.
+          88 WS-CONN-NOT-EXISTS       VALUE 'N'.
 
        *> NEW flags for experience input
        01 WS-DONE-FLAG                PIC X VALUE 'N'.
@@ -248,15 +301,25 @@
                END-READ
            END-PERFORM.
 
+           *> Ensure connections file is recreated fresh each run
+           OPEN OUTPUT CONNECTIONS-FILE
+           CLOSE CONNECTIONS-FILE.
+
        2000-SHOW-MENU.
-           MOVE WS-WELCOME-MSG TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
-           MOVE WS-PROMPT-LOGIN TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
-           MOVE WS-PROMPT-REGISTER TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
-           MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+           IF WS-SKIP-MENU-FALSE
+               MOVE WS-WELCOME-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-PROMPT-LOGIN TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-PROMPT-REGISTER TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-PROMPT-EXIT TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           ELSE
+               SET WS-SKIP-MENU-FALSE TO TRUE
+           END-IF
            READ INPUT-FILE INTO WS-INPUT-CHOICE
                AT END SET WS-USER-WANT-TO-EXIT TO TRUE
            END-READ
@@ -402,6 +465,9 @@
                MOVE "Account created successfully!" TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
                SET WS-ACCOUNT-CREATED TO TRUE
+               *> Immediately show the main menu again after creation
+               SET WS-SKIP-MENU-FALSE TO TRUE
+               PERFORM 2000-SHOW-MENU
            ELSE
                MOVE "Account creation failed, please try again." TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
@@ -461,15 +527,15 @@
 
        5000-POST-LOGIN-MENU.
            PERFORM UNTIL WS-USER-WANT-TO-EXIT
+               MOVE WS-PROFILE-MENU-VIEW TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-FIND-SOMEONE-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-LEARN-SKILL-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
-               MOVE WS-SEARCH-JOB-MSG TO DISPLAY-MSG
+               MOVE WS-VIEW-CONN-REQ-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-PROFILE-MENU-EDIT TO DISPLAY-MSG
-               PERFORM 8000-DISPLAY-ROUTINE
-               MOVE WS-PROFILE-MENU-VIEW TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-LOG-OUT-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
@@ -483,16 +549,15 @@
 
                EVALUATE WS-INPUT-CHOICE
                    WHEN "1"
-                       PERFORM 6300-VIEW-PROFILE-BY-SEARCH
-                   WHEN "2"
-                       PERFORM 5100-LEARN-SKILL-SUBMENU
-                   WHEN "3"
-                       MOVE WS-UC-JOB-MSG TO DISPLAY-MSG
-                       PERFORM 8000-DISPLAY-ROUTINE
-                   WHEN "4"
-                       PERFORM 6100-CREATE-EDIT-PROFILE
-                   WHEN "5"
                        PERFORM 6000-VIEW-MY-PROFILE
+                   WHEN "2"
+                       PERFORM 6300-VIEW-PROFILE-BY-SEARCH
+                   WHEN "3"
+                       PERFORM 5100-LEARN-SKILL-SUBMENU
+                   WHEN "4"
+                       PERFORM 7000-VIEW-PENDING-CONNECTIONS
+                   WHEN "5"
+                       PERFORM 6100-CREATE-EDIT-PROFILE
                    WHEN "6"
                        PERFORM 2000-SHOW-MENU
                    WHEN OTHER
@@ -570,51 +635,51 @@
                MOVE "--- Your Profile ---" TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "Name: " FUNCTION TRIM(UP-FIRST-NAME) " " FUNCTION TRIM(UP-LAST-NAME)
+               STRING "Name: " FUNCTION TRIM(UP-FIRST-NAME OF USER-PROFILE-REC) " " FUNCTION TRIM(UP-LAST-NAME OF USER-PROFILE-REC)
                       DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "University: " FUNCTION TRIM(UP-UNIVERSITY) DELIMITED BY SIZE INTO DISPLAY-MSG
+               STRING "University: " FUNCTION TRIM(UP-UNIVERSITY OF USER-PROFILE-REC) DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "Major: " FUNCTION TRIM(UP-MAJOR) DELIMITED BY SIZE INTO DISPLAY-MSG
+               STRING "Major: " FUNCTION TRIM(UP-MAJOR OF USER-PROFILE-REC) DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "Graduation Year: " UP-GRAD-YEAR DELIMITED BY SIZE INTO DISPLAY-MSG
+               STRING "Graduation Year: " UP-GRAD-YEAR OF USER-PROFILE-REC DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "About Me: " FUNCTION TRIM(UP-ABOUT-ME) DELIMITED BY SIZE INTO DISPLAY-MSG
+               STRING "About Me: " FUNCTION TRIM(UP-ABOUT-ME OF USER-PROFILE-REC) DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               IF UP-NUM-EXP > 0
+               IF UP-NUM-EXP OF USER-PROFILE-REC > 0
                    MOVE "Experience:" TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
-                   PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EXP
-                       STRING "  Title: " FUNCTION TRIM(UP-EXP-TITLE(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
+                   PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EXP OF USER-PROFILE-REC
+                       STRING "  Title: " FUNCTION TRIM(UP-EXP-TITLE OF USER-PROFILE-REC (I)) DELIMITED BY SIZE INTO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
 
-                       STRING "  Company: " FUNCTION TRIM(UP-EXP-COMPANY(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
+                       STRING "  Company: " FUNCTION TRIM(UP-EXP-COMPANY OF USER-PROFILE-REC (I)) DELIMITED BY SIZE INTO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
 
-                       STRING "  Dates: " FUNCTION TRIM(UP-EXP-DATE(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
+                       STRING "  Dates: " FUNCTION TRIM(UP-EXP-DATE OF USER-PROFILE-REC (I)) DELIMITED BY SIZE INTO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
 
-                       STRING "  Description: " FUNCTION TRIM(UP-EXP-DESC(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
+                       STRING "  Description: " FUNCTION TRIM(UP-EXP-DESC OF USER-PROFILE-REC (I)) DELIMITED BY SIZE INTO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
                    END-PERFORM
                END-IF
 
-               IF UP-NUM-EDU > 0
+               IF UP-NUM-EDU OF USER-PROFILE-REC > 0
                    MOVE "Education:" TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
-                   PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EDU
-                       STRING "  Degree: " FUNCTION TRIM(UP-EDU-DEGREE(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
+                   PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EDU OF USER-PROFILE-REC
+                       STRING "  Degree: " FUNCTION TRIM(UP-EDU-DEGREE OF USER-PROFILE-REC (I)) DELIMITED BY SIZE INTO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
 
-                       STRING "  University: " FUNCTION TRIM(UP-EDU-UNI(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
+                       STRING "  University: " FUNCTION TRIM(UP-EDU-UNI OF USER-PROFILE-REC (I)) DELIMITED BY SIZE INTO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
 
-                       STRING "  Years: " FUNCTION TRIM(UP-EDU-YEARS(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
+                       STRING "  Years: " FUNCTION TRIM(UP-EDU-YEARS OF USER-PROFILE-REC (I)) DELIMITED BY SIZE INTO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
                    END-PERFORM
                END-IF
@@ -681,15 +746,16 @@
                MOVE WS-ENTER-ABOUT-ME TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               READ INPUT-FILE INTO WS-ABOUT-ME
+               MOVE SPACES TO WS-TEMP-ABOUT-ME-BUFFER
+               READ INPUT-FILE INTO WS-TEMP-ABOUT-ME-BUFFER
                    AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
                END-READ
 
-               IF FUNCTION LENGTH(FUNCTION TRIM(WS-ABOUT-ME)) > 200
+               IF FUNCTION LENGTH(FUNCTION TRIM(WS-TEMP-ABOUT-ME-BUFFER)) > 200
                    MOVE "Input exceeds 200 characters. Please try again." TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
                ELSE
-                   MOVE FUNCTION TRIM(WS-ABOUT-ME)(1:200) TO WS-ABOUT-ME
+                   MOVE FUNCTION TRIM(WS-TEMP-ABOUT-ME-BUFFER)(1:200) TO WS-ABOUT-ME
                    SET WS-VALID-FIELD TO TRUE
                END-IF
            END-PERFORM.
@@ -910,29 +976,29 @@
 
 
        6140-TRANSFER-DATA-TO-RECORD.
-           MOVE WS-FIRST-NAME      TO WS-FIRST-NAME OF WS-USER-PROFILE-REC
-           MOVE WS-LAST-NAME       TO WS-LAST-NAME OF WS-USER-PROFILE-REC
-           MOVE WS-UNIVERSITY      TO WS-UNIVERSITY OF WS-USER-PROFILE-REC
-           MOVE WS-MAJOR           TO WS-MAJOR OF WS-USER-PROFILE-REC
-           MOVE WS-GRAD-YEAR       TO WS-GRAD-YEAR OF WS-USER-PROFILE-REC
-           MOVE WS-ABOUT-ME        TO WS-ABOUT-ME OF WS-USER-PROFILE-REC
-           MOVE WS-NUM-EXP         TO WS-NUM-EXP OF WS-USER-PROFILE-REC
+           MOVE WS-FIRST-NAME      TO UP-FIRST-NAME OF WS-USER-PROFILE-REC
+           MOVE WS-LAST-NAME       TO UP-LAST-NAME OF WS-USER-PROFILE-REC
+           MOVE WS-UNIVERSITY      TO UP-UNIVERSITY OF WS-USER-PROFILE-REC
+           MOVE WS-MAJOR           TO UP-MAJOR OF WS-USER-PROFILE-REC
+           MOVE WS-GRAD-YEAR       TO UP-GRAD-YEAR OF WS-USER-PROFILE-REC
+           MOVE WS-ABOUT-ME        TO UP-ABOUT-ME OF WS-USER-PROFILE-REC
+           MOVE WS-NUM-EXP         TO UP-NUM-EXP OF WS-USER-PROFILE-REC
            PERFORM VARYING I FROM 1 BY 1 UNTIL I > WS-NUM-EXP
-               MOVE WS-EXP-TITLE(I)       TO WS-EXP-TITLE       OF WS-USER-PROFILE-REC (I)
-               MOVE WS-EXP-COMPANY(I)     TO WS-EXP-COMPANY     OF WS-USER-PROFILE-REC (I)
-               MOVE WS-EXP-DATES(I)       TO WS-EXP-DATES       OF WS-USER-PROFILE-REC (I)
-               MOVE WS-EXP-DESCRIPTION(I) TO WS-EXP-DESCRIPTION OF WS-USER-PROFILE-REC (I)
+               MOVE WS-EXP-TITLE(I)       TO UP-EXP-TITLE       OF WS-USER-PROFILE-REC (I)
+               MOVE WS-EXP-COMPANY(I)     TO UP-EXP-COMPANY     OF WS-USER-PROFILE-REC (I)
+               MOVE WS-EXP-DATES(I)       TO UP-EXP-DATES       OF WS-USER-PROFILE-REC (I)
+               MOVE WS-EXP-DESCRIPTION(I) TO UP-EXP-DESCRIPTION OF WS-USER-PROFILE-REC (I)
            END-PERFORM
-           MOVE WS-NUM-EDU         TO WS-NUM-EDU OF WS-USER-PROFILE-REC
+           MOVE WS-NUM-EDU         TO UP-NUM-EDU OF WS-USER-PROFILE-REC
            PERFORM VARYING I FROM 1 BY 1 UNTIL I > WS-NUM-EDU
-               MOVE WS-EDU-DEGREE(I)     TO WS-EDU-DEGREE     OF WS-USER-PROFILE-REC (I)
-               MOVE WS-EDU-UNIVERSITY(I) TO WS-EDU-UNIVERSITY OF WS-USER-PROFILE-REC (I)
-               MOVE WS-EDU-YEARS(I)      TO WS-EDU-YEARS      OF WS-USER-PROFILE-REC (I)
+               MOVE WS-EDU-DEGREE(I)     TO UP-EDU-DEGREE     OF WS-USER-PROFILE-REC (I)
+               MOVE WS-EDU-UNIVERSITY(I) TO UP-EDU-UNIVERSITY OF WS-USER-PROFILE-REC (I)
+               MOVE WS-EDU-YEARS(I)      TO UP-EDU-YEARS      OF WS-USER-PROFILE-REC (I)
            END-PERFORM
            CONTINUE.
 
        6150-SAVE-OR-UPDATE-PROFILE.
-           MOVE WS-CURRENT-USER TO WS-PROFILE-USERNAME OF WS-USER-PROFILE-REC
+           MOVE WS-CURRENT-USER TO UP-PROFILE-USERNAME OF WS-USER-PROFILE-REC
            SET WS-PROFILE-NOT-FOUND TO TRUE
 
            OPEN INPUT  USER-PROFILE-FILE
@@ -1087,8 +1153,8 @@
                    AT END
                        SET WS-EOF-FLAG TO TRUE
                    NOT AT END
-                       IF FUNCTION TRIM(UP-FIRST-NAME) = FUNCTION TRIM(WS-SEARCH-FIRST-NAME)
-                       AND FUNCTION TRIM(UP-LAST-NAME)  = FUNCTION TRIM(WS-SEARCH-LAST-NAME)
+                       IF FUNCTION TRIM(UP-FIRST-NAME OF USER-PROFILE-REC) = FUNCTION TRIM(WS-SEARCH-FIRST-NAME)
+                       AND FUNCTION TRIM(UP-LAST-NAME OF USER-PROFILE-REC)  = FUNCTION TRIM(WS-SEARCH-LAST-NAME)
                            SET WS-PROFILE-FOUND TO TRUE
                            EXIT PERFORM
                        END-IF
@@ -1099,66 +1165,171 @@
            OPEN I-O USER-PROFILE-FILE
 
            IF WS-PROFILE-FOUND
-               MOVE "--- User Profile ---" TO DISPLAY-MSG
+               MOVE WS-FOUND-PROFILE-HEADER TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "Name: " FUNCTION TRIM(UP-FIRST-NAME) " " FUNCTION TRIM(UP-LAST-NAME)
-                      DELIMITED BY SIZE INTO DISPLAY-MSG
+               STRING FUNCTION TRIM(UP-FIRST-NAME OF USER-PROFILE-REC) " " FUNCTION TRIM(UP-LAST-NAME OF USER-PROFILE-REC)
+                      DELIMITED BY SIZE INTO WS-TARGET-USER-NAME
+
+               STRING "Name: " WS-TARGET-USER-NAME DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "University: " FUNCTION TRIM(UP-UNIVERSITY) DELIMITED BY SIZE INTO DISPLAY-MSG
+               STRING "University: " FUNCTION TRIM(UP-UNIVERSITY OF USER-PROFILE-REC) DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "Major: " FUNCTION TRIM(UP-MAJOR) DELIMITED BY SIZE INTO DISPLAY-MSG
+               STRING "Major: " FUNCTION TRIM(UP-MAJOR OF USER-PROFILE-REC) DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "Graduation Year: " UP-GRAD-YEAR DELIMITED BY SIZE INTO DISPLAY-MSG
+               STRING "Graduation Year: " UP-GRAD-YEAR OF USER-PROFILE-REC DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               STRING "About Me: " FUNCTION TRIM(UP-ABOUT-ME) DELIMITED BY SIZE INTO DISPLAY-MSG
+               MOVE WS-FOUND-PROFILE-FOOTER TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
-               IF UP-NUM-EXP > 0
-                   MOVE "Experience:" TO DISPLAY-MSG
-                   PERFORM 8000-DISPLAY-ROUTINE
-                   PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EXP
-                       STRING "  Title: " FUNCTION TRIM(UP-EXP-TITLE(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
-                       PERFORM 8000-DISPLAY-ROUTINE
-
-                       STRING "  Company: " FUNCTION TRIM(UP-EXP-COMPANY(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
-                       PERFORM 8000-DISPLAY-ROUTINE
-
-                       STRING "  Dates: " FUNCTION TRIM(UP-EXP-DATE(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
-                       PERFORM 8000-DISPLAY-ROUTINE
-
-                       STRING "  Description: " FUNCTION TRIM(UP-EXP-DESC(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
-                       PERFORM 8000-DISPLAY-ROUTINE
-                   END-PERFORM
-               END-IF
-
-               IF UP-NUM-EDU > 0
-                   MOVE "Education:" TO DISPLAY-MSG
-                   PERFORM 8000-DISPLAY-ROUTINE
-                   PERFORM VARYING I FROM 1 BY 1 UNTIL I > UP-NUM-EDU
-                       STRING "  Degree: " FUNCTION TRIM(UP-EDU-DEGREE(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
-                       PERFORM 8000-DISPLAY-ROUTINE
-
-                       STRING "  University: " FUNCTION TRIM(UP-EDU-UNI(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
-                       PERFORM 8000-DISPLAY-ROUTINE
-
-                       STRING "  Years: " FUNCTION TRIM(UP-EDU-YEARS(I)) DELIMITED BY SIZE INTO DISPLAY-MSG
-                       PERFORM 8000-DISPLAY-ROUTINE
-                   END-PERFORM
-               END-IF
+               *> Show connection request options
+               PERFORM 7100-SHOW-CONNECTION-OPTIONS
            ELSE
                MOVE WS-PROFILE-NOTFOUND-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
            END-IF.
 
+       7000-VIEW-PENDING-CONNECTIONS.
+           MOVE WS-CONN-HEADER TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           SET WS-NOT-EOF-FLAG TO TRUE
+           SET WS-PROFILE-NOT-FOUND TO TRUE
+
+           OPEN INPUT CONNECTIONS-FILE
+
+           PERFORM UNTIL WS-EOF-FLAG
+               READ CONNECTIONS-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       IF FUNCTION TRIM(CONN-TO-USER) = FUNCTION TRIM(WS-CURRENT-USER)
+                       AND FUNCTION TRIM(CONN-STATUS) = "PENDING"
+                           SET WS-PROFILE-FOUND TO TRUE
+                           MOVE FUNCTION TRIM(CONN-FROM-USER) TO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                       END-IF
+               END-READ
+           END-PERFORM
+
+           CLOSE CONNECTIONS-FILE
+
+           IF WS-PROFILE-NOT-FOUND
+               MOVE WS-NO-CONN-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           END-IF
+
+           MOVE WS-CONN-FOOTER TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE.
+
+       7100-SHOW-CONNECTION-OPTIONS.
+           MOVE WS-SEND-CONN-REQ-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-BACK-TO-MENU-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+           MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           READ INPUT-FILE INTO WS-INPUT-CHOICE
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+           END-READ
+
+           EVALUATE WS-INPUT-CHOICE
+               WHEN "1"
+                   PERFORM 7200-SEND-CONNECTION-REQUEST
+               WHEN "2"
+                   CONTINUE
+               WHEN OTHER
+                   MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+           END-EVALUATE.
+
+       7200-SEND-CONNECTION-REQUEST.
+           PERFORM 7300-CHECK-CONNECTION-STATUS
+
+           IF WS-CONN-EXISTS
+               CONTINUE
+           ELSE
+               *> Create on demand if missing
+               OPEN I-O CONNECTIONS-FILE
+               IF WS-CONNECTIONS-FILE-STATUS NOT = "00"
+                   OPEN OUTPUT CONNECTIONS-FILE
+                   CLOSE CONNECTIONS-FILE
+                   OPEN EXTEND CONNECTIONS-FILE
+               ELSE
+                   CLOSE CONNECTIONS-FILE
+                   OPEN EXTEND CONNECTIONS-FILE
+               END-IF
+               MOVE WS-CURRENT-USER TO CONN-FROM-USER
+               MOVE FUNCTION TRIM(UP-USER-NAME OF USER-PROFILE-REC) TO CONN-TO-USER
+               MOVE "PENDING" TO CONN-STATUS
+               WRITE CONNECTION-REC
+               CLOSE CONNECTIONS-FILE
+
+               MOVE SPACES TO WS-TEMP-FIELD
+               STRING FUNCTION TRIM(WS-CONN-SENT-MSG) " " FUNCTION TRIM(WS-TARGET-USER-NAME) "."
+                      DELIMITED BY SIZE INTO WS-TEMP-FIELD
+               MOVE FUNCTION TRIM(WS-TEMP-FIELD) TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           END-IF.
+
+       7300-CHECK-CONNECTION-STATUS.
+           SET WS-CONN-NOT-EXISTS TO TRUE
+           SET WS-NOT-EOF-FLAG TO TRUE
+
+           OPEN INPUT CONNECTIONS-FILE
+
+           PERFORM UNTIL WS-EOF-FLAG
+               READ CONNECTIONS-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       *> Check if already connected (status is ACCEPTED)
+                       IF (FUNCTION TRIM(CONN-FROM-USER) = FUNCTION TRIM(WS-CURRENT-USER)
+                       AND FUNCTION TRIM(CONN-TO-USER) = FUNCTION TRIM(UP-USER-NAME OF USER-PROFILE-REC)
+                       AND FUNCTION TRIM(CONN-STATUS) = "ACCEPTED")
+                       OR (FUNCTION TRIM(CONN-TO-USER) = FUNCTION TRIM(WS-CURRENT-USER)
+                       AND FUNCTION TRIM(CONN-FROM-USER) = FUNCTION TRIM(UP-USER-NAME OF USER-PROFILE-REC)
+                       AND FUNCTION TRIM(CONN-STATUS) = "ACCEPTED")
+                           SET WS-CONN-EXISTS TO TRUE
+                           MOVE WS-ALREADY-CONNECTED-MSG TO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                           EXIT PERFORM
+                       END-IF
+
+                       *> Check if they already sent us a request  
+                       IF FUNCTION TRIM(CONN-FROM-USER) = FUNCTION TRIM(UP-USER-NAME OF USER-PROFILE-REC)
+                       AND FUNCTION TRIM(CONN-TO-USER) = FUNCTION TRIM(WS-CURRENT-USER)
+                       AND FUNCTION TRIM(CONN-STATUS) = "PENDING"
+                           SET WS-CONN-EXISTS TO TRUE
+                           MOVE WS-PENDING-FROM-THEM-MSG TO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                           EXIT PERFORM
+                       END-IF
+
+                       *> Check if we already sent them a request
+                       IF FUNCTION TRIM(CONN-FROM-USER) = FUNCTION TRIM(WS-CURRENT-USER)
+                       AND FUNCTION TRIM(CONN-TO-USER) = FUNCTION TRIM(UP-USER-NAME OF USER-PROFILE-REC)
+                       AND FUNCTION TRIM(CONN-STATUS) = "PENDING"
+                           SET WS-CONN-EXISTS TO TRUE
+                           MOVE WS-ALREADY-CONNECTED-MSG TO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                           EXIT PERFORM
+                       END-IF
+               END-READ
+           END-PERFORM
+
+           CLOSE CONNECTIONS-FILE.
+
        8000-DISPLAY-ROUTINE.
            DISPLAY DISPLAY-MSG
            MOVE DISPLAY-MSG TO OUTPUT-RECORD
-           WRITE OUTPUT-RECORD
+           INSPECT OUTPUT-RECORD REPLACING ALL LOW-VALUE BY SPACE
+           WRITE OUTPUT-RECORD AFTER ADVANCING 1
            MOVE SPACES TO DISPLAY-MSG.
 
        9000-TERMINATE-PROGRAM.
