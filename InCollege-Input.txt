@@ -1,51 +1,49 @@
 2
 TestUser
-ValidPass1!
-2
-anotherstudent
-ValidPass2!
+Password123!
 1
 TestUser
-ValidPass1!
-4
+Password123!
+5
 Test
 User
-State University
+USF
 Computer Science
-2025
-Passionate about software development.
-Intern
-Tech Solutions
-Summer 2024
-Assisted with front-end development.
+2027
+
 DONE
-Bachelor's
-State University
-2021-2025
 DONE
-6
 1
-anotherstudent
-ValidPass2!
-4
-Another
+6
+2
+NewStudent
+Password123!
+1
+NewStudent
+Password123!
+5
+New
 Student
-City College
-Electrical Engineering
-2026
-Robotics enthusiast.
+West Coast Uni
+Business
+2027
+
 DONE
 DONE
+1
 6
 1
 TestUser
-ValidPass1!
-5
-1
-Another
+Password123!
+4
+2
+New
 Student
 1
-NoSuch
-Person
+6
+1
+NewStudent
+Password123!
+4
 6
 3

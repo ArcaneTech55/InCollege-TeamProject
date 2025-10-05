@@ -1,0 +1,54 @@
+2
+user1
+Password1!
+2
+janesmith
+Password2@
+1
+janesmith
+Password2@
+4
+Jane
+Smith
+MIT
+Electrical Engineering
+2024
+I love working on robotics and embedded systems.
+Research Assistant
+MIT Media Lab
+Fall 2023
+Worked on human-robot interaction
+DONE
+Bachelor of Science
+MIT
+2020-2024
+DONE
+6
+1
+user1
+Password1!
+4
+John
+Doe
+Stanford University
+Computer Science
+2025
+I am passionate about software development and artificial intelligence.
+Software Engineer Intern
+Google
+Summer 2024
+Developed machine learning models
+Data Analyst
+Microsoft
+Summer 2023
+Analyzed user behavior data
+DONE
+Bachelor of Science
+Stanford University
+2021-2025
+DONE
+5
+1
+John
+Doe
+5

@@ -1,0 +1,52 @@
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Account created successfully!
+Welcome to InCollege!
+Log In
+Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, finaltest
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:
+--- Create/Edit Profile ---
+Enter First Name:
+Enter Last Name:
+Enter University:
+Enter Major:
+Enter Grad Year (YYYY):
+Enter About Me (optional, max 200 chars, enter blank line to skip):
+Experience #01 - Title (or type DONE to finish):
+Education #01 - Degree (or type DONE to finish):
+Profile saved successfully!
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:
+--- Your Profile ---
+Name: Alice Smith
+University: Test University
+Major: Engineering
+Graduation Year: 2026
+About Me: This text is exactly two hundred characters long which should be accepted since it is under the two hundred character limit for the About Me field, so no error is expected here hopefully..............
+1. Find someone you know
+2. Learn a new skill
+3. Search for a job
+4. Create/Edit My Profile
+5. View My Profile
+6. Log Out
+Enter your choice:
