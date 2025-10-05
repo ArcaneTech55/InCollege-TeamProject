@@ -61,7 +61,11 @@ We use GnuCOBOL inside the dev container.
 
 - The program reads user input from a text file named `InCollege-Input.txt` in the project root.
 - Program output is displayed on-screen and also written to `InCollege-Output.txt` in the project root.
-- User accounts are persisted in `USER-ACCOUNT.DAT` (created/updated in the project root).
+- Persistent data files are created under `data/`:
+  - `data/USER-ACCOUNT.DAT`
+  - `data/USER-PROFILE.DAT`
+  - `data/TEMP-PROFILE.DAT`
+  - `data/CONNECTIONS.DAT` (connection requests)
 
 You have two options to have valid accounts available for login:
 
@@ -145,6 +149,80 @@ If `InCollege-Input.txt` is exhausted (EOF), the program exits gracefully.
 - Input file: `InCollege-Input.txt`
 - Console output: printed during execution
 - Output mirror file: `InCollege-Output.txt`
-- Persistent accounts file: `USER-ACCOUNT.DAT`
+- Persistent data files (created/updated at runtime): under `data/`
+  - `USER-ACCOUNT.DAT`
+  - `USER-PROFILE.DAT`
+  - `TEMP-PROFILE.DAT`
+  - `CONNECTIONS.DAT`
 
-All of the above are located in the project root.
+---
+
+## Connection Requests (Send + View)
+
+### Overview
+After logging in, the post-login menu includes:
+- `4. View My Pending Connection Requests`
+- Searching for a user by full name now shows a profile view with:
+  - `1. Send Connection Request`
+  - `2. Back to Main Menu`
+
+All outputs are mirrored to `InCollege-Output.txt`. Pending requests are stored persistently in `data/CONNECTIONS.DAT`.
+
+### Input Preparation (Single-Run End-to-End)
+Below example will:
+1) Create two accounts (TestUser, NewStudent)
+2) Log in as NewStudent and create a profile
+3) Log out, log in as TestUser, send a connection request to New Student
+4) Log out, log in as NewStudent, view pending requests
+
+```text
+2
+TestUser
+Password123!
+2
+NewStudent
+Password123!
+1
+NewStudent
+Password123!
+5
+New
+Student
+West Coast Uni
+Business
+2027
+
+DONE
+DONE
+6
+1
+TestUser
+Password123!
+4
+2
+New
+Student
+1
+6
+1
+NewStudent
+Password123!
+4
+6
+```
+
+### What to Expect in Output
+- After search and profile view, when sending a request:
+  - `Connection request sent to New Student.`
+- When viewing pending requests (as NewStudent):
+  - `--- Pending Connection Requests ---`
+  - `TestUser`
+  - `-----------------------------------`
+
+### Data Files Used
+- `data/CONNECTIONS.DAT` holds connection requests as records:
+  - From Username (sender)
+  - To Username (recipient)
+  - Status (`PENDING` or `ACCEPTED`)
+
+Files in `data/` are re-created as needed on startup or on demand, and are ignored by git (see `.gitignore`).
