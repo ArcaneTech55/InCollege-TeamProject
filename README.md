@@ -66,6 +66,7 @@ We use GnuCOBOL inside the dev container.
   - `data/USER-PROFILE.DAT`
   - `data/TEMP-PROFILE.DAT`
   - `data/CONNECTIONS.DAT` (connection requests)
+  - `data/ESTABLISHED-CONNECTIONS.DAT` (accepted connections)
 
 You have two options to have valid accounts available for login:
 
@@ -154,26 +155,43 @@ If `InCollege-Input.txt` is exhausted (EOF), the program exits gracefully.
   - `USER-PROFILE.DAT`
   - `TEMP-PROFILE.DAT`
   - `CONNECTIONS.DAT`
+  - `ESTABLISHED-CONNECTIONS.DAT`
 
 ---
 
-## Connection Requests (Send + View)
+## Connection Management (Send, Accept/Reject, View Network)
 
 ### Overview
 After logging in, the post-login menu includes:
 - `4. View My Pending Connection Requests`
-- Searching for a user by full name now shows a profile view with:
+- `5. View My Network`
+- Searching for a user by full name shows a profile view with:
   - `1. Send Connection Request`
   - `2. Back to Main Menu`
 
-All outputs are mirrored to `InCollege-Output.txt`. Pending requests are stored persistently in `data/CONNECTIONS.DAT`.
+All outputs are mirrored to `InCollege-Output.txt`. Connection data is stored persistently in:
+- `data/CONNECTIONS.DAT` (pending requests)
+- `data/ESTABLISHED-CONNECTIONS.DAT` (accepted connections)
+
+### Managing Pending Connection Requests
+When viewing pending connection requests, users can:
+- **Accept**: Establishes a permanent connection between users
+- **Reject**: Removes the request without establishing a connection
+- Both actions provide clear confirmation messages
+
+### Network Display
+The "View My Network" option displays:
+- Full names of all connected users
+- University and major information for each connection
+- Format: `"Connected with: [Full Name] (University: [University], Major: [Major])"`
 
 ### Input Preparation (Single-Run End-to-End)
 Below example will:
 1) Create two accounts (TestUser, NewStudent)
 2) Log in as NewStudent and create a profile
 3) Log out, log in as TestUser, send a connection request to New Student
-4) Log out, log in as NewStudent, view pending requests
+4) Log out, log in as NewStudent, accept the connection request
+5) View the established network
 
 ```text
 2
@@ -185,7 +203,7 @@ Password123!
 1
 NewStudent
 Password123!
-5
+6
 New
 Student
 West Coast Uni
@@ -194,21 +212,21 @@ Business
 
 DONE
 DONE
-6
 1
 TestUser
 Password123!
-4
 2
 New
 Student
 1
-6
+7
 1
 NewStudent
 Password123!
 4
-6
+1
+5
+7
 ```
 
 ### What to Expect in Output
@@ -216,13 +234,22 @@ Password123!
   - `Connection request sent to New Student.`
 - When viewing pending requests (as NewStudent):
   - `--- Pending Connection Requests ---`
-  - `TestUser`
-  - `-----------------------------------`
+  - `Request from: TestUser`
+  - `1. Accept` / `2. Reject`
+  - `Connection request accepted!` (or rejected)
+- When viewing network (after accepting):
+  - `--- Your Network ---`
+  - `Connected with: Test User (University: USF, Major: Computer Science)`
+  - `--------------------`
 
 ### Data Files Used
 - `data/CONNECTIONS.DAT` holds connection requests as records:
   - From Username (sender)
   - To Username (recipient)
-  - Status (`PENDING` or `ACCEPTED`)
+  - Status (`PENDING`)
+- `data/ESTABLISHED-CONNECTIONS.DAT` holds accepted connections as records:
+  - User1 (connected user)
+  - User2 (connected user)
+  - Each connection is stored as two records (bidirectional)
 
 Files in `data/` are re-created as needed on startup or on demand, and are ignored by git (see `.gitignore`).
