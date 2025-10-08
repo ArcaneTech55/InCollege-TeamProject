@@ -1,6 +1,0 @@
-1
-NewStudent
-Password123!
-5
-5
-7
