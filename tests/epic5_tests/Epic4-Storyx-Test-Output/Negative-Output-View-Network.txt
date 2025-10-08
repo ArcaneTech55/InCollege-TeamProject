@@ -1,0 +1,83 @@
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Incorrect username/password, please try again
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Account created successfully!
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, user3
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
+Enter your choice:
+--- Create/Edit Profile ---
+Enter First Name:
+Enter Last Name:
+Enter University:
+Enter Major:
+Enter Grad Year (YYYY):
+Enter About Me (optional, max 200 chars, enter blank line to skip):
+Experience #01 - Title (or type DONE to finish):
+Experience #01 - Company/Organization (or DONE to finish):
+Experience #01 - Dates (e.g., Summer 2024) (or DONE to finish):
+Experience #01 - Description (or DONE to finish):
+Experience #02 - Title (or type DONE to finish):
+Education #01 - Degree (or type DONE to finish):
+Education #01 - University/College (or type DONE to finish):
+Education #01 - Years Attended (e.g., 2023-2025, or type DONE to finish):
+Education #02 - Degree (or type DONE to finish):
+Profile saved successfully!
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
+Enter your choice:
+--- Your Network ---
+You have no connections at this time.
+--------------------
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
+Enter your choice:
+Invalid choice. Please try again.
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Log Out
+Enter your choice:
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:

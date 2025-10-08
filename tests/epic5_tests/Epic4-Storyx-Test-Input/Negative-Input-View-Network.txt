@@ -1,0 +1,29 @@
+1
+fakeuser
+WrongPass!
+2
+user3
+Password3!
+1
+user3
+Password3!
+6
+Alex
+Brown
+UF
+Information Systems
+2026
+Passionate about cloud computing and databases.
+Intern
+Amazon
+Summer 2025
+Worked on AWS management systems
+DONE
+Bachelor of Science
+UF
+2022-2026
+DONE
+5
+9
+7
+3

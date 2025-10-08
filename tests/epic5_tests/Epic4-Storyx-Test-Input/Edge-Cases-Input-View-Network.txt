@@ -1,0 +1,91 @@
+2
+user1
+Password1!
+2
+user2
+Password2!
+2
+user3
+Password3!
+1
+user1
+Password1!
+6
+Jane
+Smith
+MIT
+Electrical Engineering
+2024
+Interested in microcontrollers and IoT.
+Intern
+Tesla
+Summer 2024
+Assisted in hardware prototyping
+DONE
+Bachelor of Science
+MIT
+2020-2024
+DONE
+7
+1
+user2
+Password2!
+6
+John
+Doe
+Stanford University
+Computer Science
+2025
+Loves developing backend systems.
+Intern
+NVIDIA
+Summer 2024
+Worked on GPU API testing
+DONE
+Bachelor of Science
+Stanford University
+2021-2025
+DONE
+2
+Jane
+Smith
+1
+7
+1
+user3
+Password3!
+6
+Sarah
+Lee
+USF
+Business Analytics
+2026
+Focuses on tech entrepreneurship.
+Intern
+IBM
+Summer 2024
+Analyzed startup metrics
+DONE
+Bachelor of Science
+USF
+2022-2026
+DONE
+2
+John
+Doe
+1
+7
+1
+user1
+Password1!
+4
+1
+5
+7
+1
+user3
+Password3!
+5
+7
+3
+
