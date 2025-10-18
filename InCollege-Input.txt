@@ -1,48 +1,16 @@
 2
-OtherUser
-Password123!
-2
-TestUser
-Password123!
+MyUser
+Pass123!
 1
-OtherUser
-Password123!
-6
-Other
-User
-Another U
-Marketing
-2026
-
-DONE
-DONE
+MyUser
+Pass123!
 7
 1
-TestUser
-Password123!
-6
-Test
-User
-USF
-Computer Science
-2026
-
-DONE
-DONE
-7
-1
-OtherUser
-Password123!
-2
-Test
-User
-Y
-7
-1
-TestUser
-Password123!
-4
-1
-5
-7
+Software Intern
+Looking for motivated students to join our team
+Tech Corp
+Remote
+$25/hour
+3
+8
 3

@@ -179,6 +179,29 @@
            05 WS-HAS-SPECIAL     PIC X.
            05 WS-SPECIAL-CHARS   PIC X(10) VALUE "!@#$%^&*()".
 
+       *> JOB POSTING VARIABLES
+       01 WS-JOB-WORK.
+           05 WS-JOB-TITLE          PIC X(100).
+           05 WS-JOB-DESCRIPTION    PIC X(250).
+           05 WS-JOB-EMPLOYER       PIC X(100).
+           05 WS-JOB-LOCATION       PIC X(100).
+           05 WS-JOB-SALARY         PIC X(50).
+
+       *> JOB POSTING MESSAGES
+       01 WS-JOB-MENU-HEADER       PIC X(40) VALUE '--- Job Search/Internship Menu ---'.
+       01 WS-POST-JOB-MSG          PIC X(40) VALUE '1. Post a Job/Internship'.
+       01 WS-BROWSE-JOB-MSG        PIC X(40) VALUE '2. Browse Jobs/Internships'.
+       01 WS-BACK-TO-MAIN-JOB-MSG  PIC X(40) VALUE '3. Back to Main Menu'.
+       01 WS-BROWSE-UC-MSG         PIC X(60) VALUE 'Browse Jobs/Internships is under construction.'.
+       01 WS-JOB-POST-HEADER       PIC X(40) VALUE '--- Post a New Job/Internship ---'.
+       01 WS-ENTER-JOB-TITLE       PIC X(50) VALUE 'Enter Job Title:'.
+       01 WS-ENTER-JOB-DESC        PIC X(100) VALUE 'Enter Description (max 200 characters):'.
+       01 WS-ENTER-JOB-EMPLOYER    PIC X(100) VALUE 'Enter Employer Name:'.
+       01 WS-ENTER-JOB-LOCATION    PIC X(100) VALUE 'Enter Location:'.
+       01 WS-ENTER-JOB-SALARY      PIC X(80) VALUE 'Enter Salary (optional, enter NONE to skip):'.
+       01 WS-JOB-POSTED-MSG        PIC X(100) VALUE 'Job posted successfully!'.
+       01 WS-JOB-DESC-TOO-LONG     PIC X(100) VALUE 'Description exceeds 200 characters. Please try again.'.
+
        01 DISPLAY-MSG              PIC X(300) VALUE SPACES.
        01 WS-WELCOME-MSG           PIC X(25)  VALUE 'Welcome to InCollege!'.
        01 WS-PROMPT-LOGIN          PIC X(28)  VALUE '1. Log In'.
@@ -194,8 +217,8 @@
        01 WS-VIEW-CONN-REQ-MSG     PIC X(50)  VALUE '4. View My Pending Connection Requests'.
        01 WS-VIEW-NETWORK-MSG      PIC X(30)  VALUE '5. View My Network'.
        01 WS-PROFILE-MENU-EDIT     PIC X(30)  VALUE '6. Create/Edit My Profile'.
-       01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE '3. Search for a job'.
-       01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '7. Log Out'.
+       01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE '7. Search for a job'.
+       01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '8. Log Out'.
        01 WS-UC-JOB-MSG            PIC X(60)  VALUE 'Job search/internship is under construction.'.
        01 WS-UC-FIND-MSG           PIC X(60)  VALUE 'Find someone you know is under construction.'.
        01 WS-LEARN-SKILL-HEADER    PIC X(22)  VALUE 'Learn a New Skill:'.
@@ -562,6 +585,8 @@
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-PROFILE-MENU-EDIT TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-SEARCH-JOB-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-LOG-OUT-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
@@ -586,7 +611,10 @@
                    WHEN "6"
                        PERFORM 6100-CREATE-EDIT-PROFILE
                    WHEN "7"
+                       PERFORM 5200-JOB-SEARCH-MENU
+                   WHEN "8"
                        PERFORM 2000-SHOW-MENU
+
                    WHEN OTHER
                        MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
@@ -628,6 +656,152 @@
                        PERFORM 8000-DISPLAY-ROUTINE
                END-EVALUATE
            END-PERFORM.
+
+       5200-JOB-SEARCH-MENU.
+           PERFORM WITH TEST AFTER UNTIL WS-USER-WANT-TO-EXIT
+               MOVE WS-JOB-MENU-HEADER TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-POST-JOB-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-BROWSE-JOB-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-BACK-TO-MAIN-JOB-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-INPUT-CHOICE
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                        EXIT PARAGRAPH
+               END-READ
+
+               EVALUATE WS-INPUT-CHOICE
+                   WHEN "1"
+                       PERFORM 5300-POST-JOB
+                   WHEN "2"
+                       MOVE WS-BROWSE-UC-MSG TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+                   WHEN "3"
+                       EXIT PARAGRAPH
+                   WHEN OTHER
+                       MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+               END-EVALUATE
+           END-PERFORM.
+
+       5300-POST-JOB.
+           MOVE WS-JOB-POST-HEADER TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           *> Get Job Title (Required)
+           SET WS-INVALID-FIELD TO TRUE
+           PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
+               MOVE WS-ENTER-JOB-TITLE TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-JOB-TITLE
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+               END-READ
+
+               IF FUNCTION LENGTH(FUNCTION TRIM(WS-JOB-TITLE)) = 0
+                   MOVE WS-BLANK-INPUT-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               ELSE
+                   SET WS-VALID-FIELD TO TRUE
+               END-IF
+           END-PERFORM
+
+           IF WS-USER-WANT-TO-EXIT
+               EXIT PARAGRAPH
+           END-IF
+
+           *> Get Job Description (Required)
+           SET WS-INVALID-FIELD TO TRUE
+           PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
+               MOVE WS-ENTER-JOB-DESC TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-JOB-DESCRIPTION
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+               END-READ
+
+               IF FUNCTION LENGTH(FUNCTION TRIM(WS-JOB-DESCRIPTION)) = 0
+                   MOVE WS-BLANK-INPUT-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               ELSE
+                   IF FUNCTION LENGTH(FUNCTION TRIM(WS-JOB-DESCRIPTION)) > 200
+                       MOVE WS-JOB-DESC-TOO-LONG TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+                   ELSE
+                       SET WS-VALID-FIELD TO TRUE
+                   END-IF
+               END-IF
+           END-PERFORM
+
+           IF WS-USER-WANT-TO-EXIT
+               EXIT PARAGRAPH
+           END-IF
+
+           *> Get Employer (Required)
+           SET WS-INVALID-FIELD TO TRUE
+           PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
+               MOVE WS-ENTER-JOB-EMPLOYER TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-JOB-EMPLOYER
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+               END-READ
+
+               IF FUNCTION LENGTH(FUNCTION TRIM(WS-JOB-EMPLOYER)) = 0
+                   MOVE WS-BLANK-INPUT-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               ELSE
+                   SET WS-VALID-FIELD TO TRUE
+               END-IF
+           END-PERFORM
+
+           IF WS-USER-WANT-TO-EXIT
+               EXIT PARAGRAPH
+           END-IF
+
+           *> Get Location (Required)
+           SET WS-INVALID-FIELD TO TRUE
+           PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
+               MOVE WS-ENTER-JOB-LOCATION TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-JOB-LOCATION
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+               END-READ
+
+               IF FUNCTION LENGTH(FUNCTION TRIM(WS-JOB-LOCATION)) = 0
+                   MOVE WS-BLANK-INPUT-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               ELSE
+                   SET WS-VALID-FIELD TO TRUE
+               END-IF
+           END-PERFORM
+
+           IF WS-USER-WANT-TO-EXIT
+               EXIT PARAGRAPH
+           END-IF
+
+           *> Get Salary (Optional)
+           MOVE WS-ENTER-JOB-SALARY TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           MOVE SPACES TO WS-JOB-SALARY
+           READ INPUT-FILE INTO WS-JOB-SALARY
+               AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PARAGRAPH
+           END-READ
+
+           *> Save the job posting
+           PERFORM 5400-SAVE-JOB-POSTING.
+
+       5400-SAVE-JOB-POSTING.
+           *> Display success message (actual persistence left for developer 2)
+           MOVE WS-JOB-POSTED-MSG TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE.
 
        1200-ENSURE-NOT-BLANK.
            IF FUNCTION LENGTH(FUNCTION TRIM(WS-TEMP-FIELD)) = 0
