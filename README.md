@@ -185,6 +185,25 @@ The "View My Network" option displays:
 - University and major information for each connection
 - Format: `"Connected with: [Full Name] (University: [University], Major: [Major])"`
 
+### Job/Intenrship Posting
+The "Search for a job" option displays:
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
+
+When user enters the first option, the program displays and prompts for user inputs regarding
+- Job Title:
+- Description (max 200 characters):
+- Employer Name:
+- Location:
+- Salary (optional, enter NONE to skip):
+
+When user enters the second option, the program displays "Under construction" message
+
+When user enters the third option, the program returns to the main post-login menu
+
+> **IMPORTANT**: All user accounts, connection requests, established connections, and job/internship postings are saved to persistent data files
+
 ### Input Preparation (Single-Run End-to-End)
 Below example will:
 1) Create two accounts (TestUser, NewStudent)
@@ -243,6 +262,7 @@ Password123!
   - `--------------------`
 
 ### Data Files Used
+- **IMPORTANT**: MUST ENSURE THE 'DATA/' DIRECTORY (ALBEIT EMPTY) EXISTS BEFORE RUNNING THE COMPILED PROGRAM
 - `data/CONNECTIONS.DAT` holds connection requests as records:
   - From Username (sender)
   - To Username (recipient)
