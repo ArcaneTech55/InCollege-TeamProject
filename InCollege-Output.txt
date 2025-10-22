@@ -42,6 +42,24 @@ Job posted successfully!
 2. Browse Jobs/Internships
 3. Back to Main Menu
 Enter your choice:
+--- Post a New Job/Internship ---
+Enter Job Title:
+Enter Description (max 200 characters):
+Enter Employer Name:
+Enter Location:
+Enter Salary (optional, enter NONE to skip):
+Job posted successfully!
+--- Job Search/Internship Menu ---
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
+Enter your choice:
+Browse Jobs/Internships is under construction.
+--- Job Search/Internship Menu ---
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
+Enter your choice:
 1. View My Profile
 2. Search for User
 3. Learn a New Skill
