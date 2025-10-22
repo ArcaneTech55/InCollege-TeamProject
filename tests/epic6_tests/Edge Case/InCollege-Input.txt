@@ -1,0 +1,17 @@
+2
+MyUser
+Pass123!
+1
+MyUser
+Pass123!
+7
+1
+Software Intern
+Detail-oriented team player skilled in JavaScript, C++, and AWS. Builds efficient software, solves complex problems, and collaborates to deliver reliable, high-performance applications under tight deadlines.
+Detail-oriented team player skilled in JavaScript, C++, and AWS. Builds efficient software, solves complex problems,
+Apple
+Remote
+NONE
+3
+8
+3
