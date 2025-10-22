@@ -24,6 +24,9 @@
            SELECT OPTIONAL ESTABLISHED-CONNECTIONS-FILE ASSIGN TO "data/ESTABLISHED-CONNECTIONS.DAT"
                ORGANIZATION IS SEQUENTIAL
                FILE STATUS IS WS-EST-CONN-FILE-STATUS.
+           SELECT OPTIONAL JOB-POSTINGS-FILE ASSIGN TO "data/JOB-POSTINGS.DAT"
+               ORGANIZATION IS SEQUENTIAL
+               FILE STATUS IS WS-JOB-POSTINGS-FILE-STATUS.
 
        DATA DIVISION.
        FILE SECTION.
@@ -75,6 +78,16 @@
            05 EST-CONN-USER1     PIC X(100).
            05 EST-CONN-USER2     PIC X(100).
 
+       FD JOB-POSTINGS-FILE.
+       01 JOB-POSTING-REC.
+           05 JP-JOB-ID          PIC 9(6).
+           05 JP-JOB-TITLE       PIC X(100).
+           05 JP-JOB-DESCRIPTION PIC X(250).
+           05 JP-JOB-EMPLOYER    PIC X(100).
+           05 JP-JOB-LOCATION    PIC X(100).
+           05 JP-JOB-SALARY      PIC X(50).
+           05 JP-POSTED-BY       PIC X(100).
+
        WORKING-STORAGE SECTION.
        01 WS-FLAGS.
            05 WS-END-OF-FILE PIC X VALUE 'N'.
@@ -100,6 +113,7 @@
            05 WS-TEMP-PROFILE-FILE-STATUS PIC XX VALUE "00".
            05 WS-CONNECTIONS-FILE-STATUS PIC XX VALUE "00".
            05 WS-EST-CONN-FILE-STATUS PIC XX VALUE "00".
+           05 WS-JOB-POSTINGS-FILE-STATUS PIC XX VALUE "00".
            05 WS-FOUND-PROFILE            PIC X VALUE 'N'.
               88 WS-PROFILE-FOUND      VALUE 'Y'.
               88 WS-PROFILE-NOT-FOUND  VALUE 'N'.
@@ -109,6 +123,7 @@
 
        01 WS-COUNTERS.
            05 WS-USER-ACCOUNT-COUNT PIC 99 VALUE 0.
+           05 WS-JOB-ID-COUNTER     PIC 9(6) VALUE 0.
            05 I                     PIC 99.
            05 J                     PIC 99.
 
@@ -799,7 +814,29 @@
            PERFORM 5400-SAVE-JOB-POSTING.
 
        5400-SAVE-JOB-POSTING.
-           *> Display success message (actual persistence left for developer 2)
+           *> Close any existing file handle and open in EXTEND mode
+           CLOSE JOB-POSTINGS-FILE
+           OPEN EXTEND JOB-POSTINGS-FILE
+
+           *> Generate unique job ID
+           ADD 1 TO WS-JOB-ID-COUNTER
+
+           *> Prepare job posting record
+           MOVE WS-JOB-ID-COUNTER TO JP-JOB-ID
+           MOVE WS-JOB-TITLE TO JP-JOB-TITLE
+           MOVE WS-JOB-DESCRIPTION TO JP-JOB-DESCRIPTION
+           MOVE WS-JOB-EMPLOYER TO JP-JOB-EMPLOYER
+           MOVE WS-JOB-LOCATION TO JP-JOB-LOCATION
+           MOVE WS-JOB-SALARY TO JP-JOB-SALARY
+           MOVE WS-INPUT-USERNAME TO JP-POSTED-BY
+
+           *> Write job posting to file
+           WRITE JOB-POSTING-REC
+           IF WS-JOB-POSTINGS-FILE-STATUS NOT = "00"
+               DISPLAY "Error writing job posting: " WS-JOB-POSTINGS-FILE-STATUS
+           END-IF
+
+           *> Display success message
            MOVE WS-JOB-POSTED-MSG TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE.
 
@@ -1763,4 +1800,5 @@
            CLOSE USER-PROFILE-FILE
            CLOSE CONNECTIONS-FILE
            CLOSE ESTABLISHED-CONNECTIONS-FILE
+           CLOSE JOB-POSTINGS-FILE
            EXIT.
