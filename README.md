@@ -185,12 +185,13 @@ The "View My Network" option displays:
 - University and major information for each connection
 - Format: `"Connected with: [Full Name] (University: [University], Major: [Major])"`
 
-### Job/Intenrship Posting
+## Search for a job
 The "Search for a job" option displays:
 1. Post a Job/Internship
 2. Browse Jobs/Internships
 3. Back to Main Menu
 
+### Job/Intenrship Posting
 When user enters the first option, the program displays and prompts for user inputs regarding
 - Job Title:
 - Description (max 200 characters):
@@ -198,11 +199,14 @@ When user enters the first option, the program displays and prompts for user inp
 - Location:
 - Salary (optional, enter NONE to skip):
 
-When user enters the second option, the program displays "Under construction" message
-
 When user enters the third option, the program returns to the main post-login menu
 
 > **IMPORTANT**: All user accounts, connection requests, established connections, and job/internship postings are saved to persistent data files
+
+### Job/Intenrship Browsing & Applications
+When user selects the "Browse Jobs/Internships" option, a list of all available job postings saved in the `JOB-POSTINGS.DAT` is presented with their unique IDs which are simply integers for now.
+
+The user can then view the specific details of a job posting (i.e. title, employer, description, salary, location, author) by inputting its corresponding ID. Then, the user is presented with options to `Apply for this job` or `Go back to the job list`. For now, once the user selects the former option, the user information along with the job posting details are saved to `JOB-APPLICATIONS.DAT`.
 
 ### Input Preparation (Single-Run End-to-End)
 Below example will:
@@ -273,3 +277,73 @@ Password123!
   - Each connection is stored as two records (bidirectional)
 
 Files in `data/` are re-created as needed on startup or on demand, and are ignored by git (see `.gitignore`).
+
+### Dummy Persistent Database for Simple Testing (FOR TESTERS & DEVELOPERS)
+- Added `create_sample_db.cob` to create a dummy database with dummy user accounts & job postings (no connection request yet)
+- Use this dummy database to log in without creating a new account every time we run a test case or run the program in general
+
+**IMPORTANT**: to use the dummy database, please make any modifications to the `InCollege.cob` as needed, and run the bash script `main.sh` for auto-cleanup
+
+```bash
+bash main.sh
+```
+
+User Accounts
+
+    Username: TestUser
+
+        Password: Test123!
+
+    Username: JobPoster1
+
+        Password: Post123!
+
+    Username: AliceSmith
+
+        Password: Alice123!
+
+    Username: BobJones
+
+        Password: Bob123!
+
+Job Postings
+
+    Job ID: 1
+
+        Title: Software Engineer Intern
+
+        Employer: TechCorp
+
+        Posted By: JobPoster1
+
+    Job ID: 2
+
+        Title: Data Analyst
+
+        Employer: DataSolutions
+
+        Posted By: JobPoster1
+
+    Job ID: 3
+
+        Title: Marketing Specialist
+
+        Employer: BrandInc
+
+        Posted By: JobPoster1
+
+    Job ID: 4
+
+        Title: Web Developer
+
+        Employer: WebWorks LLC
+
+        Posted By: TestUser
+
+    Job ID: 5
+
+        Title: UX Designer Intern
+
+        Employer: DesignHub
+
+        Posted By: TestUser
