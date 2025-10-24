@@ -27,6 +27,9 @@
            SELECT OPTIONAL JOB-POSTINGS-FILE ASSIGN TO "data/JOB-POSTINGS.DAT"
                ORGANIZATION IS SEQUENTIAL
                FILE STATUS IS WS-JOB-POSTINGS-FILE-STATUS.
+           SELECT OPTIONAL JOB-APPLICATIONS-FILE ASSIGN TO "data/JOB-APPLICATIONS.DAT"
+               ORGANIZATION IS SEQUENTIAL
+               FILE STATUS IS WS-JOB-APPLICATIONS-FILE-STATUS.
 
        DATA DIVISION.
        FILE SECTION.
@@ -87,6 +90,14 @@
            05 JP-JOB-LOCATION    PIC X(100).
            05 JP-JOB-SALARY      PIC X(50).
            05 JP-POSTED-BY       PIC X(100).
+
+       FD JOB-APPLICATIONS-FILE.
+       01 JOB-APPLICATION-REC.
+           05 JA-USERNAME        PIC X(100).
+           05 JA-JOB-ID          PIC 9(6).
+           05 JA-JOB-TITLE       PIC X(100).
+           05 JA-JOB-EMPLOYER    PIC X(100).
+           05 JA-JOB-LOCATION    PIC X(100).
 
        WORKING-STORAGE SECTION.
        01 WS-FLAGS.
@@ -201,6 +212,34 @@
            05 WS-JOB-EMPLOYER       PIC X(100).
            05 WS-JOB-LOCATION       PIC X(100).
            05 WS-JOB-SALARY         PIC X(50).
+
+       *> Job Application Variables
+       01 WS-JOB-APPLICATIONS-FILE-STATUS PIC XX VALUE "00".
+       01 WS-JOB-COUNT                    PIC 99 VALUE 0.
+       01 WS-SELECTED-JOB-ID              PIC 9(6) VALUE 0.
+       01 WS-SELECTED-JOB-TITLE           PIC X(100).
+       01 WS-SELECTED-JOB-DESC            PIC X(250).
+       01 WS-SELECTED-JOB-EMPLOYER        PIC X(100).
+       01 WS-SELECTED-JOB-LOCATION        PIC X(100).
+       01 WS-SELECTED-JOB-SALARY          PIC X(50).
+       01 WS-SELECTED-JOB-POSTED-BY       PIC X(100).
+       01 WS-ALREADY-APPLIED-FLAG         PIC X VALUE 'N'.
+          88 WS-ALREADY-APPLIED           VALUE 'Y'.
+          88 WS-NOT-APPLIED               VALUE 'N'.
+       01 WS-JOB-ID-INPUT                 PIC X(6).
+       01 WS-JOB-ID-DISPLAY               PIC X(6).
+       01 WS-APPLY-CHOICE                 PIC X(1).
+
+       *> Job Browsing/Application Messages
+       01 WS-BROWSE-JOBS-HEADER      PIC X(40) VALUE '--- Available Jobs Listings ---'.
+       01 WS-NO-JOBS-MSG             PIC X(60) VALUE 'No job postings are currently available.'.
+       01 WS-JOB-DETAILS-HEADER      PIC X(40) VALUE '--- Job Details ---'.
+       01 WS-ENTER-JOB-ID-MSG        PIC X(80) VALUE 'Enter Job ID to view details (or 0 to go back):'.
+       01 WS-INVALID-JOB-ID-MSG      PIC X(60) VALUE 'Invalid Job ID. Please try again.'.
+       01 WS-APPLY-FOR-JOB-MSG       PIC X(40) VALUE '1. Apply for this Job'.
+       01 WS-BACK-TO-BROWSE-MSG      PIC X(40) VALUE '2. Back to Job List'.
+       01 WS-APPLICATION-SUBMITTED   PIC X(100) VALUE 'Your application has been submitted successfully!'.
+       01 WS-ALREADY-APPLIED-MSG     PIC X(80) VALUE 'You have already applied for this job.'.
 
        *> JOB POSTING MESSAGES
        01 WS-JOB-MENU-HEADER       PIC X(40) VALUE '--- Job Search/Internship Menu ---'.
@@ -343,6 +382,14 @@
            ELSE
                CLOSE USER-PROFILE-FILE
                OPEN I-O USER-PROFILE-FILE
+           END-IF.
+
+           *> Initialize job applications file
+           OPEN INPUT JOB-APPLICATIONS-FILE
+           IF WS-JOB-APPLICATIONS-FILE-STATUS NOT = "00"
+               CLOSE JOB-APPLICATIONS-FILE
+               OPEN OUTPUT JOB-APPLICATIONS-FILE
+               CLOSE JOB-APPLICATIONS-FILE
            END-IF.
 
        1100-LOAD-USER-ACCOUNT-TABLE.
@@ -694,8 +741,9 @@
                    WHEN "1"
                        PERFORM 5300-POST-JOB
                    WHEN "2"
-                       MOVE WS-BROWSE-UC-MSG TO DISPLAY-MSG
-                       PERFORM 8000-DISPLAY-ROUTINE
+                       *> MOVE WS-BROWSE-UC-MSG TO DISPLAY-MSG
+                       *> PERFORM 8000-DISPLAY-ROUTINE
+                       PERFORM 5500-BROWSE-JOBS
                    WHEN "3"
                        EXIT PARAGRAPH
                    WHEN OTHER
@@ -926,6 +974,273 @@
                PERFORM 8000-DISPLAY-ROUTINE
            END-IF.
 
+       5500-BROWSE-JOBS.
+           MOVE WS-BROWSE-JOBS-HEADER TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           *> Close and reopen file for reading to count jobs
+           CLOSE JOB-POSTINGS-FILE
+           OPEN INPUT JOB-POSTINGS-FILE
+
+           MOVE 0 TO WS-JOB-COUNT
+           SET WS-NOT-EOF-FLAG TO TRUE
+
+           *> Count jobs without displaying
+           PERFORM UNTIL WS-EOF-FLAG
+               READ JOB-POSTINGS-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       ADD 1 TO WS-JOB-COUNT
+               END-READ
+           END-PERFORM
+
+           CLOSE JOB-POSTINGS-FILE
+           OPEN I-O JOB-POSTINGS-FILE
+
+           IF WS-JOB-COUNT = 0
+               MOVE WS-NO-JOBS-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               EXIT PARAGRAPH
+           END-IF
+
+           *> Allow user to select a job to view details
+           *> Job listings will be displayed in the loop
+           PERFORM 5600-SELECT-JOB-TO-VIEW.
+
+       5600-SELECT-JOB-TO-VIEW.
+           PERFORM UNTIL WS-USER-WANT-TO-EXIT
+               *> Redisplay all job listings before prompting for selection
+               CLOSE JOB-POSTINGS-FILE
+               OPEN INPUT JOB-POSTINGS-FILE
+
+               MOVE WS-BROWSE-JOBS-HEADER TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               SET WS-NOT-EOF-FLAG TO TRUE
+               PERFORM UNTIL WS-EOF-FLAG
+                   READ JOB-POSTINGS-FILE
+                       AT END
+                           SET WS-EOF-FLAG TO TRUE
+                       NOT AT END
+                           MOVE SPACES TO DISPLAY-MSG
+                           MOVE JP-JOB-ID TO WS-JOB-ID-DISPLAY
+                           INSPECT WS-JOB-ID-DISPLAY REPLACING LEADING "0" BY " "
+                           STRING "Job ID: " FUNCTION TRIM(WS-JOB-ID-DISPLAY) " | "
+                                  FUNCTION TRIM(JP-JOB-TITLE) " at "
+                                  FUNCTION TRIM(JP-JOB-EMPLOYER) " ("
+                                  FUNCTION TRIM(JP-JOB-LOCATION) ")"
+                               DELIMITED BY SIZE INTO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                   END-READ
+               END-PERFORM
+
+               CLOSE JOB-POSTINGS-FILE
+               OPEN I-O JOB-POSTINGS-FILE
+
+               *> Prompt for job selection
+               SET WS-INVALID-FIELD TO TRUE
+               MOVE WS-ENTER-JOB-ID-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-JOB-ID-INPUT
+                   AT END
+                       SET WS-USER-WANT-TO-EXIT TO TRUE
+                       EXIT PERFORM
+               END-READ
+
+               *> Trim the input first
+               MOVE FUNCTION TRIM(WS-JOB-ID-INPUT) TO WS-JOB-ID-INPUT
+
+               *> Check if user wants to go back
+               IF WS-JOB-ID-INPUT = "0"
+                   EXIT PARAGRAPH
+               END-IF
+
+               *> Validate input is numeric
+               IF FUNCTION TRIM(WS-JOB-ID-INPUT) IS NUMERIC
+                   MOVE FUNCTION NUMVAL(FUNCTION TRIM(WS-JOB-ID-INPUT)) TO WS-SELECTED-JOB-ID
+                   *> Look up the job
+                   PERFORM 5700-FIND-JOB-BY-ID
+                   IF WS-PROFILE-FOUND
+                       PERFORM 5800-DISPLAY-JOB-DETAILS
+                       *> After viewing details, loop back to display jobs again
+                   ELSE
+                       MOVE WS-INVALID-JOB-ID-MSG TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+                   END-IF
+               ELSE
+                   MOVE WS-INVALID-JOB-ID-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               END-IF
+           END-PERFORM.
+       5700-FIND-JOB-BY-ID.
+           SET WS-PROFILE-NOT-FOUND TO TRUE
+
+           CLOSE JOB-POSTINGS-FILE
+           OPEN INPUT JOB-POSTINGS-FILE
+
+           SET WS-NOT-EOF-FLAG TO TRUE
+           PERFORM UNTIL WS-EOF-FLAG
+               READ JOB-POSTINGS-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       IF JP-JOB-ID = WS-SELECTED-JOB-ID
+                           SET WS-PROFILE-FOUND TO TRUE
+                           *> Store job details in working storage
+                           MOVE JP-JOB-TITLE TO WS-SELECTED-JOB-TITLE
+                           MOVE JP-JOB-DESCRIPTION TO WS-SELECTED-JOB-DESC
+                           MOVE JP-JOB-EMPLOYER TO WS-SELECTED-JOB-EMPLOYER
+                           MOVE JP-JOB-LOCATION TO WS-SELECTED-JOB-LOCATION
+                           MOVE JP-JOB-SALARY TO WS-SELECTED-JOB-SALARY
+                           MOVE JP-POSTED-BY TO WS-SELECTED-JOB-POSTED-BY
+                           EXIT PERFORM
+                       END-IF
+               END-READ
+           END-PERFORM
+
+           CLOSE JOB-POSTINGS-FILE
+           OPEN I-O JOB-POSTINGS-FILE.
+       5800-DISPLAY-JOB-DETAILS.
+           MOVE WS-JOB-DETAILS-HEADER TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           MOVE WS-SELECTED-JOB-ID TO WS-JOB-ID-DISPLAY
+           INSPECT WS-JOB-ID-DISPLAY REPLACING LEADING "0" BY " "
+           MOVE SPACES TO DISPLAY-MSG
+           STRING "Job ID: " FUNCTION TRIM(WS-JOB-ID-DISPLAY)
+               DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           MOVE SPACES TO DISPLAY-MSG
+           STRING "Title: " FUNCTION TRIM(WS-SELECTED-JOB-TITLE)
+               DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           MOVE SPACES TO DISPLAY-MSG
+           STRING "Employer: " FUNCTION TRIM(WS-SELECTED-JOB-EMPLOYER)
+               DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           MOVE SPACES TO DISPLAY-MSG
+           STRING "Location: " FUNCTION TRIM(WS-SELECTED-JOB-LOCATION)
+               DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           MOVE SPACES TO DISPLAY-MSG
+           STRING "Description: " FUNCTION TRIM(WS-SELECTED-JOB-DESC)
+               DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           IF FUNCTION TRIM(WS-SELECTED-JOB-SALARY) NOT = "NONE"
+           AND FUNCTION TRIM(WS-SELECTED-JOB-SALARY) NOT = SPACES
+               MOVE SPACES TO DISPLAY-MSG
+               STRING "Salary: " FUNCTION TRIM(WS-SELECTED-JOB-SALARY)
+                   DELIMITED BY SIZE INTO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           END-IF
+
+           MOVE SPACES TO DISPLAY-MSG
+           STRING "Posted By: " FUNCTION TRIM(WS-SELECTED-JOB-POSTED-BY)
+               DELIMITED BY SIZE INTO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           *> Check if user already applied
+           PERFORM 5850-CHECK-IF-ALREADY-APPLIED
+
+           *> Show apply option
+           SET WS-INVALID-FIELD TO TRUE
+           PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
+               MOVE WS-APPLY-FOR-JOB-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-BACK-TO-BROWSE-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-APPLY-CHOICE
+                   AT END
+                       SET WS-USER-WANT-TO-EXIT TO TRUE
+                       EXIT PERFORM
+               END-READ
+
+               EVALUATE WS-APPLY-CHOICE
+                   WHEN "1"
+                       IF WS-ALREADY-APPLIED
+                           MOVE WS-ALREADY-APPLIED-MSG TO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                       ELSE
+                           PERFORM 5900-APPLY-FOR-JOB
+                       END-IF
+                       SET WS-VALID-FIELD TO TRUE
+                   WHEN "2"
+                       SET WS-VALID-FIELD TO TRUE
+                   WHEN OTHER
+                       MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+               END-EVALUATE
+           END-PERFORM.
+       5850-CHECK-IF-ALREADY-APPLIED.
+           SET WS-NOT-APPLIED TO TRUE
+
+           *> Open applications file for reading
+           CLOSE JOB-APPLICATIONS-FILE
+           OPEN INPUT JOB-APPLICATIONS-FILE
+
+           IF WS-JOB-APPLICATIONS-FILE-STATUS NOT = "00"
+               *> File doesn't exist yet, create it
+               CLOSE JOB-APPLICATIONS-FILE
+               OPEN OUTPUT JOB-APPLICATIONS-FILE
+               CLOSE JOB-APPLICATIONS-FILE
+               EXIT PARAGRAPH
+           END-IF
+
+           SET WS-NOT-EOF-FLAG TO TRUE
+           PERFORM UNTIL WS-EOF-FLAG
+               READ JOB-APPLICATIONS-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       IF FUNCTION TRIM(JA-USERNAME) = FUNCTION TRIM(WS-CURRENT-USER)
+                       AND JA-JOB-ID = WS-SELECTED-JOB-ID
+                           SET WS-ALREADY-APPLIED TO TRUE
+                           EXIT PERFORM
+                       END-IF
+               END-READ
+           END-PERFORM
+
+           CLOSE JOB-APPLICATIONS-FILE.
+
+       5900-APPLY-FOR-JOB.
+           *> Open applications file for writing
+           CLOSE JOB-APPLICATIONS-FILE
+           OPEN EXTEND JOB-APPLICATIONS-FILE
+
+           *> Create application record
+           MOVE WS-CURRENT-USER TO JA-USERNAME
+           MOVE WS-SELECTED-JOB-ID TO JA-JOB-ID
+           MOVE WS-SELECTED-JOB-TITLE TO JA-JOB-TITLE
+           MOVE WS-SELECTED-JOB-EMPLOYER TO JA-JOB-EMPLOYER
+           MOVE WS-SELECTED-JOB-LOCATION TO JA-JOB-LOCATION
+
+           WRITE JOB-APPLICATION-REC
+
+           IF WS-JOB-APPLICATIONS-FILE-STATUS = "00"
+               MOVE SPACES TO DISPLAY-MSG
+               STRING "Your application for "
+                      FUNCTION TRIM(WS-SELECTED-JOB-TITLE)
+                      " at "
+                      FUNCTION TRIM(WS-SELECTED-JOB-EMPLOYER)
+                      " has been submitted."
+                   DELIMITED BY SIZE INTO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           ELSE
+               MOVE "Error submitting application. Please try again." TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           END-IF
+
+           CLOSE JOB-APPLICATIONS-FILE.
        6100-CREATE-EDIT-PROFILE.
            MOVE WS-CREATE-EDIT-PROMPT TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
@@ -1801,4 +2116,5 @@
            CLOSE CONNECTIONS-FILE
            CLOSE ESTABLISHED-CONNECTIONS-FILE
            CLOSE JOB-POSTINGS-FILE
+           CLOSE JOB-APPLICATIONS-FILE
            EXIT.
