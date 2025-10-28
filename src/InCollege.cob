@@ -729,6 +729,8 @@
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-BACK-TO-MAIN-JOB-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
+               MOVE "4. View My Applications" TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
@@ -746,6 +748,8 @@
                        PERFORM 5500-BROWSE-JOBS
                    WHEN "3"
                        EXIT PARAGRAPH
+                   WHEN "4"
+                       PERFORM 5950-VIEW-MY-APPLICATIONS
                    WHEN OTHER
                        MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
@@ -1241,6 +1245,43 @@
            END-IF
 
            CLOSE JOB-APPLICATIONS-FILE.
+       5950-VIEW-MY-APPLICATIONS.
+           MOVE "--- My Job Applications ---" TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           CLOSE JOB-APPLICATIONS-FILE
+           OPEN INPUT JOB-APPLICATIONS-FILE
+
+           SET WS-NOT-EOF-FLAG TO TRUE
+           MOVE 'N' TO WS-FOUND-PROFILE
+
+           PERFORM UNTIL WS-EOF-FLAG
+               READ JOB-APPLICATIONS-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       IF FUNCTION TRIM(JA-USERNAME) = FUNCTION TRIM(WS-CURRENT-USER)
+                           SET WS-PROFILE-FOUND TO TRUE
+                           MOVE SPACES TO DISPLAY-MSG
+                           STRING "Job ID: " JA-JOB-ID
+                                  " | " FUNCTION TRIM(JA-JOB-TITLE)
+                                  " | Employer: " FUNCTION TRIM(JA-JOB-EMPLOYER)
+                                  " | Location: " FUNCTION TRIM(JA-JOB-LOCATION)
+                                  DELIMITED BY SIZE INTO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                       END-IF
+               END-READ
+           END-PERFORM
+
+           IF WS-PROFILE-NOT-FOUND
+               MOVE "You have not applied for any jobs yet." TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           END-IF
+
+           CLOSE JOB-APPLICATIONS-FILE
+           OPEN I-O JOB-APPLICATIONS-FILE.
+
+
        6100-CREATE-EDIT-PROFILE.
            MOVE WS-CREATE-EDIT-PROMPT TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
