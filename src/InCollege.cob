@@ -30,9 +30,18 @@
            SELECT OPTIONAL JOB-APPLICATIONS-FILE ASSIGN TO "data/JOB-APPLICATIONS.DAT"
                ORGANIZATION IS SEQUENTIAL
                FILE STATUS IS WS-JOB-APPLICATIONS-FILE-STATUS.
+           SELECT OPTIONAL MESSAGES-FILE ASSIGN TO "data/MESSAGES.DAT"
+               ORGANIZATION IS SEQUENTIAL
+           FILE STATUS IS WS-MESSAGES-FILE-STATUS.
 
        DATA DIVISION.
        FILE SECTION.
+       FD MESSAGES-FILE.
+       01 MESSAGE-REC.
+           05 MSG-FROM-USER      PIC X(100).
+           05 MSG-TO-USER        PIC X(100).
+           05 MSG-BODY           PIC X(500).
+           05 MSG-READ-FLAG      PIC X.
        FD INPUT-FILE.
        01 INPUT-RECORD PIC X(500).
 
@@ -100,6 +109,10 @@
            05 JA-JOB-LOCATION    PIC X(100).
 
        WORKING-STORAGE SECTION.
+       01 WS-MESSAGE-WORK.
+           05 WS-MSG-TO-USER        PIC X(100).
+           05 WS-MSG-BODY           PIC X(500).
+
        01 WS-FLAGS.
            05 WS-END-OF-FILE PIC X VALUE 'N'.
               88 WS-EOF-FLAG      VALUE 'Y'.
@@ -125,6 +138,7 @@
            05 WS-CONNECTIONS-FILE-STATUS PIC XX VALUE "00".
            05 WS-EST-CONN-FILE-STATUS PIC XX VALUE "00".
            05 WS-JOB-POSTINGS-FILE-STATUS PIC XX VALUE "00".
+            05 WS-MESSAGES-FILE-STATUS PIC XX VALUE "00".
            05 WS-FOUND-PROFILE            PIC X VALUE 'N'.
               88 WS-PROFILE-FOUND      VALUE 'Y'.
               88 WS-PROFILE-NOT-FOUND  VALUE 'N'.
@@ -272,7 +286,9 @@
        01 WS-VIEW-NETWORK-MSG      PIC X(30)  VALUE '5. View My Network'.
        01 WS-PROFILE-MENU-EDIT     PIC X(30)  VALUE '6. Create/Edit My Profile'.
        01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE '7. Search for a job'.
-       01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '8. Log Out'.
+       01 WS-SEND-MESSAGE-MSG      PIC X(40)  VALUE "8. Send message to another user".
+       01 WS-VIEW-MESSAGE-MSG      PIC X(40)  VALUE "9. View messages".
+       01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '0. Log Out'.
        01 WS-UC-JOB-MSG            PIC X(60)  VALUE 'Job search/internship is under construction.'.
        01 WS-UC-FIND-MSG           PIC X(60)  VALUE 'Find someone you know is under construction.'.
        01 WS-LEARN-SKILL-HEADER    PIC X(22)  VALUE 'Learn a New Skill:'.
@@ -390,6 +406,13 @@
                CLOSE JOB-APPLICATIONS-FILE
                OPEN OUTPUT JOB-APPLICATIONS-FILE
                CLOSE JOB-APPLICATIONS-FILE
+           END-IF.
+
+           OPEN INPUT MESSAGES-FILE
+           IF WS-MESSAGES-FILE-STATUS NOT = "00"
+               CLOSE MESSAGES-FILE
+               OPEN OUTPUT MESSAGES-FILE
+               CLOSE MESSAGES-FILE
            END-IF.
 
        1100-LOAD-USER-ACCOUNT-TABLE.
@@ -564,6 +587,7 @@
                    WRITE USER-ACCOUNT-REC
                ELSE
                    DISPLAY "SOMETHING WRONG WITH WRITING RECORDS " WS-USER-FILE-STATUS
+                   PERFORM 9000-TERMINATE-PROGRAM
                    STOP RUN
                END-IF
 
@@ -649,6 +673,10 @@
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-SEARCH-JOB-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-SEND-MESSAGE-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-VIEW-MESSAGE-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-LOG-OUT-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
@@ -675,6 +703,10 @@
                    WHEN "7"
                        PERFORM 5200-JOB-SEARCH-MENU
                    WHEN "8"
+                       PERFORM 7700-SEND-MESSAGE
+                   WHEN "9"
+                       PERFORM 7800-VIEW-MESSAGE
+                   WHEN "0"
                        PERFORM 2000-SHOW-MENU
 
                    WHEN OTHER
@@ -2142,6 +2174,108 @@
            CLOSE TEMP-PROFILE-FILE
            CLOSE CONNECTIONS-FILE.
 
+
+
+
+
+       7700-SEND-MESSAGE.
+           MOVE "----Send Message to a user ----" TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           SET WS-INVALID-FIELD TO TRUE
+           PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
+               MOVE "Enter name of person you would like to send a message to (Must be connected first)" TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-MSG-TO-USER
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+               END-READ
+
+               IF FUNCTION LENGTH (FUNCTION TRIM (WS-MSG-TO-USER)) = 0
+                   MOVE WS-BLANK-INPUT-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               ELSE
+                   PERFORM 7750-VERIFY-USERNAME
+                   IF WS-PROFILE-FOUND
+                       SET WS-VALID-FIELD TO TRUE
+                   ELSE
+                       MOVE "User not found" TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+                   END-IF
+               END-IF
+           END-PERFORM
+
+           IF WS-USER-WANT-TO-EXIT
+               EXIT PARAGRAPH
+           END-IF
+
+           SET WS-INVALID-FIELD TO TRUE
+           PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
+               MOVE "Enter your message: " TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-MSG-BODY
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+               END-READ
+
+               IF FUNCTION LENGTH(FUNCTION TRIM(WS-MSG-BODY)) = 0
+                   MOVE WS-BLANK-INPUT-MSG TO DISPLAY-MSG
+                   PERFORM 8000-DISPLAY-ROUTINE
+               ELSE
+                   IF FUNCTION LENGTH(FUNCTION TRIM(WS-MSG-BODY)) > 200
+                       MOVE "Message is too long exceeds 200 characters" TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+                   ELSE
+                       SET WS-VALID-FIELD TO TRUE
+                   END-IF
+               END-IF
+           END-PERFORM
+
+           IF WS-USER-WANT-TO-EXIT
+               EXIT PARAGRAPH
+           END-IF
+           PERFORM 7900-SAVE-MESSAGE.
+
+       7750-VERIFY-USERNAME.
+           SET WS-PROFILE-NOT-FOUND TO TRUE
+
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > WS-USER-ACCOUNT-COUNT
+               IF FUNCTION TRIM(WS-USER-NAME(IDX)) = FUNCTION TRIM(WS-MSG-TO-USER)
+                   SET WS-PROFILE-FOUND TO TRUE
+                   EXIT PERFORM
+               END-IF
+           END-PERFORM.
+
+
+       7800-VIEW-MESSAGE.
+           MOVE "This feature is still under construction..." TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE.
+
+       7900-SAVE-MESSAGE.
+           CLOSE MESSAGES-FILE
+           OPEN EXTEND MESSAGES-FILE
+
+           MOVE WS-CURRENT-USER TO MSG-FROM-USER
+           MOVE WS-MSG-TO-USER TO MSG-TO-USER
+           MOVE WS-MSG-BODY TO MSG-BODY
+           MOVE 'N' TO MSG-READ-FLAG
+
+           WRITE MESSAGE-REC
+
+           IF WS-MESSAGES-FILE-STATUS = "00"
+               MOVE "Message sent successfully" TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           ELSE
+               MOVE "Error sending message. Please try again" TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           END-IF
+
+           CLOSE MESSAGES-FILE
+           OPEN I-O MESSAGES-FILE.
+
+
+
+
        8000-DISPLAY-ROUTINE.
            DISPLAY DISPLAY-MSG
            MOVE DISPLAY-MSG TO OUTPUT-RECORD
@@ -2158,4 +2292,5 @@
            CLOSE ESTABLISHED-CONNECTIONS-FILE
            CLOSE JOB-POSTINGS-FILE
            CLOSE JOB-APPLICATIONS-FILE
+           CLOSE MESSAGES-FILE
            EXIT.
