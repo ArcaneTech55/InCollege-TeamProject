@@ -2176,30 +2176,40 @@
 
 
 
-
-
        7700-SEND-MESSAGE.
-           MOVE "----Send Message to a user ----" TO DISPLAY-MSG
+           MOVE "---- Send Message to a User ----" TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
 
            SET WS-INVALID-FIELD TO TRUE
            PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
-               MOVE "Enter name of person you would like to send a message to (Must be connected first)" TO DISPLAY-MSG
+               MOVE "Enter the username of the person you would like to send a message to (must be connected first):"
+                   TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
                READ INPUT-FILE INTO WS-MSG-TO-USER
-                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                        EXIT PERFORM
                END-READ
 
-               IF FUNCTION LENGTH (FUNCTION TRIM (WS-MSG-TO-USER)) = 0
+               *> Step 1: Check if input is blank
+               IF FUNCTION LENGTH(FUNCTION TRIM(WS-MSG-TO-USER)) = 0
                    MOVE WS-BLANK-INPUT-MSG TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
+
+               *> Step 2: Check if username exists
                ELSE
                    PERFORM 7750-VERIFY-USERNAME
                    IF WS-PROFILE-FOUND
-                       SET WS-VALID-FIELD TO TRUE
+                       *> Step 3: Validate connection before messaging
+                       PERFORM 7755-VALIDATE-CONNECTION
+                       IF WS-PROFILE-FOUND
+                           SET WS-VALID-FIELD TO TRUE
+                       ELSE
+                           MOVE "You can only message users you are connected with." TO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                       END-IF
                    ELSE
-                       MOVE "User not found" TO DISPLAY-MSG
+                       MOVE "User not found." TO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
                    END-IF
                END-IF
@@ -2209,21 +2219,24 @@
                EXIT PARAGRAPH
            END-IF
 
+           *> Step 4: Prompt for message text
            SET WS-INVALID-FIELD TO TRUE
            PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
-               MOVE "Enter your message: " TO DISPLAY-MSG
+               MOVE "Enter your message:" TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
                READ INPUT-FILE INTO WS-MSG-BODY
-                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                        EXIT PERFORM
                END-READ
 
+               *> Step 5: Validate message body
                IF FUNCTION LENGTH(FUNCTION TRIM(WS-MSG-BODY)) = 0
                    MOVE WS-BLANK-INPUT-MSG TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
                ELSE
                    IF FUNCTION LENGTH(FUNCTION TRIM(WS-MSG-BODY)) > 200
-                       MOVE "Message is too long exceeds 200 characters" TO DISPLAY-MSG
+                       MOVE "Message is too long; it exceeds 200 characters." TO DISPLAY-MSG
                        PERFORM 8000-DISPLAY-ROUTINE
                    ELSE
                        SET WS-VALID-FIELD TO TRUE
@@ -2231,10 +2244,10 @@
                END-IF
            END-PERFORM
 
-           IF WS-USER-WANT-TO-EXIT
-               EXIT PARAGRAPH
-           END-IF
-           PERFORM 7900-SAVE-MESSAGE.
+           *> Step 6: Save message if valid
+           IF NOT WS-USER-WANT-TO-EXIT
+               PERFORM 7900-SAVE-MESSAGE
+           END-IF.
 
        7750-VERIFY-USERNAME.
            SET WS-PROFILE-NOT-FOUND TO TRUE
@@ -2245,6 +2258,34 @@
                    EXIT PERFORM
                END-IF
            END-PERFORM.
+
+
+       7755-VALIDATE-CONNECTION.
+           SET WS-PROFILE-NOT-FOUND TO TRUE
+           CLOSE ESTABLISHED-CONNECTIONS-FILE
+           OPEN INPUT ESTABLISHED-CONNECTIONS-FILE
+
+           SET WS-NOT-EOF-FLAG TO TRUE
+           PERFORM UNTIL WS-EOF-FLAG OR WS-PROFILE-FOUND
+               READ ESTABLISHED-CONNECTIONS-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       IF (FUNCTION TRIM(EST-CONN-USER1) = FUNCTION TRIM(WS-CURRENT-USER)
+                           AND FUNCTION TRIM(EST-CONN-USER2) = FUNCTION TRIM(WS-MSG-TO-USER))
+                       OR (FUNCTION TRIM(EST-CONN-USER2) = FUNCTION TRIM(WS-CURRENT-USER)
+                           AND FUNCTION TRIM(EST-CONN-USER1) = FUNCTION TRIM(WS-MSG-TO-USER))
+                           SET WS-PROFILE-FOUND TO TRUE
+                       END-IF
+               END-READ
+           END-PERFORM
+
+           CLOSE ESTABLISHED-CONNECTIONS-FILE
+           OPEN I-O ESTABLISHED-CONNECTIONS-FILE.
+
+
+
+
 
 
        7800-VIEW-MESSAGE.
