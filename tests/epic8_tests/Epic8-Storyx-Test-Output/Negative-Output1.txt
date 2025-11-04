@@ -37,16 +37,8 @@ Welcome, TestUser
 Enter your choice:
 ----Send Message to a user ----
 Enter name of person you would like to send a message to (Must be connected first)
+User not found
+Enter name of person you would like to send a message to (Must be connected first)
 Enter your message:
-Message sent successfully
-1. View My Profile
-2. Search for User
-3. Learn a New Skill
-4. View My Pending Connection Requests
-5. View My Network
-6. Create/Edit My Profile
-7. Search for a job
-8. Send message to another user
-9. View messages
-0. Log Out
-Enter your choice:
+Message is too long exceeds 200 characters
+Enter your message:
