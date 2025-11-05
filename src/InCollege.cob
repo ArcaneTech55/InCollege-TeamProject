@@ -286,11 +286,18 @@
        01 WS-VIEW-NETWORK-MSG      PIC X(30)  VALUE '5. View My Network'.
        01 WS-PROFILE-MENU-EDIT     PIC X(30)  VALUE '6. Create/Edit My Profile'.
        01 WS-SEARCH-JOB-MSG        PIC X(28)  VALUE '7. Search for a job'.
-       01 WS-SEND-MESSAGE-MSG      PIC X(40)  VALUE "8. Send message to another user".
-       01 WS-VIEW-MESSAGE-MSG      PIC X(40)  VALUE "9. View messages".
+       01 WS-MESSAGES-MSG          PIC X(40)  VALUE "8. Messages".
        01 WS-LOG-OUT-MSG           PIC X(28)  VALUE '0. Log Out'.
        01 WS-UC-JOB-MSG            PIC X(60)  VALUE 'Job search/internship is under construction.'.
        01 WS-UC-FIND-MSG           PIC X(60)  VALUE 'Find someone you know is under construction.'.
+
+       *> Message submenu
+       01 WS-MSG-MENU-HEADER       PIC X(40)  VALUE '--- Messages Menu ---'.
+       01 WS-SEND-NEW-MSG          PIC X(40)  VALUE '1. Send a New Message'.
+       01 WS-VIEW-MY-MSGS          PIC X(40)  VALUE '2. View My Messages'.
+       01 WS-BACK-TO-MAIN-MSG2     PIC X(40)  VALUE '3. Back to Main Menu'.
+       01 WS-MSG-SEPARATOR         PIC X(40)  VALUE '---------------------'.
+
        01 WS-LEARN-SKILL-HEADER    PIC X(22)  VALUE 'Learn a New Skill:'.
        01 WS-SKILL-1               PIC X(10)  VALUE 'Skill 1'.
        01 WS-SKILL-2               PIC X(10)  VALUE 'Skill 2'.
@@ -400,6 +407,33 @@
                OPEN I-O USER-PROFILE-FILE
            END-IF.
 
+           *> Pending connections
+           OPEN INPUT CONNECTIONS-FILE
+           IF WS-CONNECTIONS-FILE-STATUS NOT = "00"
+               CLOSE CONNECTIONS-FILE
+               OPEN OUTPUT CONNECTIONS-FILE
+               CLOSE CONNECTIONS-FILE
+               OPEN I-O CONNECTIONS-FILE
+           ELSE
+               CLOSE CONNECTIONS-FILE
+               OPEN I-O CONNECTIONS-FILE
+           END-IF.
+
+           *> Established connections
+           OPEN INPUT ESTABLISHED-CONNECTIONS-FILE
+           IF WS-EST-CONN-FILE-STATUS NOT = "00"
+               CLOSE ESTABLISHED-CONNECTIONS-FILE
+               OPEN OUTPUT ESTABLISHED-CONNECTIONS-FILE
+               CLOSE ESTABLISHED-CONNECTIONS-FILE
+               OPEN I-O ESTABLISHED-CONNECTIONS-FILE
+           ELSE
+               CLOSE ESTABLISHED-CONNECTIONS-FILE
+               OPEN I-O ESTABLISHED-CONNECTIONS-FILE
+           END-IF.
+
+           *> Initialize job applications file
+           OPEN INPUT JOB-APPLICATIONS-FILE
+
            *> Initialize job applications file
            OPEN INPUT JOB-APPLICATIONS-FILE
            IF WS-JOB-APPLICATIONS-FILE-STATUS NOT = "00"
@@ -427,14 +461,6 @@
                        MOVE USER-ACCOUNT-REC TO WS-USER(WS-USER-ACCOUNT-COUNT)
                END-READ
            END-PERFORM.
-
-           *> Ensure connections file is recreated fresh each run
-           OPEN OUTPUT CONNECTIONS-FILE
-           CLOSE CONNECTIONS-FILE
-
-           *> Ensure established connections file is recreated fresh each run
-           OPEN OUTPUT ESTABLISHED-CONNECTIONS-FILE
-           CLOSE ESTABLISHED-CONNECTIONS-FILE.
 
        2000-SHOW-MENU.
            IF WS-SKIP-MENU-FALSE
@@ -673,9 +699,7 @@
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-SEARCH-JOB-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
-               MOVE WS-SEND-MESSAGE-MSG TO DISPLAY-MSG
-               PERFORM 8000-DISPLAY-ROUTINE
-               MOVE WS-VIEW-MESSAGE-MSG TO DISPLAY-MSG
+               MOVE WS-MESSAGES-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
                MOVE WS-LOG-OUT-MSG TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
@@ -703,9 +727,7 @@
                    WHEN "7"
                        PERFORM 5200-JOB-SEARCH-MENU
                    WHEN "8"
-                       PERFORM 7700-SEND-MESSAGE
-                   WHEN "9"
-                       PERFORM 7800-VIEW-MESSAGE
+                       PERFORM 7650-MESSAGES-MENU
                    WHEN "0"
                        PERFORM 2000-SHOW-MENU
 
@@ -2175,6 +2197,38 @@
            CLOSE CONNECTIONS-FILE.
 
 
+       7650-MESSAGES-MENU.
+           PERFORM WITH TEST AFTER UNTIL WS-USER-WANT-TO-EXIT
+               MOVE WS-MSG-MENU-HEADER TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-SEND-NEW-MSG TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-VIEW-MY-MSGS TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-BACK-TO-MAIN-MSG2 TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+               MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+
+               READ INPUT-FILE INTO WS-INPUT-CHOICE
+                   AT END SET WS-USER-WANT-TO-EXIT TO TRUE
+                        EXIT PARAGRAPH
+               END-READ
+
+               EVALUATE WS-INPUT-CHOICE
+                   WHEN "1"
+                       PERFORM 7700-SEND-MESSAGE
+                       MOVE WS-MSG-SEPARATOR TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+                   WHEN "2"
+                       PERFORM 7800-VIEW-MESSAGE
+                   WHEN "3"
+                       EXIT PARAGRAPH
+                   WHEN OTHER
+                       MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
+                       PERFORM 8000-DISPLAY-ROUTINE
+               END-EVALUATE
+           END-PERFORM.
 
        7700-SEND-MESSAGE.
            MOVE "---- Send Message to a User ----" TO DISPLAY-MSG
@@ -2304,7 +2358,9 @@
            WRITE MESSAGE-REC
 
            IF WS-MESSAGES-FILE-STATUS = "00"
-               MOVE "Message sent successfully" TO DISPLAY-MSG
+               MOVE SPACES TO DISPLAY-MSG
+               STRING "Message sent to " FUNCTION TRIM(WS-MSG-TO-USER) " successfully!"
+                   DELIMITED BY SIZE INTO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
            ELSE
                MOVE "Error sending message. Please try again" TO DISPLAY-MSG

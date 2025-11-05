@@ -1,0 +1,81 @@
+
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, TestUser
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+Enter Full name of user to search for their account.
+Enter First name to search:
+Enter last name to search:
+--- Found User Profile ---
+Name: John Doe
+University: University of South Florida
+Major: Computer Science
+Graduation Year: 2025
+-------------------------
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+--- Your Profile ---
+Name: John Doe
+University: University of South Florida
+Major: Computer Science
+Graduation Year: 2025
+About Me: Passionate about software development and AI.
+Experience:
+  Title: Software Intern
+  Company: Tech Solutions Inc
+  Dates: Summer 2024
+  Description: Developed web applications using React and Node.js
+Education:
+  Degree: Bachelor of Science in Computer Science
+  University: University of South Florida
+  Years: 2021-2025
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+--- Messages Menu ---
+1. Send a New Message
+2. View My Messages
+3. Back to Main Menu
+Enter your choice:
+---- Send Message to a User ----
+Enter the username of the person you would like to send a message to (must be connected first):
+User not found.
+Enter the username of the person you would like to send a message to (must be connected first):
+Enter your message:
+Message sent to AliceSmith successfully!
+---------------------
+--- Messages Menu ---
+1. Send a New Message
+2. View My Messages
+3. Back to Main Menu
+Enter your choice:
