@@ -1,4 +1,4 @@
-      >>SOURCE FORMAT FREE
+   >>SOURCE FORMAT FREE
        IDENTIFICATION DIVISION.
        PROGRAM-ID. INCOLLEGE.
 
@@ -146,12 +146,6 @@
               88 WS-VALID-FIELD           VALUE 'Y'.
               88 WS-INVALID-FIELD         VALUE 'N'.
 
-       01 WS-COUNTERS.
-           05 WS-USER-ACCOUNT-COUNT PIC 99 VALUE 0.
-           05 WS-JOB-ID-COUNTER     PIC 9(6) VALUE 0.
-           05 I                     PIC 99.
-           05 J                     PIC 99.
-
        01 WS-USER-ACCOUNT-TABLE.
            05 WS-USER OCCURS 5 TIMES INDEXED BY IDX.
                10 WS-USER-NAME     PIC X(100).
@@ -243,6 +237,13 @@
        01 WS-JOB-ID-INPUT                 PIC X(6).
        01 WS-JOB-ID-DISPLAY               PIC X(6).
        01 WS-APPLY-CHOICE                 PIC X(1).
+
+       01 WS-COUNTERS.
+           05 WS-USER-ACCOUNT-COUNT PIC 99 VALUE 0.
+           05 WS-JOB-ID-COUNTER     PIC 9(6) VALUE 0.
+           05 WS-MESSAGE-COUNT      PIC 999 VALUE 0.
+           05 I                     PIC 99.
+           05 J                     PIC 99.
 
        *> Job Browsing/Application Messages
        01 WS-BROWSE-JOBS-HEADER      PIC X(40) VALUE '--- Available Jobs Listings ---'.
@@ -2343,8 +2344,50 @@
 
 
        7800-VIEW-MESSAGE.
-           MOVE "This feature is still under construction..." TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE.
+            MOVE "-----Your Messages----" TO DISPLAY-MSG
+           PERFORM 8000-DISPLAY-ROUTINE
+
+           CLOSE MESSAGES-FILE
+           OPEN INPUT MESSAGES-FILE
+
+           SET WS-NOT-EOF-FLAG TO TRUE
+           SET WS-PROFILE-NOT-FOUND TO TRUE
+           MOVE 0 TO WS-MESSAGE-COUNT
+
+           PERFORM UNTIL WS-EOF-FLAG
+               READ MESSAGES-FILE
+                   AT END
+                       SET WS-EOF-FLAG TO TRUE
+                   NOT AT END
+                       IF FUNCTION TRIM(MSG-TO-USER) = FUNCTION TRIM(WS-CURRENT-USER)
+                           SET WS-PROFILE-FOUND TO TRUE
+                           ADD 1 TO WS-MESSAGE-COUNT
+
+                           MOVE SPACES TO DISPLAY-MSG
+                           STRING "Message #" WS-MESSAGE-COUNT DELIMITED BY SIZE INTO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+
+                           MOVE SPACES TO DISPLAY-MSG
+                           STRING "From: " FUNCTION TRIM(MSG-FROM-USER) DELIMITED BY SIZE INTO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+
+                           MOVE SPACES TO DISPLAY-MSG
+                           STRING "Message: " FUNCTION TRIM(MSG-BODY) DELIMITED BY SIZE INTO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+
+                           MOVE "---" TO DISPLAY-MSG
+                           PERFORM 8000-DISPLAY-ROUTINE
+                       END-IF
+               END-READ
+           END-PERFORM
+
+           CLOSE MESSAGES-FILE
+           OPEN I-O MESSAGES-FILE
+
+           IF WS-PROFILE-NOT-FOUND
+               MOVE "You have no messages at this time" TO DISPLAY-MSG
+               PERFORM 8000-DISPLAY-ROUTINE
+           END-IF.
 
        7900-SAVE-MESSAGE.
            CLOSE MESSAGES-FILE
@@ -2373,6 +2416,8 @@
 
 
 
+
+
        8000-DISPLAY-ROUTINE.
            DISPLAY DISPLAY-MSG
            MOVE DISPLAY-MSG TO OUTPUT-RECORD
@@ -2391,3 +2436,4 @@
            CLOSE JOB-APPLICATIONS-FILE
            CLOSE MESSAGES-FILE
            EXIT.
+
