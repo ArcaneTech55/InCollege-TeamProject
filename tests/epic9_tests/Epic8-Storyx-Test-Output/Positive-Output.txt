@@ -41,3 +41,18 @@ Message: I was wondering if you wanted to collaborate on that Data Science proje
 2. View My Messages
 3. Back to Main Menu
 Enter your choice:
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:

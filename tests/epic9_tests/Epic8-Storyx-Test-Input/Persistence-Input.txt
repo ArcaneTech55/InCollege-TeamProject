@@ -1,0 +1,17 @@
+1
+BobJones
+Bob123!
+8
+1
+AliceSmith
+This is a persistence test message from Bob.
+3
+0
+1
+AliceSmith
+Alice123!
+8
+2
+3
+0
+3
