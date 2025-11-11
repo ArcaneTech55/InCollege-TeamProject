@@ -1,3 +1,3 @@
 rm data/*
-rm InCollege-Output.txt
+bin/create_sample_db
 bin/InCollege
