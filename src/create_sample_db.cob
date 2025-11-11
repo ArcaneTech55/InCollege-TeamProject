@@ -16,12 +16,22 @@ FILE-CONTROL.
 
     SELECT ESTABLISHED-CONNECTIONS-FILE ASSIGN TO "data/ESTABLISHED-CONNECTIONS.DAT"
         ORGANIZATION IS SEQUENTIAL.
+
+    SELECT MESSAGES-FILE ASSIGN TO "data/MESSAGES.DAT"
+        ORGANIZATION IS SEQUENTIAL.
 DATA DIVISION.
 FILE SECTION.
 FD USER-ACCOUNT-FILE.
 01 USER-ACCOUNT-REC.
     05 USER-NAME     PIC X(100).
     05 USER-PASSWORD PIC X(100).
+
+FD MESSAGES-FILE.
+01 MESSAGE-REC.
+    05 MSG-FROM-USER      PIC X(100).
+    05 MSG-TO-USER        PIC X(100).
+    05 MSG-BODY           PIC X(500).
+    05 MSG-READ-FLAG      PIC X.
 
 FD USER-PROFILE-FILE.
 01 USER-PROFILE-REC.
@@ -75,6 +85,9 @@ WORKING-STORAGE SECTION.
     05 WS-JOB-COUNT  PIC 9 VALUE 0.
     05 WS-CONN-COUNT PIC 9 VALUE 0.
 
+    05 WS-MSG-COUNT  PIC 9 VALUE 0.
+
+
 PROCEDURE DIVISION.
 0000-MAIN.
     DISPLAY "========================================".
@@ -87,6 +100,7 @@ PROCEDURE DIVISION.
     PERFORM 3000-CREATE-JOB-POSTINGS
     PERFORM 4000-CREATE-EMPTY-APPLICATIONS
     PERFORM 5000-CREATE-ESTABLISHED-CONNECTIONS
+    PERFORM 6000-CREATE-MESSAGES
 
     DISPLAY " ".
     DISPLAY "========================================".
@@ -308,3 +322,38 @@ PROCEDURE DIVISION.
 
     CLOSE ESTABLISHED-CONNECTIONS-FILE.
     DISPLAY "  -> " WS-CONN-COUNT " established connections created.".
+
+6000-CREATE-MESSAGES.
+    DISPLAY "Creating dummy messages...".
+
+    OPEN OUTPUT MESSAGES-FILE.
+
+    *> Message 1: From AliceSmith (a connection) to TestUser
+    INITIALIZE MESSAGE-REC
+    MOVE "AliceSmith" TO MSG-FROM-USER
+    MOVE "TestUser" TO MSG-TO-USER
+    MOVE "Hi TestUser, I saw your post about the new React framework. What are your thoughts on it?" TO MSG-BODY
+    MOVE "N" TO MSG-READ-FLAG
+    WRITE MESSAGE-REC
+    ADD 1 TO WS-MSG-COUNT
+
+    *> Message 2: From BobJones (a connection) to TestUser
+    INITIALIZE MESSAGE-REC
+    MOVE "BobJones" TO MSG-FROM-USER
+    MOVE "TestUser" TO MSG-TO-USER
+    MOVE "Hey, are you going to the UF-USF football game this weekend? We should catch up!" TO MSG-BODY
+    MOVE "N" TO MSG-READ-FLAG
+    WRITE MESSAGE-REC
+    ADD 1 TO WS-MSG-COUNT
+
+    *> Message 3: Another message from AliceSmith to TestUser
+    INITIALIZE MESSAGE-REC
+    MOVE "AliceSmith" TO MSG-FROM-USER
+    MOVE "TestUser" TO MSG-TO-USER
+    MOVE "I was wondering if you wanted to collaborate on that Data Science project we discussed." TO MSG-BODY
+    MOVE "N" TO MSG-READ-FLAG
+    WRITE MESSAGE-REC
+    ADD 1 TO WS-MSG-COUNT
+
+    CLOSE MESSAGES-FILE.
+    DISPLAY "  -> " WS-MSG-COUNT " messages created.".
