@@ -1,0 +1,31 @@
+2
+testuser
+Password!1
+1
+testuser
+Password!1
+6
+John
+Doe
+University of South Florida
+Computer Science
+20255
+2025
+Computer Science student passionate about building efficient software and solving real-world problems. Experience with C++, JavaScript, and AWS. Always learning and excited to grow in tech. This prompt is too long so it will not work since it is over 200 total characthers
+Computer Science student passionate about building efficient software and solving real-world problems. Experience with C++, JavaScript, and AWS
+Junior Software Developer
+Google Internsip
+2022-2023
+Worked in a jira enviorment to produce functioning programs
+Junior Software Developer
+Apple Internship
+2023-2024
+Worked in a jira enviorment to produce functioning programs
+Junior Software Developer
+Meta Internship
+2024-2025
+Worked in a jira enviorment to produce functioning programs
+DONE
+DONE
+1
+0
