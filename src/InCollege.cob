@@ -247,10 +247,10 @@
 
        *> Job Browsing/Application Messages
        01 WS-BROWSE-JOBS-HEADER      PIC X(40) VALUE '--- Available Jobs Listings ---'.
-       01 WS-NO-JOBS-MSG             PIC X(60) VALUE 'No job postings are currently available.'.
+       01 WS-NO-JOBS-MSG             PIC X(80) VALUE 'No job postings are currently available. Check back later.'.
        01 WS-JOB-DETAILS-HEADER      PIC X(40) VALUE '--- Job Details ---'.
        01 WS-ENTER-JOB-ID-MSG        PIC X(80) VALUE 'Enter Job ID to view details (or 0 to go back):'.
-       01 WS-INVALID-JOB-ID-MSG      PIC X(60) VALUE 'Invalid Job ID. Please try again.'.
+       01 WS-INVALID-JOB-ID-MSG      PIC X(80) VALUE 'Invalid Job ID. Please enter a valid job number from the list.'.
        01 WS-APPLY-FOR-JOB-MSG       PIC X(40) VALUE '1. Apply for this Job'.
        01 WS-BACK-TO-BROWSE-MSG      PIC X(40) VALUE '2. Back to Job List'.
        01 WS-APPLICATION-SUBMITTED   PIC X(100) VALUE 'Your application has been submitted successfully!'.
@@ -308,21 +308,21 @@
        01 WS-GO-BACK               PIC X(10)  VALUE 'Go Back'.
        01 WS-SKILL-UC-MSG          PIC X(60)  VALUE 'This skill is under construction.'.
        01 WS-INVALID-LOGIN-MSG     PIC X(50)  VALUE 'Incorrect username/password, please try again'.
-       01 WS-MAX-ACCOUNTS-MSG      PIC X(100) VALUE 'All permitted accounts have been created, please come back later'.
-       01 WS-PASSWORD-TOO-SHORT    PIC X(60)  VALUE 'Password must be at least 8 characters long.'.
-       01 WS-PASSWORD-TOO-LONG     PIC X(60)  VALUE 'Password must be at most 12 characters long.'.
-       01 WS-PASSWORD-NO-CAPITAL   PIC X(60)  VALUE 'Password must contain at least one capital letter.'.
-       01 WS-PASSWORD-NO-DIGIT     PIC X(60)  VALUE 'Password must contain at least one digit.'.
-       01 WS-PASSWORD-NO-SPECIAL   PIC X(60)  VALUE 'Password must contain at least one special character.'.
-       01 WS-INVALID-CHOICE        PIC X(60)  VALUE 'Invalid choice. Please try again.'.
-       01 WS-DUPLICATE-USERNAME-MSG PIC X(100) VALUE 'This username already exists. Please try another.'.
+       01 WS-MAX-ACCOUNTS-MSG      PIC X(100) VALUE 'Maximum of 5 accounts reached. No more accounts can be created at this time.'.
+      01 WS-PASSWORD-TOO-SHORT    PIC X(80)  VALUE 'Password must be at least 8 characters long.'.
+      01 WS-PASSWORD-TOO-LONG     PIC X(80)  VALUE 'Password must be at most 12 characters long.'.
+      01 WS-PASSWORD-NO-CAPITAL   PIC X(80)  VALUE 'Password must contain at least one capital letter (A-Z).'.
+      01 WS-PASSWORD-NO-DIGIT     PIC X(80)  VALUE 'Password must contain at least one digit (0-9).'.
+      01 WS-PASSWORD-NO-SPECIAL   PIC X(80)  VALUE 'Password must contain at least one special character (!@#$%^&*()).'.
+       01 WS-INVALID-CHOICE        PIC X(80)  VALUE 'Invalid choice. Please enter a valid option from the menu.'.
+       01 WS-DUPLICATE-USERNAME-MSG PIC X(100) VALUE 'This username already exists. Please choose a different username.'.
 
        *> PROFILE/INPUT PROMPTS
-       01 WS-BLANK-INPUT-MSG       PIC X(60) VALUE 'Input cannot be blank. Please enter a value.'.
-       01 WS-PROFILE-NOTFOUND-MSG  PIC X(60) VALUE 'No profile found. Use "Create/Edit My Profile" first.'.
+       01 WS-BLANK-INPUT-MSG       PIC X(80) VALUE 'Input cannot be blank. Please enter a valid value.'.
+       01 WS-PROFILE-NOTFOUND-MSG  PIC X(80) VALUE 'No profile found. Please create your profile using "Create/Edit My Profile".'.
        01 WS-PROFILE-SAVED-MSG     PIC X(60) VALUE 'Profile saved successfully.'.
-       01 WS-NAME-INVALID-MSG      PIC X(60) VALUE 'Names must be letters only (A-Z).'.
-       01 WS-GRAD-YEAR-INVALID     PIC X(60) VALUE 'Graduation year must be 1900-2100.'.
+       01 WS-NAME-INVALID-MSG      PIC X(80) VALUE 'Names must contain letters only (A-Z, a-z). Please try again.'.
+       01 WS-GRAD-YEAR-INVALID     PIC X(80) VALUE 'Graduation year must be between 1900 and 2100. Please try again.'.
        01 WS-CREATE-EDIT-PROMPT    PIC X(100) VALUE '--- Create/Edit Profile ---'.
        01 WS-ENTER-FIRST           PIC X(40) VALUE 'Enter First Name:'.
        01 WS-ENTER-LAST            PIC X(40) VALUE 'Enter Last Name:'.
@@ -343,7 +343,7 @@
        *> CONNECTION REQUEST MESSAGES AND VARIABLES
        01 WS-CONN-HEADER              PIC X(50) VALUE '--- Pending Connection Requests ---'.
        01 WS-CONN-FOOTER              PIC X(50) VALUE '-----------------------------------'.
-       01 WS-NO-CONN-MSG              PIC X(60) VALUE 'You have no pending connection requests at this time.'.
+       01 WS-NO-CONN-MSG              PIC X(80) VALUE 'You have no pending connection requests at this time.'.
        01 WS-CONN-SENT-MSG            PIC X(60) VALUE 'Connection request sent to '.
        01 WS-ALREADY-CONNECTED-MSG    PIC X(60) VALUE 'You are already connected with this user.'.
        01 WS-PENDING-FROM-THEM-MSG    PIC X(80) VALUE 'This user has already sent you a connection request.'.
@@ -1073,29 +1073,32 @@
                CLOSE JOB-POSTINGS-FILE
                OPEN INPUT JOB-POSTINGS-FILE
 
-               MOVE WS-BROWSE-JOBS-HEADER TO DISPLAY-MSG
-               PERFORM 8000-DISPLAY-ROUTINE
+              MOVE WS-BROWSE-JOBS-HEADER TO DISPLAY-MSG
+              PERFORM 8000-DISPLAY-ROUTINE
 
-               SET WS-NOT-EOF-FLAG TO TRUE
-               PERFORM UNTIL WS-EOF-FLAG
-                   READ JOB-POSTINGS-FILE
-                       AT END
-                           SET WS-EOF-FLAG TO TRUE
-                       NOT AT END
-                           MOVE SPACES TO DISPLAY-MSG
-                           MOVE JP-JOB-ID TO WS-JOB-ID-DISPLAY
-                           INSPECT WS-JOB-ID-DISPLAY REPLACING LEADING "0" BY " "
-                           STRING "Job ID: " FUNCTION TRIM(WS-JOB-ID-DISPLAY) " | "
-                                  FUNCTION TRIM(JP-JOB-TITLE) " at "
-                                  FUNCTION TRIM(JP-JOB-EMPLOYER) " ("
-                                  FUNCTION TRIM(JP-JOB-LOCATION) ")"
-                               DELIMITED BY SIZE INTO DISPLAY-MSG
-                           PERFORM 8000-DISPLAY-ROUTINE
-                   END-READ
-               END-PERFORM
+              SET WS-NOT-EOF-FLAG TO TRUE
+              PERFORM UNTIL WS-EOF-FLAG
+                  READ JOB-POSTINGS-FILE
+                      AT END
+                          SET WS-EOF-FLAG TO TRUE
+                      NOT AT END
+                          MOVE SPACES TO DISPLAY-MSG
+                          MOVE JP-JOB-ID TO WS-JOB-ID-DISPLAY
+                          INSPECT WS-JOB-ID-DISPLAY REPLACING LEADING "0" BY " "
+                          STRING "Job ID: " FUNCTION TRIM(WS-JOB-ID-DISPLAY) " | "
+                                 FUNCTION TRIM(JP-JOB-TITLE) " at "
+                                 FUNCTION TRIM(JP-JOB-EMPLOYER) " ("
+                                 FUNCTION TRIM(JP-JOB-LOCATION) ")"
+                              DELIMITED BY SIZE INTO DISPLAY-MSG
+                          PERFORM 8000-DISPLAY-ROUTINE
+                  END-READ
+              END-PERFORM
 
-               CLOSE JOB-POSTINGS-FILE
-               OPEN I-O JOB-POSTINGS-FILE
+              MOVE "-----------------------------------" TO DISPLAY-MSG
+              PERFORM 8000-DISPLAY-ROUTINE
+
+              CLOSE JOB-POSTINGS-FILE
+              OPEN I-O JOB-POSTINGS-FILE
 
                *> Prompt for job selection
                SET WS-INVALID-FIELD TO TRUE
@@ -2232,7 +2235,7 @@
            END-PERFORM.
 
        7700-SEND-MESSAGE.
-           MOVE "---- Send Message to a User ----" TO DISPLAY-MSG
+           MOVE "--- Send Message to a User ---" TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
 
            SET WS-INVALID-FIELD TO TRUE
@@ -2260,7 +2263,7 @@
                        IF WS-PROFILE-FOUND
                            SET WS-VALID-FIELD TO TRUE
                        ELSE
-                           MOVE "You can only message users you are connected with." TO DISPLAY-MSG
+                           MOVE "You can only send messages to users you are connected with." TO DISPLAY-MSG
                            PERFORM 8000-DISPLAY-ROUTINE
                        END-IF
                    ELSE
@@ -2343,51 +2346,54 @@
 
 
 
-       7800-VIEW-MESSAGE.
-            MOVE "-----Your Messages----" TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+      7800-VIEW-MESSAGE.
+          MOVE "--- Your Messages ---" TO DISPLAY-MSG
+          PERFORM 8000-DISPLAY-ROUTINE
 
-           CLOSE MESSAGES-FILE
-           OPEN INPUT MESSAGES-FILE
+          CLOSE MESSAGES-FILE
+          OPEN INPUT MESSAGES-FILE
 
-           SET WS-NOT-EOF-FLAG TO TRUE
-           SET WS-PROFILE-NOT-FOUND TO TRUE
-           MOVE 0 TO WS-MESSAGE-COUNT
+          SET WS-NOT-EOF-FLAG TO TRUE
+          SET WS-PROFILE-NOT-FOUND TO TRUE
+          MOVE 0 TO WS-MESSAGE-COUNT
 
-           PERFORM UNTIL WS-EOF-FLAG
-               READ MESSAGES-FILE
-                   AT END
-                       SET WS-EOF-FLAG TO TRUE
-                   NOT AT END
-                       IF FUNCTION TRIM(MSG-TO-USER) = FUNCTION TRIM(WS-CURRENT-USER)
-                           SET WS-PROFILE-FOUND TO TRUE
-                           ADD 1 TO WS-MESSAGE-COUNT
+          PERFORM UNTIL WS-EOF-FLAG
+              READ MESSAGES-FILE
+                  AT END
+                      SET WS-EOF-FLAG TO TRUE
+                  NOT AT END
+                      IF FUNCTION TRIM(MSG-TO-USER) = FUNCTION TRIM(WS-CURRENT-USER)
+                          SET WS-PROFILE-FOUND TO TRUE
+                          ADD 1 TO WS-MESSAGE-COUNT
 
-                           MOVE SPACES TO DISPLAY-MSG
-                           STRING "Message #" WS-MESSAGE-COUNT DELIMITED BY SIZE INTO DISPLAY-MSG
-                           PERFORM 8000-DISPLAY-ROUTINE
+                          MOVE SPACES TO DISPLAY-MSG
+                          STRING "Message #" WS-MESSAGE-COUNT DELIMITED BY SIZE INTO DISPLAY-MSG
+                          PERFORM 8000-DISPLAY-ROUTINE
 
-                           MOVE SPACES TO DISPLAY-MSG
-                           STRING "From: " FUNCTION TRIM(MSG-FROM-USER) DELIMITED BY SIZE INTO DISPLAY-MSG
-                           PERFORM 8000-DISPLAY-ROUTINE
+                          MOVE SPACES TO DISPLAY-MSG
+                          STRING "From: " FUNCTION TRIM(MSG-FROM-USER) DELIMITED BY SIZE INTO DISPLAY-MSG
+                          PERFORM 8000-DISPLAY-ROUTINE
 
-                           MOVE SPACES TO DISPLAY-MSG
-                           STRING "Message: " FUNCTION TRIM(MSG-BODY) DELIMITED BY SIZE INTO DISPLAY-MSG
-                           PERFORM 8000-DISPLAY-ROUTINE
+                          MOVE SPACES TO DISPLAY-MSG
+                          STRING "Message: " FUNCTION TRIM(MSG-BODY) DELIMITED BY SIZE INTO DISPLAY-MSG
+                          PERFORM 8000-DISPLAY-ROUTINE
 
-                           MOVE "---" TO DISPLAY-MSG
-                           PERFORM 8000-DISPLAY-ROUTINE
-                       END-IF
-               END-READ
-           END-PERFORM
+                          MOVE "------------------------" TO DISPLAY-MSG
+                          PERFORM 8000-DISPLAY-ROUTINE
+                      END-IF
+              END-READ
+          END-PERFORM
 
-           CLOSE MESSAGES-FILE
-           OPEN I-O MESSAGES-FILE
+          CLOSE MESSAGES-FILE
+          OPEN I-O MESSAGES-FILE
 
-           IF WS-PROFILE-NOT-FOUND
-               MOVE "You have no messages at this time" TO DISPLAY-MSG
-               PERFORM 8000-DISPLAY-ROUTINE
-           END-IF.
+          IF WS-PROFILE-NOT-FOUND
+              MOVE "You have no messages at this time." TO DISPLAY-MSG
+              PERFORM 8000-DISPLAY-ROUTINE
+          ELSE
+              MOVE "------------------------" TO DISPLAY-MSG
+              PERFORM 8000-DISPLAY-ROUTINE
+          END-IF.
 
        7900-SAVE-MESSAGE.
            CLOSE MESSAGES-FILE

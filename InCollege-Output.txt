@@ -18,26 +18,117 @@ Welcome, TestUser
 8. Messages
 0. Log Out
 Enter your choice:
+--- Job Search/Internship Menu ---
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
+4. View My Applications
+Enter your choice:
+--- Available Jobs Listings ---
+--- Available Jobs Listings ---
+Job ID: 1 | Software Engineer Intern at TechCorp (New York, NY)
+Job ID: 2 | Data Analyst at DataSolutions (Remote)
+Job ID: 3 | Marketing Specialist at BrandInc (Chicago, IL)
+Job ID: 4 | Web Developer at WebWorks LLC (San Francisco, CA)
+Job ID: 5 | UX Designer Intern at DesignHub (Austin, TX)
+-----------------------------------
+Enter Job ID to view details (or 0 to go back):
+--- Job Details ---
+Job ID: 1
+Title: Software Engineer Intern
+Employer: TechCorp
+Location: New York, NY
+Description: Develop and maintain software applications. Work with cross-functional teams on exciting projects.
+Salary: $25/hour
+Posted By: JobPoster1
+1. Apply for this Job
+2. Back to Job List
+Enter your choice:
+Your application for Software Engineer Intern at TechCorp has been submitted.
+--- Available Jobs Listings ---
+Job ID: 1 | Software Engineer Intern at TechCorp (New York, NY)
+Job ID: 2 | Data Analyst at DataSolutions (Remote)
+Job ID: 3 | Marketing Specialist at BrandInc (Chicago, IL)
+Job ID: 4 | Web Developer at WebWorks LLC (San Francisco, CA)
+Job ID: 5 | UX Designer Intern at DesignHub (Austin, TX)
+-----------------------------------
+Enter Job ID to view details (or 0 to go back):
+--- Job Search/Internship Menu ---
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
+4. View My Applications
+Enter your choice:
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+--- Job Search/Internship Menu ---
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
+4. View My Applications
+Enter your choice:
+--- My Job Applications ---
+Job ID: 000001 | Software Engineer Intern | Employer: TechCorp | Location: New York, NY
+--- Job Search/Internship Menu ---
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
+4. View My Applications
+Enter your choice:
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
 --- Messages Menu ---
 1. Send a New Message
 2. View My Messages
 3. Back to Main Menu
 Enter your choice:
------Your Messages----
+--- Your Messages ---
 Message #001
 From: AliceSmith
 Message: Hi TestUser, I saw your post about the new React framework. What are your thoughts on it?
----
+------------------------
 Message #002
 From: BobJones
 Message: Hey, are you going to the UF-USF football game this weekend? We should catch up!
----
+------------------------
 Message #003
 From: AliceSmith
 Message: I was wondering if you wanted to collaborate on that Data Science project we discussed.
----
+------------------------
+------------------------
 --- Messages Menu ---
 1. Send a New Message
 2. View My Messages
 3. Back to Main Menu
+Enter your choice:
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
 Enter your choice:
