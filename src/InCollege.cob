@@ -1033,39 +1033,36 @@
                PERFORM 8000-DISPLAY-ROUTINE
            END-IF.
 
-       5500-BROWSE-JOBS.
-           MOVE WS-BROWSE-JOBS-HEADER TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE
+      5500-BROWSE-JOBS.
+          *> Close and reopen file for reading to count jobs
+          CLOSE JOB-POSTINGS-FILE
+          OPEN INPUT JOB-POSTINGS-FILE
 
-           *> Close and reopen file for reading to count jobs
-           CLOSE JOB-POSTINGS-FILE
-           OPEN INPUT JOB-POSTINGS-FILE
+          MOVE 0 TO WS-JOB-COUNT
+          SET WS-NOT-EOF-FLAG TO TRUE
 
-           MOVE 0 TO WS-JOB-COUNT
-           SET WS-NOT-EOF-FLAG TO TRUE
+          *> Count jobs without displaying
+          PERFORM UNTIL WS-EOF-FLAG
+              READ JOB-POSTINGS-FILE
+                  AT END
+                      SET WS-EOF-FLAG TO TRUE
+                  NOT AT END
+                      ADD 1 TO WS-JOB-COUNT
+              END-READ
+          END-PERFORM
 
-           *> Count jobs without displaying
-           PERFORM UNTIL WS-EOF-FLAG
-               READ JOB-POSTINGS-FILE
-                   AT END
-                       SET WS-EOF-FLAG TO TRUE
-                   NOT AT END
-                       ADD 1 TO WS-JOB-COUNT
-               END-READ
-           END-PERFORM
+          CLOSE JOB-POSTINGS-FILE
+          OPEN I-O JOB-POSTINGS-FILE
 
-           CLOSE JOB-POSTINGS-FILE
-           OPEN I-O JOB-POSTINGS-FILE
+          IF WS-JOB-COUNT = 0
+              MOVE WS-NO-JOBS-MSG TO DISPLAY-MSG
+              PERFORM 8000-DISPLAY-ROUTINE
+              EXIT PARAGRAPH
+          END-IF
 
-           IF WS-JOB-COUNT = 0
-               MOVE WS-NO-JOBS-MSG TO DISPLAY-MSG
-               PERFORM 8000-DISPLAY-ROUTINE
-               EXIT PARAGRAPH
-           END-IF
-
-           *> Allow user to select a job to view details
-           *> Job listings will be displayed in the loop
-           PERFORM 5600-SELECT-JOB-TO-VIEW.
+          *> Allow user to select a job to view details
+          *> Job listings will be displayed in the loop
+          PERFORM 5600-SELECT-JOB-TO-VIEW.
 
        5600-SELECT-JOB-TO-VIEW.
            PERFORM UNTIL WS-USER-WANT-TO-EXIT
@@ -1884,79 +1881,81 @@
            MOVE WS-CONN-HEADER TO DISPLAY-MSG
            PERFORM 8000-DISPLAY-ROUTINE
 
-           SET WS-NOT-EOF-FLAG TO TRUE
-           SET WS-PROFILE-NOT-FOUND TO TRUE
+          SET WS-NOT-EOF-FLAG TO TRUE
+          SET WS-PROFILE-NOT-FOUND TO TRUE
 
-           OPEN INPUT CONNECTIONS-FILE
+          OPEN INPUT CONNECTIONS-FILE
 
-           PERFORM UNTIL WS-EOF-FLAG
-               READ CONNECTIONS-FILE
-                   AT END
-                       SET WS-EOF-FLAG TO TRUE
-                   NOT AT END
-                       IF FUNCTION TRIM(CONN-TO-USER) = FUNCTION TRIM(WS-CURRENT-USER)
-                       AND FUNCTION TRIM(CONN-STATUS) = "PENDING"
-                           SET WS-PROFILE-FOUND TO TRUE
-                           MOVE SPACES TO DISPLAY-MSG
-                           STRING "Request from: " FUNCTION TRIM(CONN-FROM-USER) DELIMITED BY SIZE INTO DISPLAY-MSG
-                           PERFORM 8000-DISPLAY-ROUTINE
+          PERFORM UNTIL WS-EOF-FLAG OR WS-USER-WANT-TO-EXIT
+              READ CONNECTIONS-FILE
+                  AT END
+                      SET WS-EOF-FLAG TO TRUE
+                  NOT AT END
+                      IF FUNCTION TRIM(CONN-TO-USER) = FUNCTION TRIM(WS-CURRENT-USER)
+                      AND FUNCTION TRIM(CONN-STATUS) = "PENDING"
+                          SET WS-PROFILE-FOUND TO TRUE
+                          MOVE SPACES TO DISPLAY-MSG
+                          STRING "Request from: " FUNCTION TRIM(CONN-FROM-USER) DELIMITED BY SIZE INTO DISPLAY-MSG
+                          PERFORM 8000-DISPLAY-ROUTINE
 
-                           SET WS-INVALID-FIELD TO TRUE
+                          SET WS-INVALID-FIELD TO TRUE
 
-                           PERFORM UNTIL WS-VALID-FIELD
-                               MOVE WS-ACCEPT-CONN-MSG TO DISPLAY-MSG
-                               PERFORM 8000-DISPLAY-ROUTINE
-                               MOVE WS-REJECT-CONN-MSG TO DISPLAY-MSG
-                               PERFORM 8000-DISPLAY-ROUTINE
-                               MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
-                               PERFORM 8000-DISPLAY-ROUTINE
+                         PERFORM UNTIL WS-VALID-FIELD OR WS-USER-WANT-TO-EXIT
+                              MOVE WS-ACCEPT-CONN-MSG TO DISPLAY-MSG
+                              PERFORM 8000-DISPLAY-ROUTINE
+                              MOVE WS-REJECT-CONN-MSG TO DISPLAY-MSG
+                              PERFORM 8000-DISPLAY-ROUTINE
+                              MOVE WS-PROMPT-CHOICE TO DISPLAY-MSG
+                              PERFORM 8000-DISPLAY-ROUTINE
 
-                               READ INPUT-FILE INTO WS-INPUT-CHOICE
-                                   AT END
-                                       SET WS-USER-WANT-TO-EXIT TO TRUE
-                                       EXIT PERFORM
-                               END-READ
+                              READ INPUT-FILE INTO WS-INPUT-CHOICE
+                                  AT END
+                                      SET WS-USER-WANT-TO-EXIT TO TRUE
+                                      EXIT PERFORM
+                              END-READ
 
-                               EVALUATE WS-INPUT-CHOICE
-                                   WHEN "1"
-                                       SET WS-VALID-FIELD TO TRUE
-                                   WHEN "2"
-                                       SET WS-VALID-FIELD TO TRUE
-                                   WHEN OTHER
-                                       MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
-                                       PERFORM 8000-DISPLAY-ROUTINE
-                               END-EVALUATE
-                           END-PERFORM
+                              EVALUATE WS-INPUT-CHOICE
+                                  WHEN "1"
+                                      SET WS-VALID-FIELD TO TRUE
+                                  WHEN "2"
+                                      SET WS-VALID-FIELD TO TRUE
+                                  WHEN OTHER
+                                      MOVE WS-INVALID-CHOICE TO DISPLAY-MSG
+                                      PERFORM 8000-DISPLAY-ROUTINE
+                              END-EVALUATE
+                          END-PERFORM
 
-                           *> Close file before modifying it
-                           CLOSE CONNECTIONS-FILE
+                          *> Close file before modifying it
+                          CLOSE CONNECTIONS-FILE
 
-                           *> Process the valid choice
-                           IF WS-INPUT-CHOICE = "1"
-                               PERFORM 7400-ACCEPT-CONNECTION
-                           ELSE
-                               IF WS-INPUT-CHOICE = "2"
-                                   PERFORM 7450-REJECT-CONNECTION
-                               END-IF
-                           END-IF
+                          *> Process the valid choice only if not exiting
+                          IF NOT WS-USER-WANT-TO-EXIT
+                              IF WS-INPUT-CHOICE = "1"
+                                  PERFORM 7400-ACCEPT-CONNECTION
+                              ELSE
+                                  IF WS-INPUT-CHOICE = "2"
+                                      PERFORM 7450-REJECT-CONNECTION
+                                  END-IF
+                              END-IF
+                          END-IF
 
                            *> Exit loop after handling first pending request
                            SET WS-EOF-FLAG TO TRUE
                        END-IF
                END-READ
-           END-PERFORM
+          END-PERFORM
 
-           IF NOT WS-EOF-FLAG
-               CLOSE CONNECTIONS-FILE
-           END-IF
+          IF WS-EOF-FLAG
+              CLOSE CONNECTIONS-FILE
+          END-IF
 
-           IF WS-PROFILE-NOT-FOUND
-               MOVE WS-NO-CONN-MSG TO DISPLAY-MSG
-               PERFORM 8000-DISPLAY-ROUTINE
-           END-IF
+          IF WS-PROFILE-NOT-FOUND
+              MOVE WS-NO-CONN-MSG TO DISPLAY-MSG
+              PERFORM 8000-DISPLAY-ROUTINE
+          END-IF
 
-           MOVE WS-CONN-FOOTER TO DISPLAY-MSG
-           PERFORM 8000-DISPLAY-ROUTINE.
+          MOVE WS-CONN-FOOTER TO DISPLAY-MSG
+          PERFORM 8000-DISPLAY-ROUTINE.
 
        7100-SHOW-CONNECTION-OPTIONS.
            SET WS-INVALID-FIELD TO TRUE
