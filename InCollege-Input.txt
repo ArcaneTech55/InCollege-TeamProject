@@ -1,60 +1,102 @@
 2
-user1
-Password1!
+AdminUser
+Pass123!
 2
-janesmith
-Password2@
+JobPoster
+Pass123!
+2
+MessageSender
+Pass123!
 1
-janesmith
-Password2@
+AdminUser
+Pass123!
 6
-Jane
-Smith
-MIT
-Electrical Engineering
-2024
-I love working on robotics and embedded systems.
-Research Assistant
-MIT Media Lab
-Fall 2023
-Worked on human-robot interaction
+Admin
+User
+Admin University
+Management
+2023
+Administrator
 DONE
-Bachelor of Science
-MIT
-2020-2024
 DONE
 0
 1
-user1
-Password1!
+JobPoster
+Pass123!
 6
 John
-Doe
-Stanford University
+Poster
+Tech Corp
 Computer Science
-2025
-I am passionate about software development and artificial intelligence.
-Software Engineer Intern
+2024
+Experienced developer
+Software Engineer
 Google
-Summer 2024
-Developed machine learning models
-Data Analyst
-Microsoft
-Summer 2023
-Analyzed user behavior data
+2020-2022
+Developed web applications
 DONE
 Bachelor of Science
-Stanford University
-2021-2025
+State University
+2016-2020
+DONE
+7
+1
+Senior Developer
+Lead backend development for new products.
+InnovateTech
+Remote
+$120,000/year
+1
+UX Designer
+Create user-friendly interfaces
+CreativeSolutions
+San Francisco, CA
+$95,000/year
+3
+0
+1
+MessageSender
+Pass123!
+6
+Jane
+Sender
+State University
+Business
+2025
+Business student
+DONE
 DONE
 2
-Jane
-Smith
+Admin
+User
 1
-4
-1
-janesmith
-Password2@
-4
 0
-
+1
+AdminUser
+Pass123!
+4
+1
+0
+1
+MessageSender
+Pass123!
+8
+1
+AdminUser
+Great work on the project!
+3
+0
+1
+AdminUser
+Pass123!
+7
+2
+1
+1
+0
+4
+3
+8
+2
+3
+0
