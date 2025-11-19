@@ -1802,7 +1802,7 @@
            *> Get last name with validation
            IF NOT WS-USER-WANT-TO-EXIT
                PERFORM UNTIL WS-VALID-FIELD
-                   MOVE "Enter last name to search:" TO DISPLAY-MSG
+                   MOVE "Enter Last name to search:" TO DISPLAY-MSG
                    PERFORM 8000-DISPLAY-ROUTINE
 
                    READ INPUT-FILE INTO WS-SEARCH-LAST-NAME
@@ -2065,13 +2065,32 @@
 
        7400-ACCEPT-CONNECTION.
            *> Add to established connections (both directions)
-           OPEN EXTEND ESTABLISHED-CONNECTIONS-FILE
+           *> Ensure file exists and is ready for writing
+           OPEN I-O ESTABLISHED-CONNECTIONS-FILE
+           IF WS-EST-CONN-FILE-STATUS NOT = "00"
+               CLOSE ESTABLISHED-CONNECTIONS-FILE
+               OPEN OUTPUT ESTABLISHED-CONNECTIONS-FILE
+               CLOSE ESTABLISHED-CONNECTIONS-FILE
+               OPEN EXTEND ESTABLISHED-CONNECTIONS-FILE
+           ELSE
+               CLOSE ESTABLISHED-CONNECTIONS-FILE
+               OPEN EXTEND ESTABLISHED-CONNECTIONS-FILE
+           END-IF
+           
            MOVE FUNCTION TRIM(WS-CURRENT-USER) TO EST-CONN-USER1
            MOVE FUNCTION TRIM(CONN-FROM-USER) TO EST-CONN-USER2
            WRITE ESTABLISHED-CONNECTION-REC
+           IF WS-EST-CONN-FILE-STATUS NOT = "00"
+               DISPLAY "Error writing established connection: " WS-EST-CONN-FILE-STATUS
+           END-IF
+           
            MOVE FUNCTION TRIM(CONN-FROM-USER) TO EST-CONN-USER1
            MOVE FUNCTION TRIM(WS-CURRENT-USER) TO EST-CONN-USER2
            WRITE ESTABLISHED-CONNECTION-REC
+           IF WS-EST-CONN-FILE-STATUS NOT = "00"
+               DISPLAY "Error writing established connection: " WS-EST-CONN-FILE-STATUS
+           END-IF
+           
            CLOSE ESTABLISHED-CONNECTIONS-FILE
 
            *> Remove from pending connections
