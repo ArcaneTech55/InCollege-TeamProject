@@ -821,6 +821,7 @@
                MOVE WS-ENTER-JOB-TITLE TO DISPLAY-MSG
                PERFORM 8000-DISPLAY-ROUTINE
 
+               MOVE SPACES TO WS-JOB-TITLE
                READ INPUT-FILE INTO WS-JOB-TITLE
                    AT END SET WS-USER-WANT-TO-EXIT TO TRUE EXIT PERFORM
                END-READ
@@ -2061,7 +2062,34 @@
                END-READ
            END-PERFORM
 
-           CLOSE CONNECTIONS-FILE.
+           CLOSE CONNECTIONS-FILE
+
+           *> Also check ESTABLISHED-CONNECTIONS-FILE to prevent duplicate requests
+           *> after a connection has been accepted
+           IF WS-CONN-NOT-EXISTS
+               SET WS-NOT-EOF-FLAG TO TRUE
+               OPEN INPUT ESTABLISHED-CONNECTIONS-FILE
+
+               PERFORM UNTIL WS-EOF-FLAG OR WS-CONN-EXISTS
+                   READ ESTABLISHED-CONNECTIONS-FILE
+                       AT END
+                           SET WS-EOF-FLAG TO TRUE
+                       NOT AT END
+                           *> Check if already connected in established connections
+                           IF (FUNCTION TRIM(EST-CONN-USER1) = FUNCTION TRIM(WS-CURRENT-USER)
+                           AND FUNCTION TRIM(EST-CONN-USER2) = FUNCTION TRIM(UP-USER-NAME OF USER-PROFILE-REC))
+                           OR (FUNCTION TRIM(EST-CONN-USER2) = FUNCTION TRIM(WS-CURRENT-USER)
+                           AND FUNCTION TRIM(EST-CONN-USER1) = FUNCTION TRIM(UP-USER-NAME OF USER-PROFILE-REC))
+                               SET WS-CONN-EXISTS TO TRUE
+                               MOVE WS-ALREADY-CONNECTED-MSG TO DISPLAY-MSG
+                               PERFORM 8000-DISPLAY-ROUTINE
+                               EXIT PERFORM
+                           END-IF
+                   END-READ
+               END-PERFORM
+
+               CLOSE ESTABLISHED-CONNECTIONS-FILE
+           END-IF.
 
        7400-ACCEPT-CONNECTION.
            *> Add to established connections (both directions)

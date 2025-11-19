@@ -1,0 +1,170 @@
+
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Password must be at least 8 characters long.
+Account creation failed, please try again.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Account created successfully!
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Please enter your username:
+This username already exists. Please choose a different username.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Invalid choice. Please enter a valid option from the menu.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Please enter your username:
+Please enter your password:
+Incorrect username/password, please try again
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, neguser
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+--- Create/Edit Profile ---
+Enter First Name:
+Enter Last Name:
+Enter University:
+Enter Major:
+Enter Grad Year (YYYY):
+Year must be a 4-digit number.
+Enter Grad Year (YYYY):
+Graduation year must be between 1900 and 2100. Please try again.
+Enter Grad Year (YYYY):
+Graduation year must be between 1900 and 2100. Please try again.
+Enter Grad Year (YYYY):
+Enter About Me (optional, max 200 chars, enter blank line to skip):
+Input exceeds 200 characters. Please try again.
+Enter About Me (optional, max 200 chars, enter blank line to skip):
+Experience #01 - Title (or type DONE to finish):
+Experience #01 - Company/Organization (or DONE to finish):
+Experience #01 - Dates (e.g., Summer 2024) (or DONE to finish):
+Experience #01 - Description (or DONE to finish):
+Experience #02 - Title (or type DONE to finish):
+Experience #02 - Company/Organization (or DONE to finish):
+Experience #02 - Dates (e.g., Summer 2024) (or DONE to finish):
+Experience #02 - Description (or DONE to finish):
+Experience #03 - Title (or type DONE to finish):
+Experience #03 - Company/Organization (or DONE to finish):
+Experience #03 - Dates (e.g., Summer 2024) (or DONE to finish):
+Experience #03 - Description (or DONE to finish):
+Education #01 - Degree (or type DONE to finish):
+Education #01 - University/College (or type DONE to finish):
+Education #01 - Years Attended (e.g., 2023-2025, or type DONE to finish):
+Education #02 - Degree (or type DONE to finish):
+Profile saved successfully!
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+Enter Full name of user to search for their account.
+Enter First name to search:
+Enter Last name to search:
+No profile found. Please create your profile using "Create/Edit My Profile".
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+Enter Full name of user to search for their account.
+Enter First name to search:
+First name cannot be blank. Please try again.
+Enter First name to search:
+Enter Last name to search:
+Last name cannot be blank. Please try again.
+Enter Last name to search:
+No profile found. Please create your profile using "Create/Edit My Profile".
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+--- Your Profile ---
+Name: Mila Ivanova
+University: University of South Florida
+Major: Computer Science
+Graduation Year: 2026
+About Me:
+Experience:
+  Title: Penetration Tester Intern
+  Company: Tampa Cyber Labs
+  Dates: Summer 2025
+  Description: Assisted with internal assessments and reports.
+  Title: Undergraduate Researcher
+  Company: USF CSE
+  Dates: 2025-2026
+  Description: Co-authored a poster on static analysis.
+  Title: Help Desk Technician
+  Company: USF IT
+  Dates: Fall 2024
+  Description: Resolved tickets and documented fixes.
+Education:
+  Degree: Bachelor of Science
+  University: USF
+  Years: 2021-2025
+1. View My Profile
+2. Search for User
+3. Learn a New Skill
+4. View My Pending Connection Requests
+5. View My Network
+6. Create/Edit My Profile
+7. Search for a job
+8. Messages
+0. Log Out
+Enter your choice:
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+3. Exit
+Enter your choice:
